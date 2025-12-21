@@ -39,6 +39,8 @@ Route::middleware(['auth', 'email.set', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::resource('objectives', ObjectiveController::class);
+    Route::get('activities', [\App\Http\Controllers\ActivityController::class, 'index'])->name('activities.index');
+    Route::get('activities/{activity}', [\App\Http\Controllers\ActivityController::class, 'show'])->name('activities.show');
 });
 
 require __DIR__.'/settings.php';

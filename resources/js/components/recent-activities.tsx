@@ -1,8 +1,12 @@
 import { Activity } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
-import { Activity as ActivityIcon, Clock, MapPin } from 'lucide-react';
+import { Activity as ActivityIcon, Clock, MapPin, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Link } from '@inertiajs/react';
+import { show } from '@/routes/activities';
+import { Button } from './ui/button';
+import { index } from '@/routes/activities';
 
 interface RecentActivitiesProps {
     activities: Activity[];
@@ -39,9 +43,16 @@ export default function RecentActivities({ activities }: RecentActivitiesProps) 
 
     return (
         <Card className="flex flex-col flex-1">
-            <CardHeader>
-                <CardTitle>Recent Activities</CardTitle>
-                <CardDescription>Your last 10 runs from Strava.</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle>Recent Activities</CardTitle>
+                    <CardDescription>Your last 10 runs from Strava.</CardDescription>
+                </div>
+                {activities.length > 0 && (
+                    <Button variant="ghost" size="sm" asChild>
+                        <Link href={index().url}>View All</Link>
+                    </Button>
+                )}
             </CardHeader>
             <CardContent>
                 {activities.length === 0 ? (
@@ -53,17 +64,21 @@ export default function RecentActivities({ activities }: RecentActivitiesProps) 
                 ) : (
                     <div className="space-y-4">
                         {activities.map((activity) => (
-                            <div key={activity.id} className="flex items-center justify-between p-3 rounded-lg border bg-card text-card-foreground shadow-sm relative overflow-hidden">
+                            <Link
+                                key={activity.id}
+                                href={show(activity.id).url}
+                                className="flex items-center justify-between p-3 rounded-lg border bg-card text-card-foreground shadow-sm relative overflow-hidden hover:border-primary/50 transition-colors group"
+                            >
                                 <div className={cn(
                                     "absolute left-0 top-0 bottom-0 w-1",
                                     getIntensityColor(activity.intensity_score)
                                 )} />
                                 <div className="flex items-center gap-4 pl-2">
-                                    <div className="bg-primary/10 p-2 rounded-full">
+                                    <div className="bg-primary/10 p-2 rounded-full group-hover:bg-primary/20 transition-colors">
                                         <ActivityIcon className="h-5 w-5 text-primary" />
                                     </div>
                                     <div>
-                                        <h4 className="font-semibold text-sm leading-none mb-1">{activity.name}</h4>
+                                        <h4 className="font-semibold text-sm leading-none mb-1 group-hover:text-primary transition-colors">{activity.name}</h4>
                                         <div className="flex items-center gap-3 text-xs text-muted-foreground mb-1.5">
                                             <span className="flex items-center gap-1">
                                                 <MapPin className="h-3 w-3" />
@@ -78,28 +93,31 @@ export default function RecentActivities({ activities }: RecentActivitiesProps) 
                                             </span>
                                         </div>
                                         {activity.short_evaluation && (
-                                            <p className="text-xs text-muted-foreground border-l-2 border-primary/20 pl-2 py-0.5">
+                                            <p className="text-xs text-muted-foreground border-l-2 border-primary/20 pl-2 py-0.5 line-clamp-1">
                                                 {activity.short_evaluation}
                                             </p>
                                         )}
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <div className="text-xs text-muted-foreground">
-                                        {format(new Date(activity.start_date), 'MMM d, yyyy')}
-                                    </div>
-                                    <div className="flex items-center justify-end gap-2 mt-1">
-                                        <div className="text-xs font-medium text-primary">
-                                            {activity.type}
+                                <div className="flex items-center gap-4">
+                                    <div className="text-right">
+                                        <div className="text-xs text-muted-foreground">
+                                            {format(new Date(activity.start_date), 'MMM d, yyyy')}
                                         </div>
-                                        {activity.intensity_score && (
-                                            <div className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted font-mono text-muted-foreground">
-                                                {Math.round(parseFloat(activity.intensity_score))}
+                                        <div className="flex items-center justify-end gap-2 mt-1">
+                                            <div className="text-xs font-medium text-primary">
+                                                {activity.type}
                                             </div>
-                                        )}
+                                            {activity.intensity_score && (
+                                                <div className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted font-mono text-muted-foreground">
+                                                    {Math.round(parseFloat(activity.intensity_score))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
+                                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 )}

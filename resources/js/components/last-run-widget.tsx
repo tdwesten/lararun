@@ -1,8 +1,10 @@
 import { Activity } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
-import { Activity as ActivityIcon, Clock, MapPin, Quote, Zap } from 'lucide-react';
+import { Activity as ActivityIcon, Clock, MapPin, Quote, Zap, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Link } from '@inertiajs/react';
+import { show } from '@/routes/activities';
 
 interface LastRunWidgetProps {
     activity: Activity | null;
@@ -52,53 +54,58 @@ export default function LastRunWidget({ activity }: LastRunWidgetProps) {
     }
 
     return (
-        <Card className="flex h-full flex-col justify-between overflow-hidden relative">
-             <div className={cn(
-                "absolute top-0 right-0 p-4 opacity-10",
-                getIntensityColor(activity.intensity_score)
-            )}>
-                <ActivityIcon className="h-24 w-24" />
-            </div>
-            <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Last Run</CardTitle>
-                    <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">
-                        {format(new Date(activity.start_date), 'MMM d, yyyy')}
-                    </div>
+        <Link href={show(activity.id).url} className="block h-full group">
+            <Card className="flex h-full flex-col justify-between overflow-hidden relative group-hover:border-primary/50 transition-colors">
+                 <div className={cn(
+                    "absolute top-0 right-0 p-4 opacity-10",
+                    getIntensityColor(activity.intensity_score)
+                )}>
+                    <ActivityIcon className="h-24 w-24" />
                 </div>
-                <CardDescription className="line-clamp-1">{activity.name}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="grid grid-cols-3 gap-2">
-                    <div className="flex flex-col">
-                        <span className="text-[10px] uppercase text-muted-foreground font-semibold flex items-center gap-1">
-                            <MapPin className="h-3 w-3" /> Distance
-                        </span>
-                        <span className="text-sm font-bold">{formatDistance(activity.distance)}</span>
+                <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <CardTitle className="text-lg group-hover:text-primary transition-colors">Last Run</CardTitle>
+                            <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </div>
+                        <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">
+                            {format(new Date(activity.start_date), 'MMM d, yyyy')}
+                        </div>
                     </div>
-                    <div className="flex flex-col">
-                        <span className="text-[10px] uppercase text-muted-foreground font-semibold flex items-center gap-1">
-                            <Clock className="h-3 w-3" /> Time
-                        </span>
-                        <span className="text-sm font-bold">{formatDuration(activity.moving_time)}</span>
+                    <CardDescription className="line-clamp-1">{activity.name}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="grid grid-cols-3 gap-2">
+                        <div className="flex flex-col">
+                            <span className="text-[10px] uppercase text-muted-foreground font-semibold flex items-center gap-1">
+                                <MapPin className="h-3 w-3" /> Distance
+                            </span>
+                            <span className="text-sm font-bold">{formatDistance(activity.distance)}</span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[10px] uppercase text-muted-foreground font-semibold flex items-center gap-1">
+                                <Clock className="h-3 w-3" /> Time
+                            </span>
+                            <span className="text-sm font-bold">{formatDuration(activity.moving_time)}</span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[10px] uppercase text-muted-foreground font-semibold flex items-center gap-1">
+                                <Zap className="h-3 w-3" /> Pace
+                            </span>
+                            <span className="text-sm font-bold">{formatPace(activity.distance, activity.moving_time)}</span>
+                        </div>
                     </div>
-                    <div className="flex flex-col">
-                        <span className="text-[10px] uppercase text-muted-foreground font-semibold flex items-center gap-1">
-                            <Zap className="h-3 w-3" /> Pace
-                        </span>
-                        <span className="text-sm font-bold">{formatPace(activity.distance, activity.moving_time)}</span>
-                    </div>
-                </div>
 
-                {activity.short_evaluation && (
-                    <div className="bg-primary/5 border border-primary/10 rounded-lg p-3 relative mt-2">
-                        <Quote className="h-3 w-3 text-primary/40 absolute -top-1.5 -left-1.5 bg-background rounded-full" />
-                        <p className="text-sm italic text-foreground leading-relaxed">
-                            {activity.short_evaluation}
-                        </p>
-                    </div>
-                )}
-            </CardContent>
-        </Card>
+                    {activity.short_evaluation && (
+                        <div className="bg-primary/5 border border-primary/10 rounded-lg p-3 relative mt-2">
+                            <Quote className="h-3 w-3 text-primary/40 absolute -top-1.5 -left-1.5 bg-background rounded-full" />
+                            <p className="text-sm italic text-foreground leading-relaxed line-clamp-2">
+                                {activity.short_evaluation}
+                            </p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </Link>
     );
 }

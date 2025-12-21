@@ -24,7 +24,8 @@ class GenerateDailyTrainingPlanJob implements ShouldQueue
      */
     public function __construct(
         public User $user,
-        public Objective $objective
+        public Objective $objective,
+        public bool $force = false
     ) {}
 
     /**
@@ -33,6 +34,12 @@ class GenerateDailyTrainingPlanJob implements ShouldQueue
     public function handle(): void
     {
         $todayDate = now()->toDateString();
+
+        if (! $this->force && DailyRecommendation::where('user_id', $this->user->id)->whereDate('date', $todayDate)->exists()) {
+            Log::info("Daily training plan already exists for user: {$this->user->id} on date: {$todayDate}. Skipping.");
+
+            return;
+        }
 
         Log::info("Generating daily training plan for user: {$this->user->id} on objective: {$this->objective->id}");
 

@@ -82,7 +82,7 @@ it('replaces an existing daily recommendation for today', function () {
         ]),
     ]);
 
-    $job = new GenerateDailyTrainingPlanJob($user, $objective);
+    $job = new GenerateDailyTrainingPlanJob($user, $objective, force: true);
     $job->handle();
 
     // Verify the old one is gone and new one exists
