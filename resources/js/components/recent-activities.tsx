@@ -64,7 +64,7 @@ export default function RecentActivities({ activities }: RecentActivitiesProps) 
                                     </div>
                                     <div>
                                         <h4 className="font-semibold text-sm leading-none mb-1">{activity.name}</h4>
-                                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                        <div className="flex items-center gap-3 text-xs text-muted-foreground mb-1.5">
                                             <span className="flex items-center gap-1">
                                                 <MapPin className="h-3 w-3" />
                                                 {formatDistance(activity.distance)}
@@ -77,6 +77,11 @@ export default function RecentActivities({ activities }: RecentActivitiesProps) 
                                                 {formatPace(activity.distance, activity.moving_time)}
                                             </span>
                                         </div>
+                                        {activity.short_evaluation && (
+                                            <p className="text-xs text-muted-foreground border-l-2 border-primary/20 pl-2 py-0.5">
+                                                {activity.short_evaluation}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="text-right">

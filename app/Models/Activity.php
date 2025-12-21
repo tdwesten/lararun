@@ -32,6 +32,8 @@ class Activity extends Model
         'z5_time',
         'intensity_score',
         'zone_data_available',
+        'short_evaluation',
+        'extended_evaluation',
     ];
 
     /**

@@ -54,6 +54,8 @@ export interface Activity {
     start_date: string;
     intensity_score: string | null;
     zone_data_available: boolean;
+    short_evaluation: string | null;
+    extended_evaluation: string | null;
     created_at: string;
     updated_at: string;
 }

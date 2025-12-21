@@ -18,12 +18,15 @@ test('authenticated users can visit the dashboard and see activities', function 
         'user_id' => $user->id,
     ]);
 
+    $latestActivity = $activities->sortByDesc('start_date')->first();
+
     $this->actingAs($user)
         ->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard')
             ->has('activities', 3)
-            ->where('activities.0.name', $activities->last()->name)
+            ->where('activities.0.name', $latestActivity->name)
+            ->has('activities.0.short_evaluation')
         );
 });

@@ -1,15 +1,18 @@
 <?php
 
+use App\Jobs\EnrichActivityWithAiJob;
 use App\Jobs\ImportStravaActivitiesJob;
 use App\Models\Activity;
 use App\Models\User;
 use App\Services\StravaApiService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
 
 test('it imports activities and calculates intensity score', function () {
+    Queue::fake();
     Log::shouldReceive('info')->atLeast()->once();
     Log::shouldReceive('debug')->atLeast()->once();
     $user = User::factory()->create([
@@ -19,7 +22,7 @@ test('it imports activities and calculates intensity score', function () {
     ]);
 
     $activitiesData = [
-        (object)[
+        (object) [
             'id' => '123456',
             'name' => 'Morning Run',
             'type' => 'Run',
@@ -27,30 +30,30 @@ test('it imports activities and calculates intensity score', function () {
             'moving_time' => 1500,
             'elapsed_time' => 1600,
             'start_date' => '2023-01-01T08:00:00Z',
-        ]
+        ],
     ];
 
     $zonesData = [
-        (object)[
+        (object) [
             'type' => 'heartrate',
             'distribution_buckets' => [
-                (object)['time' => 300], // Z1
-                (object)['time' => 600], // Z2
-                (object)['time' => 400], // Z3
-                (object)['time' => 150], // Z4
-                (object)['time' => 50],  // Z5
-            ]
-        ]
+                (object) ['time' => 300], // Z1
+                (object) ['time' => 600], // Z2
+                (object) ['time' => 400], // Z3
+                (object) ['time' => 150], // Z4
+                (object) ['time' => 50],  // Z5
+            ],
+        ],
     ];
 
     $stravaApiService = Mockery::mock(StravaApiService::class);
     $stravaApiService->shouldReceive('getActivities')
-        ->with(Mockery::on(fn($u) => $u->id === $user->id), 30)
+        ->with(Mockery::on(fn ($u) => $u->id === $user->id), 30)
         ->once()
         ->andReturn($activitiesData);
 
     $stravaApiService->shouldReceive('getActivityWithZones')
-        ->with(Mockery::on(fn($u) => $u->id === $user->id), '123456')
+        ->with(Mockery::on(fn ($u) => $u->id === $user->id), '123456')
         ->once()
         ->andReturn(['activity' => $activitiesData[0], 'zones' => $zonesData]);
 
@@ -73,5 +76,9 @@ test('it imports activities and calculates intensity score', function () {
     // (300*1 + 600*2 + 400*3 + 150*4 + 50*5) / 60
     // (300 + 1200 + 1200 + 600 + 250) / 60
     // 3550 / 60 = 59.1666... -> 59.17
-    expect((float)$activity->intensity_score)->toBe(59.17);
+    expect((float) $activity->intensity_score)->toBe(59.17);
+
+    Queue::assertPushed(EnrichActivityWithAiJob::class, function ($job) use ($activity) {
+        return $job->activity->id === $activity->id;
+    });
 });

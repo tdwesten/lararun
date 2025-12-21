@@ -17,9 +17,7 @@ class ImportStravaActivitiesJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public User $user)
-    {
-    }
+    public function __construct(public User $user) {}
 
     /**
      * Execute the job.
@@ -28,59 +26,79 @@ class ImportStravaActivitiesJob implements ShouldQueue
     {
         Log::info("Starting Strava activity import for user: {$this->user->id} ({$this->user->email})");
 
-        $activities = $stravaApiService->getActivities($this->user, 30);
+        try {
+            $activities = $stravaApiService->getActivities($this->user, 30);
+        } catch (\Exception $e) {
+            Log::error("Failed to fetch activities from Strava for user {$this->user->id}: {$e->getMessage()}", [
+                'exception' => $e,
+            ]);
+
+            return;
+        }
 
         if (empty($activities)) {
             Log::info("No activities found for user: {$this->user->id}");
+
             return;
         }
 
         $importedCount = 0;
         $skippedCount = 0;
+        $failedImportCount = 0;
 
         foreach ($activities as $stravaActivity) {
             // Only process running activities
             if ($stravaActivity->type !== 'Run') {
                 $skippedCount++;
+
                 continue;
             }
 
             $activity = Activity::where('strava_id', $stravaActivity->id)->first();
 
-            if (!$activity) {
+            if (! $activity) {
                 Log::debug("Importing new Strava activity: {$stravaActivity->id} for user: {$this->user->id}");
 
-                $detailedData = $stravaApiService->getActivityWithZones($this->user, $stravaActivity->id);
+                try {
+                    $detailedData = $stravaApiService->getActivityWithZones($this->user, $stravaActivity->id);
 
-                $zoneData = $detailedData['zones'] ?? null;
-                $flattenedZones = $this->parseZones($zoneData);
+                    $zoneData = $detailedData['zones'] ?? null;
+                    $flattenedZones = $this->parseZones($zoneData);
 
-                Activity::create([
-                    'user_id' => $this->user->id,
-                    'strava_id' => $stravaActivity->id,
-                    'name' => $stravaActivity->name,
-                    'type' => $stravaActivity->type,
-                    'distance' => $stravaActivity->distance,
-                    'moving_time' => $stravaActivity->moving_time,
-                    'elapsed_time' => $stravaActivity->elapsed_time,
-                    'start_date' => Carbon::parse($stravaActivity->start_date),
-                    'zone_data' => $zoneData,
-                    'z1_time' => $flattenedZones['z1'],
-                    'z2_time' => $flattenedZones['z2'],
-                    'z3_time' => $flattenedZones['z3'],
-                    'z4_time' => $flattenedZones['z4'],
-                    'z5_time' => $flattenedZones['z5'],
-                    'intensity_score' => $this->calculateIntensityScore($flattenedZones),
-                    'zone_data_available' => !empty($zoneData),
-                ]);
+                    $activity = Activity::create([
+                        'user_id' => $this->user->id,
+                        'strava_id' => $stravaActivity->id,
+                        'name' => $stravaActivity->name,
+                        'type' => $stravaActivity->type,
+                        'distance' => $stravaActivity->distance,
+                        'moving_time' => $stravaActivity->moving_time,
+                        'elapsed_time' => $stravaActivity->elapsed_time,
+                        'start_date' => Carbon::parse($stravaActivity->start_date),
+                        'zone_data' => $zoneData,
+                        'z1_time' => $flattenedZones['z1'],
+                        'z2_time' => $flattenedZones['z2'],
+                        'z3_time' => $flattenedZones['z3'],
+                        'z4_time' => $flattenedZones['z4'],
+                        'z5_time' => $flattenedZones['z5'],
+                        'intensity_score' => $this->calculateIntensityScore($flattenedZones),
+                        'zone_data_available' => ! empty($zoneData),
+                    ]);
 
-                $importedCount++;
+                    EnrichActivityWithAiJob::dispatch($activity);
+
+                    $importedCount++;
+                } catch (\Exception $e) {
+                    Log::error("Failed to import activity {$stravaActivity->id} for user {$this->user->id}: {$e->getMessage()}", [
+                        'exception' => $e,
+                    ]);
+                    $failedImportCount++;
+                }
             } else {
                 $skippedCount++;
             }
         }
 
-        Log::info("Finished Strava activity import for user: {$this->user->id}. Imported: {$importedCount}, Skipped/Existing: {$skippedCount}");
+        Log::info("Finished Strava activity import for user: {$this->user->id}. Imported: {$importedCount}, Skipped/Existing: {$skippedCount}, Failed: {$failedImportCount}");
     }
 
     /**
@@ -90,7 +108,7 @@ class ImportStravaActivitiesJob implements ShouldQueue
     {
         $zones = ['z1' => 0, 'z2' => 0, 'z3' => 0, 'z4' => 0, 'z5' => 0];
 
-        if (!$zoneData) {
+        if (! $zoneData) {
             return $zones;
         }
 
@@ -98,7 +116,7 @@ class ImportStravaActivitiesJob implements ShouldQueue
             if ($zoneGroup->type === 'heartrate') {
                 $distribution = $zoneGroup->distribution_buckets;
                 foreach ($distribution as $index => $bucket) {
-                    $key = 'z' . ($index + 1);
+                    $key = 'z'.($index + 1);
                     if (isset($zones[$key])) {
                         $zones[$key] = $bucket->time;
                     }

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,6 +18,7 @@ class ActivityFactory extends Factory
     public function definition(): array
     {
         return [
+            'user_id' => User::factory(),
             'strava_id' => $this->faker->unique()->randomNumber(8),
             'name' => $this->faker->sentence(3),
             'type' => 'Run',
@@ -26,6 +28,8 @@ class ActivityFactory extends Factory
             'start_date' => $this->faker->dateTimeBetween('-1 month', 'now'),
             'zone_data_available' => true,
             'intensity_score' => $this->faker->randomFloat(2, 20, 150),
+            'short_evaluation' => $this->faker->sentence(),
+            'extended_evaluation' => $this->faker->paragraph(),
         ];
     }
 }
