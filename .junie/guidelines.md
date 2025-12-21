@@ -77,11 +77,23 @@ Use webhooks for real-time sync, queues for AI processing.
 * ❌ Race predictions
 
 ## Success Criteria
-✅ User can connect Strava and see activities  
-✅ User can set a goal with target date  
-✅ User receives daily email with AI training recommendation  
-✅ Recommendations are contextual (based on recent activities & goal)  
+✅ User can connect Strava and see activities (Backend sync implemented)
+✅ User can set a goal with target date
+✅ User receives daily email with AI training recommendation
+✅ Recommendations are contextual (based on recent activities & goal)
 ✅ User can view current plan in dashboard
+✅ Activities are imported automatically every hour with heart rate zone data and intensity scores
+
+# Frontend Guidelines
+- Use Tailwind CSS for styling.
+- Use Inertia.js for client-side routing.
+- Use React for rendering views.
+- Use Vite for bundling.
+- Use TypeScript for type safety.
+- Use ESLint for linting.
+- Use Prettier for code formatting.
+- Use Boost for debugging.
+- Use Shadcn for design system components. ONLY USE SHADCN FOR DESIGN SYSTEM COMPONENTS.
 
 
 <laravel-boost-guidelines>

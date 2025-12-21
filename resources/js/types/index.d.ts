@@ -41,3 +41,19 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export interface Activity {
+    id: number;
+    user_id: number;
+    strava_id: number;
+    name: string;
+    type: string;
+    distance: number;
+    moving_time: number;
+    elapsed_time: number;
+    start_date: string;
+    intensity_score: string | null;
+    zone_data_available: boolean;
+    created_at: string;
+    updated_at: string;
+}

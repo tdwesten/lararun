@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Auth\EmailEntryController;
 use App\Http\Controllers\Auth\StravaController;
+use App\Models\Activity;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -21,8 +23,14 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'email.set', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
+    Route::get('dashboard', function (Request $request) {
+        return Inertia::render('dashboard', [
+            'activities' => Activity::query()
+                ->where('user_id', $request->user()->id)
+                ->latest('start_date')
+                ->limit(10)
+                ->get(),
+        ]);
     })->name('dashboard');
 });
 
