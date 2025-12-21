@@ -1,0 +1,39 @@
+<?php
+
+use App\Jobs\GenerateDailyTrainingPlanJob;
+use App\Models\Objective;
+use App\Models\User;
+use Illuminate\Support\Facades\Queue;
+
+it('dispatches jobs for all users with active objectives', function () {
+    Queue::fake();
+
+    $user1 = User::factory()->create();
+    $objective1 = Objective::factory()->create([
+        'user_id' => $user1->id,
+        'status' => 'active',
+    ]);
+
+    $user2 = User::factory()->create();
+    $objective2 = Objective::factory()->create([
+        'user_id' => $user2->id,
+        'status' => 'active',
+    ]);
+
+    $user3 = User::factory()->create();
+    $objective3 = Objective::factory()->create([
+        'user_id' => $user3->id,
+        'status' => 'completed', // Should be ignored
+    ]);
+
+    $this->artisan('app:generate-daily-training-plans')
+        ->assertExitCode(0);
+
+    Queue::assertPushed(GenerateDailyTrainingPlanJob::class, 2);
+    Queue::assertPushed(GenerateDailyTrainingPlanJob::class, function ($job) use ($user1, $objective1) {
+        return $job->user->id === $user1->id && $job->objective->id === $objective1->id;
+    });
+    Queue::assertPushed(GenerateDailyTrainingPlanJob::class, function ($job) use ($user2, $objective2) {
+        return $job->user->id === $user2->id && $job->objective->id === $objective2->id;
+    });
+});

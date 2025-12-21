@@ -7,7 +7,10 @@ use App\Notifications\ActivityEvaluatedNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use Prism\Prism\Enums\Provider;
 use Prism\Prism\Facades\Prism;
+use Prism\Prism\Schema\ObjectSchema;
+use Prism\Prism\Schema\StringSchema;
 
 class EnrichActivityWithAiJob implements ShouldQueue
 {
@@ -29,31 +32,29 @@ class EnrichActivityWithAiJob implements ShouldQueue
             $activityData = $this->getActivitySummary();
             $historicalContext = $this->getHistoricalContext();
 
-            // Short evaluation
-            $shortResponse = Prism::text()
-                ->using('openai', 'gpt-4o')
-                ->withSystemPrompt("You are an expert running coach. Provide a very brief (max 2 sentences) encouraging evaluation of this run. Consider the user's recent history to provide more personalized feedback.")
+            $schema = new ObjectSchema(
+                name: 'activity_evaluation',
+                description: 'Structured evaluation of a running activity',
+                properties: [
+                    new StringSchema('short_evaluation', 'A very brief (max 2 sentences) encouraging evaluation of the run.'),
+                    new StringSchema('extended_evaluation', 'A detailed analysis of the run, considering distance, pace, and heart rate zones. Specific advice for improvement or recovery.'),
+                ],
+                requiredFields: ['short_evaluation', 'extended_evaluation']
+            );
+
+            $response = Prism::structured()
+                ->using(Provider::OpenAI, 'gpt-4o')
+                ->withSchema($schema)
+                ->withSystemPrompt("You are an expert running coach. You provide both brief encouraging feedback and detailed technical analysis. Use the user's history from the last month to identify trends or changes in performance.")
                 ->withPrompt("Recent History (Last 30 days):\n{$historicalContext}\n\nCurrent Activity:\n{$activityData}")
-                ->asText();
+                ->asStructured();
 
             $this->activity->update([
-                'short_evaluation' => trim($shortResponse->text),
+                'short_evaluation' => trim($response->structured['short_evaluation']),
+                'extended_evaluation' => trim($response->structured['extended_evaluation']),
             ]);
 
-            Log::debug("Short evaluation generated. Tokens: {$shortResponse->usage->promptTokens} prompt, {$shortResponse->usage->completionTokens} completion");
-
-            // Extended evaluation
-            $extendedResponse = Prism::text()
-                ->using('openai', 'gpt-4o')
-                ->withSystemPrompt("You are an expert running coach. Provide a detailed analysis of this run, considering distance, pace, and heart rate zones. Give specific advice for improvement or recovery. Use the user's history from the last month to identify trends or changes in performance.")
-                ->withPrompt("Recent History (Last 30 days):\n{$historicalContext}\n\nCurrent Activity:\n{$activityData}")
-                ->asText();
-
-            $this->activity->update([
-                'extended_evaluation' => trim($extendedResponse->text),
-            ]);
-
-            Log::debug("Extended evaluation generated. Tokens: {$extendedResponse->usage->promptTokens} prompt, {$extendedResponse->usage->completionTokens} completion");
+            Log::debug("Activity evaluations generated. Tokens: {$response->usage->promptTokens} prompt, {$response->usage->completionTokens} completion");
 
             // Send notification
             $this->activity->user->notify(new ActivityEvaluatedNotification($this->activity));

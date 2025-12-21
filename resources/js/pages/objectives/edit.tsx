@@ -1,6 +1,7 @@
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -8,6 +9,16 @@ import AppLayout from '@/layouts/app-layout';
 import { index, update } from '@/routes/objectives';
 import { BreadcrumbItem, Objective } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
+
+const DAYS_OF_WEEK = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+];
 
 export default function Edit({ objective }: { objective: Objective }) {
     const breadcrumbs: BreadcrumbItem[] = [
@@ -26,11 +37,23 @@ export default function Edit({ objective }: { objective: Objective }) {
         target_date: objective.target_date.split('T')[0],
         status: objective.status,
         description: objective.description || '',
+        running_days: objective.running_days || [] as string[],
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         put(update(objective.id).url);
+    };
+
+    const toggleDay = (day: string) => {
+        const currentDays = [...data.running_days];
+        const index = currentDays.indexOf(day);
+        if (index > -1) {
+            currentDays.splice(index, 1);
+        } else {
+            currentDays.push(day);
+        }
+        setData('running_days', currentDays);
     };
 
     return (
@@ -86,6 +109,28 @@ export default function Edit({ objective }: { objective: Objective }) {
                                     onChange={(e) => setData('target_date', e.target.value)}
                                 />
                                 <InputError message={errors.target_date} />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Preferred Running Days</Label>
+                                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                                    {DAYS_OF_WEEK.map((day) => (
+                                        <div key={day} className="flex items-center space-x-2">
+                                            <Checkbox
+                                                id={`day-${day}`}
+                                                checked={data.running_days.includes(day)}
+                                                onCheckedChange={() => toggleDay(day)}
+                                            />
+                                            <Label
+                                                htmlFor={`day-${day}`}
+                                                className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                            >
+                                                {day}
+                                            </Label>
+                                        </div>
+                                    ))}
+                                </div>
+                                <InputError message={errors.running_days} />
                             </div>
 
                             <div className="space-y-2">

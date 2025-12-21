@@ -26,6 +26,8 @@ class UpdateObjectiveRequest extends FormRequest
             'target_date' => ['sometimes', 'required', 'date', 'after:today'],
             'status' => ['sometimes', 'required', 'string', 'in:active,completed,abandoned'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'running_days' => ['sometimes', 'required', 'array', 'min:1'],
+            'running_days.*' => ['string', 'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday'],
         ];
     }
 }

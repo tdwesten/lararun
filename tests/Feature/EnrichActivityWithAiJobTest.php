@@ -6,14 +6,16 @@ use App\Models\User;
 use App\Notifications\ActivityEvaluatedNotification;
 use Illuminate\Support\Facades\Notification;
 use Prism\Prism\Facades\Prism;
-use Prism\Prism\Testing\TextResponseFake;
+use Prism\Prism\Testing\StructuredResponseFake;
 
 it('enriches an activity with AI evaluations using historical context and sends notification', function () {
     Notification::fake();
 
     $prismFake = Prism::fake([
-        TextResponseFake::make()->withText('Short evaluation with context'),
-        TextResponseFake::make()->withText('Extended evaluation with context'),
+        StructuredResponseFake::make()->withStructured([
+            'short_evaluation' => 'Short evaluation with context',
+            'extended_evaluation' => 'Extended evaluation with context',
+        ]),
     ]);
 
     $user = User::factory()->create();
@@ -58,7 +60,7 @@ it('enriches an activity with AI evaluations using historical context and sends 
 
     // Verify that Prism was called with context
     $prismFake->assertRequest(function ($requests) {
-        expect($requests)->toHaveCount(2);
+        expect($requests)->toHaveCount(1);
         $prompt = $requests[0]->prompt();
         expect($prompt)->toContain('Recent History (Last 30 days):');
         expect($prompt)->toContain('Activity Name:');

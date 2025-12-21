@@ -15,3 +15,5 @@ Schedule::call(function () {
         ImportStravaActivitiesJob::dispatch($user);
     });
 })->hourly()->description('Import Strava activities for users');
+
+Schedule::command('app:generate-daily-training-plans')->dailyAt('08:00')->description('Generate daily training plans for users');

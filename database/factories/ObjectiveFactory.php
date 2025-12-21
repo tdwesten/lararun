@@ -22,6 +22,7 @@ class ObjectiveFactory extends Factory
             'target_date' => $this->faker->dateTimeBetween('now', '+1 year')->format('Y-m-d'),
             'status' => 'active',
             'description' => $this->faker->sentence(),
+            'running_days' => ['Monday', 'Wednesday', 'Friday'],
         ];
     }
 }

@@ -20,6 +20,7 @@ test('user can create an objective', function () {
         'type' => '10 km',
         'target_date' => now()->addMonths(3)->toDateString(),
         'description' => 'My first 10K',
+        'running_days' => ['Monday', 'Wednesday', 'Friday'],
     ]);
 
     $response->assertRedirect(route('objectives.index'));
@@ -39,6 +40,7 @@ test('creating a new objective abandons the current active one', function () {
     $this->actingAs($this->user)->post(route('objectives.store'), [
         'type' => '21.1 km',
         'target_date' => now()->addMonths(6)->toDateString(),
+        'running_days' => ['Tuesday', 'Thursday', 'Saturday'],
     ]);
 
     $oldObjective->refresh();
@@ -60,6 +62,7 @@ test('user can update an objective', function () {
         'type' => '42.2 km',
         'target_date' => now()->addMonths(12)->toDateString(),
         'status' => 'completed',
+        'running_days' => ['Monday', 'Tuesday', 'Wednesday'],
     ]);
 
     $response->assertRedirect(route('objectives.index'));

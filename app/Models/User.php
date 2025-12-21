@@ -84,4 +84,14 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Objective::class)->where('status', 'active')->latestOfMany();
     }
+
+    /**
+     * Get the daily recommendations for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\DailyRecommendation, \App\Models\User>
+     */
+    public function dailyRecommendations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(DailyRecommendation::class);
+    }
 }

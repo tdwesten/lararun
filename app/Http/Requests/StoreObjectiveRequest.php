@@ -25,6 +25,8 @@ class StoreObjectiveRequest extends FormRequest
             'type' => ['required', 'string', 'in:5 km,10 km,21.1 km,42.2 km,Speed'],
             'target_date' => ['required', 'date', 'after:today'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'running_days' => ['required', 'array', 'min:1'],
+            'running_days.*' => ['string', 'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday'],
         ];
     }
 }

@@ -67,6 +67,7 @@ export interface Objective {
     target_date: string;
     status: 'active' | 'completed' | 'abandoned';
     description: string | null;
+    running_days: string[] | null;
     created_at: string;
     updated_at: string;
 }

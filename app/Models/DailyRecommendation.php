@@ -5,25 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Objective extends Model
+class DailyRecommendation extends Model
 {
-    /** @use HasFactory<\Database\Factories\ObjectiveFactory> */
+    /** @use HasFactory<\Database\Factories\DailyRecommendationFactory> */
     use HasFactory;
 
     protected $fillable = [
         'user_id',
+        'objective_id',
+        'date',
         'type',
-        'target_date',
-        'status',
+        'title',
         'description',
-        'running_days',
+        'reasoning',
     ];
 
     protected function casts(): array
     {
         return [
-            'target_date' => 'date',
-            'running_days' => 'array',
+            'date' => 'date',
         ];
     }
 
@@ -32,8 +32,8 @@ class Objective extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function dailyRecommendations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function objective(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->hasMany(DailyRecommendation::class);
+        return $this->belongsTo(Objective::class);
     }
 }

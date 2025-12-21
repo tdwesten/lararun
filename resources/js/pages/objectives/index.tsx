@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import AppLayout from '@/layouts/app-layout';
 import { create, edit, index } from '@/routes/objectives';
 import { BreadcrumbItem, Objective } from '@/types';
@@ -13,6 +14,35 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: index().url,
     },
 ];
+
+function RunningDays({ days }: { days: string[] | null }) {
+    if (!days || days.length === 0) return null;
+
+    const dayLetters = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    return (
+        <div className="flex gap-1 mt-2">
+            {dayLetters.map((letter, i) => {
+                const isActive = days.includes(dayNames[i]);
+                return (
+                    <div
+                        key={i}
+                        className={cn(
+                            "flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold border",
+                            isActive
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-muted text-muted-foreground border-transparent opacity-40"
+                        )}
+                        title={dayNames[i]}
+                    >
+                        {letter}
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
 
 export default function Index({ objectives, currentObjective }: { objectives: Objective[]; currentObjective: Objective | null }) {
     const { delete: destroy } = useForm();
@@ -52,6 +82,7 @@ export default function Index({ objectives, currentObjective }: { objectives: Ob
                             <p className="text-xs text-muted-foreground">
                                 Target Date: {new Date(currentObjective.target_date).toLocaleDateString()}
                             </p>
+                            <RunningDays days={currentObjective.running_days} />
                             <div className="mt-4 flex gap-2">
                                 <Button variant="outline" size="sm" asChild>
                                     <Link href={edit(currentObjective.id).url}>Edit</Link>
@@ -84,6 +115,7 @@ export default function Index({ objectives, currentObjective }: { objectives: Ob
                                     <div className="text-xs text-muted-foreground">
                                         Target: {new Date(objective.target_date).toLocaleDateString()}
                                     </div>
+                                    <RunningDays days={objective.running_days} />
                                     {objective.description && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{objective.description}</p>}
                                     <div className="mt-4 flex items-center justify-between">
                                         <div className="flex gap-2">
