@@ -28,5 +28,7 @@ test('authenticated users can visit the dashboard and see activities', function 
             ->has('activities', 3)
             ->where('activities.0.name', $latestActivity->name)
             ->has('activities.0.short_evaluation')
+            ->has('currentObjective')
+            ->has('todayRecommendation')
         );
 });

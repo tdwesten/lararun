@@ -71,3 +71,16 @@ export interface Objective {
     created_at: string;
     updated_at: string;
 }
+
+export interface DailyRecommendation {
+    id: number;
+    user_id: number;
+    objective_id: number;
+    date: string;
+    type: string;
+    title: string;
+    description: string;
+    reasoning: string;
+    created_at: string;
+    updated_at: string;
+}

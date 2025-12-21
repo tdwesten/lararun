@@ -1,10 +1,10 @@
 import LastRunWidget from '@/components/last-run-widget';
 import ObjectiveWidget from '@/components/objective-widget';
+import TodayRecommendationWidget from '@/components/today-recommendation-widget';
 import RecentActivities from '@/components/recent-activities';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import { Activity, BreadcrumbItem, Objective } from '@/types';
+import { Activity, BreadcrumbItem, Objective, DailyRecommendation } from '@/types';
 import { Head } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -14,7 +14,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Dashboard({ activities, currentObjective }: { activities: Activity[]; currentObjective: Objective | null }) {
+export default function Dashboard({
+    activities,
+    currentObjective,
+    todayRecommendation
+}: {
+    activities: Activity[];
+    currentObjective: Objective | null;
+    todayRecommendation: DailyRecommendation | null;
+}) {
     const latestActivity = activities.length > 0 ? activities[0] : null;
 
     return (
@@ -23,10 +31,8 @@ export default function Dashboard({ activities, currentObjective }: { activities
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3">
                     <ObjectiveWidget objective={currentObjective} />
+                    <TodayRecommendationWidget recommendation={todayRecommendation} />
                     <LastRunWidget activity={latestActivity} />
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
                 </div>
                 <div className="flex-1">
                     <RecentActivities activities={activities} />

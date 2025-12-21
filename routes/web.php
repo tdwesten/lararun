@@ -32,6 +32,9 @@ Route::middleware(['auth', 'email.set', 'verified'])->group(function () {
                 ->limit(10)
                 ->get(),
             'currentObjective' => $request->user()->currentObjective,
+            'todayRecommendation' => $request->user()->dailyRecommendations()
+                ->whereDate('date', now()->toDateString())
+                ->first(),
         ]);
     })->name('dashboard');
 

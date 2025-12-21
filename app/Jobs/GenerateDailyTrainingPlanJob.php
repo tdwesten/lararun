@@ -34,21 +34,17 @@ class GenerateDailyTrainingPlanJob implements ShouldQueue
     {
         $todayDate = now()->toDateString();
 
-        if (DailyRecommendation::where('user_id', $this->user->id)->whereDate('date', $todayDate)->exists()) {
-            Log::info("Daily training plan already exists for user: {$this->user->id} on date: {$todayDate}. Skipping generation.");
-
-            return;
-        }
-
         Log::info("Generating daily training plan for user: {$this->user->id} on objective: {$this->objective->id}");
 
         try {
             $historicalContext = $this->getHistoricalContext();
+            $recommendationContext = $this->getRecommendationContext();
             $objectiveInfo = $this->getObjectiveInfo();
             $today = now()->format('l, Y-m-d');
 
             $prompt = "Objective:\n{$objectiveInfo}\n\n"
                 ."Recent History (Last 30 days):\n{$historicalContext}\n\n"
+                ."Last 3 Recommendations:\n{$recommendationContext}\n\n"
                 ."Today is {$today}.\n\n"
                 .'Think hard about the best training session for today to reach the objective. '
                 ."Consider fatigue, recovery, and the target date ({$this->objective->target_date->toDateString()}). "
@@ -74,6 +70,10 @@ class GenerateDailyTrainingPlanJob implements ShouldQueue
                 ->asStructured();
 
             $data = $response->structured;
+
+            DailyRecommendation::where('user_id', $this->user->id)
+                ->whereDate('date', $todayDate)
+                ->delete();
 
             $recommendation = DailyRecommendation::create([
                 'user_id' => $this->user->id,
@@ -134,6 +134,33 @@ class GenerateDailyTrainingPlanJob implements ShouldQueue
             $context .= 'Distance: '.round($activity->distance / 1000, 2)." km\n";
             $context .= "Intensity Score: {$activity->intensity_score}\n";
             $context .= "Coach's Evaluation: {$activity->short_evaluation}\n";
+        }
+
+        return $context;
+    }
+
+    /**
+     * Get recommendation context (last 3 recommendations).
+     */
+    protected function getRecommendationContext(): string
+    {
+        $lastRecommendations = DailyRecommendation::where('user_id', $this->user->id)
+            ->orderByDesc('date')
+            ->orderByDesc('id')
+            ->limit(3)
+            ->get();
+
+        if ($lastRecommendations->isEmpty()) {
+            return 'No previous recommendations.';
+        }
+
+        $context = '';
+        foreach ($lastRecommendations as $recommendation) {
+            $context .= "--- Recommendation ---\n";
+            $context .= "Date: {$recommendation->date->toDateString()}\n";
+            $context .= "Type: {$recommendation->type}\n";
+            $context .= "Title: {$recommendation->title}\n";
+            $context .= "Description: {$recommendation->description}\n";
         }
 
         return $context;
