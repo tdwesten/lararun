@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Activity;
+use App\Notifications\ActivityEvaluatedNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -54,7 +55,10 @@ class EnrichActivityWithAiJob implements ShouldQueue
 
             Log::debug("Extended evaluation generated. Tokens: {$extendedResponse->usage->promptTokens} prompt, {$extendedResponse->usage->completionTokens} completion");
 
-            Log::info("Finished AI enrichment for activity: {$this->activity->id}");
+            // Send notification
+            $this->activity->user->notify(new ActivityEvaluatedNotification($this->activity));
+
+            Log::info("Finished AI enrichment and sent notification for activity: {$this->activity->id}");
         } catch (\Exception $e) {
             Log::error("Failed to enrich activity {$this->activity->id} with AI: {$e->getMessage()}", [
                 'exception' => $e,

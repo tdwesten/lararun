@@ -3,10 +3,14 @@
 use App\Jobs\EnrichActivityWithAiJob;
 use App\Models\Activity;
 use App\Models\User;
+use App\Notifications\ActivityEvaluatedNotification;
+use Illuminate\Support\Facades\Notification;
 use Prism\Prism\Facades\Prism;
 use Prism\Prism\Testing\TextResponseFake;
 
-it('enriches an activity with AI evaluations using historical context', function () {
+it('enriches an activity with AI evaluations using historical context and sends notification', function () {
+    Notification::fake();
+
     $prismFake = Prism::fake([
         TextResponseFake::make()->withText('Short evaluation with context'),
         TextResponseFake::make()->withText('Extended evaluation with context'),
@@ -42,6 +46,15 @@ it('enriches an activity with AI evaluations using historical context', function
 
     expect($activity->short_evaluation)->toBe('Short evaluation with context');
     expect($activity->extended_evaluation)->toBe('Extended evaluation with context');
+
+    // Verify notification was sent
+    Notification::assertSentTo(
+        $user,
+        ActivityEvaluatedNotification::class,
+        function ($notification) use ($activity) {
+            return $notification->activity->id === $activity->id;
+        }
+    );
 
     // Verify that Prism was called with context
     $prismFake->assertRequest(function ($requests) {
