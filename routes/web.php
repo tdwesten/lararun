@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\EmailEntryController;
 use App\Http\Controllers\Auth\StravaController;
+use App\Http\Controllers\ObjectiveController;
 use App\Models\Activity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -30,8 +31,11 @@ Route::middleware(['auth', 'email.set', 'verified'])->group(function () {
                 ->latest('start_date')
                 ->limit(10)
                 ->get(),
+            'currentObjective' => $request->user()->currentObjective,
         ]);
     })->name('dashboard');
+
+    Route::resource('objectives', ObjectiveController::class);
 });
 
 require __DIR__.'/settings.php';

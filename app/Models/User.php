@@ -66,4 +66,22 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Activity::class);
     }
+
+    /**
+     * Get the objectives for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Objective, \App\Models\User>
+     */
+    public function objectives(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Objective::class);
+    }
+
+    /**
+     * Get the current active objective for the user.
+     */
+    public function currentObjective(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Objective::class)->where('status', 'active')->latestOfMany();
+    }
 }

@@ -57,3 +57,14 @@ export interface Activity {
     created_at: string;
     updated_at: string;
 }
+
+export interface Objective {
+    id: number;
+    user_id: number;
+    type: '5 km' | '10 km' | '21.1 km' | '42.2 km' | 'Speed';
+    target_date: string;
+    status: 'active' | 'completed' | 'abandoned';
+    description: string | null;
+    created_at: string;
+    updated_at: string;
+}
