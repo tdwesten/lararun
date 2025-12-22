@@ -1,10 +1,9 @@
 import { Head, Link } from '@inertiajs/react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
-import { PageProps } from '@/types';
 import { login } from '@/routes';
 
-export default function Welcome({ auth }: PageProps) {
+export default function Welcome() {
     return (
         <>
             <Head title="Welcome" />
@@ -16,13 +15,10 @@ export default function Welcome({ auth }: PageProps) {
                     <h1 className="text-2xl font-bold">Lararun</h1>
 
                     <Link href={login.url()}>
-                        <Button size="lg">
-                            Log in
-                        </Button>
+                        <Button size="lg">Log in</Button>
                     </Link>
                 </div>
             </div>
         </>
     );
 }
-
