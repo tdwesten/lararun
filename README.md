@@ -1,4 +1,5 @@
 # Lararun 🏃‍♂️ v0.1.0-beta
+<img width="2686" height="1612" alt="CleanShot 2025-12-22 at 17 04 02@2x" src="https://github.com/user-attachments/assets/9675b3f0-a700-4ae7-83fd-e81d4ea5c2fd" />
 
 Lararun is a self-hosted AI running coach built with Laravel, designed to help you reach your running goals with personalized, data-driven training plans. By syncing your Strava activities and leveraging OpenAI's advanced reasoning (via Prism), Lararun provides daily workout recommendations tailored to your current fitness level and specific objectives.
 
