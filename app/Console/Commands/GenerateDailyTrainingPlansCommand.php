@@ -20,7 +20,7 @@ class GenerateDailyTrainingPlansCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Generate daily training plans for all users with active objectives';
+    protected $description = 'Generate training plans for the upcoming 7 days for all users with active objectives';
 
     /**
      * Execute the console command.

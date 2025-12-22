@@ -21,7 +21,7 @@ class ObjectiveController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('objectives/index', [
-            'objectives' => $request->user()->objectives()->latest()->get(),
+            'objectives' => $request->user()->objectives()->latest()->whereNot('status', 'active')->get(),
             'currentObjective' => $request->user()->currentObjective,
         ]);
     }

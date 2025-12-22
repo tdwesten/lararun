@@ -34,10 +34,57 @@ it('includes the last 3 daily recommendations in the prompt', function () {
 
     $fake = Prism::fake([
         StructuredResponseFake::make()->withStructured([
-            'type' => 'Easy Run',
-            'title' => 'Recovery Jog',
-            'description' => '30 minutes at easy pace',
-            'reasoning' => 'Based on your recent heavy sessions.',
+            'training_plan' => [
+                [
+                    'date' => now()->toDateString(),
+                    'type' => 'Easy Run',
+                    'title' => 'Recovery Jog',
+                    'description' => '30 minutes at easy pace',
+                    'reasoning' => 'Based on your recent heavy sessions.',
+                ],
+                [
+                    'date' => now()->addDay()->toDateString(),
+                    'type' => 'Rest',
+                    'title' => 'Rest Day',
+                    'description' => 'No running today',
+                    'reasoning' => 'Recovery is key.',
+                ],
+                [
+                    'date' => now()->addDays(2)->toDateString(),
+                    'type' => 'Easy Run',
+                    'title' => 'Easy 5k',
+                    'description' => '5km at comfortable pace',
+                    'reasoning' => 'Building base.',
+                ],
+                [
+                    'date' => now()->addDays(3)->toDateString(),
+                    'type' => 'Intervals',
+                    'title' => 'Speed Work',
+                    'description' => '8x400m',
+                    'reasoning' => 'Improving pace.',
+                ],
+                [
+                    'date' => now()->addDays(4)->toDateString(),
+                    'type' => 'Easy Run',
+                    'title' => 'Short Easy Run',
+                    'description' => '20 mins easy',
+                    'reasoning' => 'Active recovery.',
+                ],
+                [
+                    'date' => now()->addDays(5)->toDateString(),
+                    'type' => 'Long Run',
+                    'title' => 'Weekend Long Run',
+                    'description' => '10km long run',
+                    'reasoning' => 'Endurance building.',
+                ],
+                [
+                    'date' => now()->addDays(6)->toDateString(),
+                    'type' => 'Rest',
+                    'title' => 'Rest Day',
+                    'description' => 'Full recovery',
+                    'reasoning' => 'Prepare for next week.',
+                ],
+            ],
         ]),
     ]);
 
@@ -75,17 +122,64 @@ it('replaces an existing daily recommendation for today', function () {
 
     Prism::fake([
         StructuredResponseFake::make()->withStructured([
-            'type' => 'Intervals',
-            'title' => 'New Title',
-            'description' => 'Run fast then slow',
-            'reasoning' => 'Because I said so.',
+            'training_plan' => [
+                [
+                    'date' => $todayDate,
+                    'type' => 'Intervals',
+                    'title' => 'New Title',
+                    'description' => 'Run fast then slow',
+                    'reasoning' => 'Because I said so.',
+                ],
+                [
+                    'date' => now()->addDay()->toDateString(),
+                    'type' => 'Rest',
+                    'title' => 'Rest Day',
+                    'description' => 'No running today',
+                    'reasoning' => 'Recovery is key.',
+                ],
+                [
+                    'date' => now()->addDays(2)->toDateString(),
+                    'type' => 'Easy Run',
+                    'title' => 'Easy 5k',
+                    'description' => '5km at comfortable pace',
+                    'reasoning' => 'Building base.',
+                ],
+                [
+                    'date' => now()->addDays(3)->toDateString(),
+                    'type' => 'Intervals',
+                    'title' => 'Speed Work',
+                    'description' => '8x400m',
+                    'reasoning' => 'Improving pace.',
+                ],
+                [
+                    'date' => now()->addDays(4)->toDateString(),
+                    'type' => 'Easy Run',
+                    'title' => 'Short Easy Run',
+                    'description' => '20 mins easy',
+                    'reasoning' => 'Active recovery.',
+                ],
+                [
+                    'date' => now()->addDays(5)->toDateString(),
+                    'type' => 'Long Run',
+                    'title' => 'Weekend Long Run',
+                    'description' => '10km long run',
+                    'reasoning' => 'Endurance building.',
+                ],
+                [
+                    'date' => now()->addDays(6)->toDateString(),
+                    'type' => 'Rest',
+                    'title' => 'Rest Day',
+                    'description' => 'Full recovery',
+                    'reasoning' => 'Prepare for next week.',
+                ],
+            ],
         ]),
     ]);
 
     $job = new GenerateDailyTrainingPlanJob($user, $objective, force: true);
     $job->handle();
 
-    // Verify the old one is gone and new one exists
+    // Verify the old one was updated
     expect(DailyRecommendation::where('user_id', $user->id)->whereDate('date', $todayDate)->count())->toBe(1);
 
     $newRecommendation = DailyRecommendation::where('user_id', $user->id)
@@ -93,7 +187,7 @@ it('replaces an existing daily recommendation for today', function () {
         ->first();
 
     expect($newRecommendation->title)->toBe('New Title');
-    expect($newRecommendation->id)->not->toBe($existing->id);
+    expect($newRecommendation->id)->toBe($existing->id);
 
     Notification::assertSentTo($user, DailyTrainingPlanNotification::class);
 });

@@ -99,7 +99,7 @@ export default function LastRunWidget({ activity }: LastRunWidgetProps) {
                     {activity.short_evaluation && (
                         <div className="bg-primary/5 border border-primary/10 rounded-lg p-3 relative mt-2">
                             <Quote className="h-3 w-3 text-primary/40 absolute -top-1.5 -left-1.5 bg-background rounded-full" />
-                            <p className="text-sm italic text-foreground leading-relaxed line-clamp-2">
+                            <p className="text-sm italic text-foreground leading-relaxed">
                                 {activity.short_evaluation}
                             </p>
                         </div>
