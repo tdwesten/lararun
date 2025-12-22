@@ -1,8 +1,9 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/react-starter-kit",
+    "name": "thomasvanderwesten/lararun",
+    "version": "0.1.0-beta",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Lararun: A self-hosted AI running coach based on Laravel, OpenAI, and Strava data.",
     "keywords": [
         "laravel",
         "framework"

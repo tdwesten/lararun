@@ -6,7 +6,7 @@ generate personalized training plans based on user objectives
 Daily emails via Lettermint deliver context-aware workout recommendations. 
 Key advantage over Strava AI: proactive goal-specific coaching with periodization,
 fatigue tracking, and adaptive plan adjustments. 
-Core tables: users, objectives, activities, training_plans, daily_recommendations.
+Core tables: users, objectives, activities, daily_recommendations.
 Use webhooks for real-time sync, queues for AI processing.
 
 # Lararun MVP Features
@@ -345,7 +345,7 @@ Wayfinder generates TypeScript functions and types for Laravel controllers and r
 - Run `php artisan wayfinder:generate` after route changes if Vite plugin isn't installed
 
 ### Feature Overview
-- Form Support: Use `.form()` with `--with-form` flag for HTML form attributes — `<form {...store.form()}>` → `action="/posts" method="post"`
+- Form Support: Use `.form()` with `--with-form` flag for HTML form attributes — ``<form {...store.form()}>`` → `action="/posts" method="post"`
 - HTTP Methods: Call `.get()`, `.post()`, `.patch()`, `.put()`, `.delete()` for specific methods — `show.head(1)` → `{ url: "/posts/1", method: "head" }`
 - Invokable Controllers: Import and invoke directly as functions. For example, `import StorePost from '@/actions/.../StorePostController'; StorePost()`
 - Named Routes: Import from `@/routes/` for non-controller routes. For example, `import { show } from '@/routes/post'; show(1)` for route name `post.show`
@@ -510,7 +510,7 @@ import { Link } from '@inertiajs/react'
 
 ## Inertia + React Forms
 
-<code-snippet name="`<Form>` Component Example" lang="react">
+<code-snippet name="Form Component Example" lang="react">
 
 import { Form } from '@inertiajs/react'
 
