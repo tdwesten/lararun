@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Queue;
 uses(RefreshDatabase::class);
 
 test('it can regenerate evaluation for a specific activity', function () {
-    Queue::fake();
     $activity = Activity::factory()->create();
+    Queue::fake();
 
     $this->artisan("app:regenerate-activity-evaluation {$activity->id}")
         ->expectsOutput('Dispatching enrichment jobs for 1 activities...')
@@ -22,10 +22,10 @@ test('it can regenerate evaluation for a specific activity', function () {
 });
 
 test('it can regenerate evaluations for a specific user', function () {
-    Queue::fake();
     $user = User::factory()->create();
     $activities = Activity::factory()->count(3)->create(['user_id' => $user->id]);
     Activity::factory()->create(); // Another user's activity
+    Queue::fake();
 
     $this->artisan("app:regenerate-activity-evaluation --user={$user->id}")
         ->expectsConfirmation('Are you sure you want to regenerate evaluations for 3 activities?', 'yes')
@@ -36,8 +36,8 @@ test('it can regenerate evaluations for a specific user', function () {
 });
 
 test('it can regenerate all evaluations', function () {
-    Queue::fake();
     Activity::factory()->count(5)->create();
+    Queue::fake();
 
     $this->artisan('app:regenerate-activity-evaluation --all')
         ->expectsConfirmation('Are you sure you want to regenerate evaluations for 5 activities?', 'yes')

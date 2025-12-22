@@ -21,25 +21,29 @@ it('enriches an activity with AI evaluations using historical context and sends 
     $user = User::factory()->create();
 
     // Create a historical activity
-    Activity::factory()->create([
-        'user_id' => $user->id,
-        'start_date' => now()->subDays(5),
-        'distance' => 6000,
-        'moving_time' => 1800,
-    ]);
+    Activity::withoutEvents(function () use ($user) {
+        Activity::factory()->create([
+            'user_id' => $user->id,
+            'start_date' => now()->subDays(5),
+            'distance' => 6000,
+            'moving_time' => 1800,
+        ]);
 
-    $activity = Activity::factory()->create([
-        'user_id' => $user->id,
-        'start_date' => now(),
-        'distance' => 5000,
-        'moving_time' => 1500,
-        'zone_data_available' => true,
-        'z1_time' => 300,
-        'z2_time' => 900,
-        'z3_time' => 300,
-        'z4_time' => 0,
-        'z5_time' => 0,
-    ]);
+        Activity::factory()->create([
+            'user_id' => $user->id,
+            'start_date' => now(),
+            'distance' => 5000,
+            'moving_time' => 1500,
+            'zone_data_available' => true,
+            'z1_time' => 300,
+            'z2_time' => 900,
+            'z3_time' => 300,
+            'z4_time' => 0,
+            'z5_time' => 0,
+        ]);
+    });
+
+    $activity = Activity::where('user_id', $user->id)->latest('id')->first();
 
     $job = new EnrichActivityWithAiJob($activity);
     $job->handle();
