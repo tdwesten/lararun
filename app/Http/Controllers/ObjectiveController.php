@@ -57,7 +57,7 @@ class ObjectiveController extends Controller
 
         return Inertia::render('objectives/show', [
             'objective' => $objective->load(['dailyRecommendations' => function ($query) {
-                $query->latest('date');
+                $query->oldest('date')->whereDate('date', '>=', now())->take(7);
             }]),
         ]);
     }

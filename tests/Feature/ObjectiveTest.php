@@ -29,21 +29,30 @@ test('user can see objective detail', function () {
     );
 });
 
-test('user can see objective detail with recommendations sorted', function () {
+test('user can see objective detail with 7 upcoming recommendations sorted', function () {
     $objective = Objective::factory()->create([
         'user_id' => $this->user->id,
     ]);
 
-    $rec1 = \App\Models\DailyRecommendation::factory()->create([
+    // Past recommendation (should be excluded)
+    \App\Models\DailyRecommendation::factory()->create([
         'user_id' => $this->user->id,
         'objective_id' => $objective->id,
         'date' => now()->subDay()->toDateString(),
     ]);
 
-    $rec2 = \App\Models\DailyRecommendation::factory()->create([
+    // Today's recommendation
+    $todayRec = \App\Models\DailyRecommendation::factory()->create([
         'user_id' => $this->user->id,
         'objective_id' => $objective->id,
         'date' => now()->toDateString(),
+    ]);
+
+    // Tomorrow's recommendation
+    $tomorrowRec = \App\Models\DailyRecommendation::factory()->create([
+        'user_id' => $this->user->id,
+        'objective_id' => $objective->id,
+        'date' => now()->addDay()->toDateString(),
     ]);
 
     $response = $this->actingAs($this->user)->get(route('objectives.show', $objective));
@@ -52,8 +61,8 @@ test('user can see objective detail with recommendations sorted', function () {
     $response->assertInertia(fn ($page) => $page
         ->component('objectives/show')
         ->has('objective.daily_recommendations', 2)
-        ->where('objective.daily_recommendations.0.id', $rec2->id) // Latest first
-        ->where('objective.daily_recommendations.1.id', $rec1->id)
+        ->where('objective.daily_recommendations.0.id', $todayRec->id) // Today first
+        ->where('objective.daily_recommendations.1.id', $tomorrowRec->id) // Tomorrow second
     );
 });
 
