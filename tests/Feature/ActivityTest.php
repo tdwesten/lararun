@@ -1,10 +1,12 @@
 <?php
 
+use App\Jobs\EnrichActivityWithAiJob;
 use App\Models\Activity;
 use App\Models\DailyRecommendation;
 use App\Models\Objective;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
 
@@ -75,4 +77,53 @@ test('activity show page includes recommendation for the same day', function () 
             ->has('recommendation')
             ->where('recommendation.id', $recommendation->id)
         );
+});
+
+test('activity show page dispatches enrich job if evaluation is missing', function () {
+    Queue::fake();
+
+    $activity = Activity::factory()->create([
+        'user_id' => $this->user->id,
+        'short_evaluation' => null,
+        'extended_evaluation' => null,
+    ]);
+
+    $this->actingAs($this->user)
+        ->get(route('activities.show', $activity))
+        ->assertOk();
+
+    Queue::assertPushed(EnrichActivityWithAiJob::class, function ($job) use ($activity) {
+        return $job->activity->id === $activity->id;
+    });
+});
+
+test('activity show page does not dispatch enrich job if evaluation exists', function () {
+    Queue::fake();
+
+    $activity = Activity::factory()->create([
+        'user_id' => $this->user->id,
+        'short_evaluation' => 'Great run!',
+        'extended_evaluation' => 'You did well today.',
+    ]);
+
+    $this->actingAs($this->user)
+        ->get(route('activities.show', $activity))
+        ->assertOk();
+
+    Queue::assertNotPushed(EnrichActivityWithAiJob::class);
+});
+
+test('activity show page does not dispatch multiple enrich jobs if one is already in progress', function () {
+    Queue::fake();
+
+    $activity = Activity::factory()->create([
+        'user_id' => $this->user->id,
+        'short_evaluation' => null,
+        'extended_evaluation' => null,
+    ]);
+
+    $this->actingAs($this->user)->get(route('activities.show', $activity));
+    $this->actingAs($this->user)->get(route('activities.show', $activity));
+
+    Queue::assertPushed(EnrichActivityWithAiJob::class, 1);
 });

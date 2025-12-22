@@ -4,11 +4,12 @@ import { format } from 'date-fns';
 import { Clock, MapPin, Zap, Quote, Coffee, Dumbbell, Info, Sparkles, ChevronLeft, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePoll } from '@inertiajs/react';
 import { index } from '@/routes/activities';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
+import { Spinner } from '@/components/ui/spinner';
 
 interface ActivityShowProps {
     activity: Activity & {
@@ -22,6 +23,12 @@ interface ActivityShowProps {
 }
 
 export default function ActivityShow({ activity, recommendation }: ActivityShowProps) {
+    const isEvaluating = !activity.short_evaluation || !activity.extended_evaluation;
+
+    usePoll(3000, {
+        only: ['activity'],
+        enabled: isEvaluating,
+    });
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Activities',
@@ -212,25 +219,37 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            {activity.short_evaluation && (
-                                <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 relative">
-                                    <p className="text-lg italic font-medium text-foreground leading-relaxed">
-                                        "{activity.short_evaluation}"
-                                    </p>
-                                </div>
-                            )}
-
-                            {activity.extended_evaluation ? (
-                                <div className="space-y-2">
-                                    <h4 className="font-semibold text-sm uppercase text-muted-foreground tracking-wider">Detailed Analysis</h4>
-                                    <div className="prose prose-sm dark:prose-invert max-w-none text-foreground leading-relaxed">
-                                        <ReactMarkdown>{activity.extended_evaluation}</ReactMarkdown>
+                            {isEvaluating ? (
+                                <div className="py-12 flex flex-col items-center justify-center space-y-4 border rounded-lg border-dashed bg-primary/5">
+                                    <Spinner className="h-8 w-8 text-primary" />
+                                    <div className="text-center space-y-1">
+                                        <p className="font-medium text-foreground">Generating AI Evaluation</p>
+                                        <p className="text-sm text-muted-foreground">Your coach is analyzing your run. This usually takes 10-20 seconds.</p>
                                     </div>
                                 </div>
                             ) : (
-                                <div className="py-8 text-center border rounded-lg border-dashed">
-                                    <p className="text-muted-foreground">Detailed evaluation not available for this activity.</p>
-                                </div>
+                                <>
+                                    {activity.short_evaluation && (
+                                        <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 relative">
+                                            <p className="text-lg italic font-medium text-foreground leading-relaxed">
+                                                "{activity.short_evaluation}"
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {activity.extended_evaluation ? (
+                                        <div className="space-y-2">
+                                            <h4 className="font-semibold text-sm uppercase text-muted-foreground tracking-wider">Detailed Analysis</h4>
+                                            <div className="prose prose-sm dark:prose-invert max-w-none text-foreground leading-relaxed">
+                                                <ReactMarkdown>{activity.extended_evaluation}</ReactMarkdown>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="py-8 text-center border rounded-lg border-dashed">
+                                            <p className="text-muted-foreground">Detailed evaluation not available for this activity.</p>
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </CardContent>
                     </Card>

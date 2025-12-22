@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Activity;
 use App\Notifications\ActivityEvaluatedNotification;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -12,14 +13,29 @@ use Prism\Prism\Facades\Prism;
 use Prism\Prism\Schema\ObjectSchema;
 use Prism\Prism\Schema\StringSchema;
 
-class EnrichActivityWithAiJob implements ShouldQueue
+class EnrichActivityWithAiJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
     /**
+     * The number of seconds after which the job's unique lock will be released.
+     *
+     * @var int
+     */
+    public $uniqueFor = 3600;
+
+    /**
+     * Get the unique ID for the job.
+     */
+    public function uniqueId(): string
+    {
+        return (string) $this->activity->id;
+    }
+
+    /**
      * Create a new job instance.
      */
-    public function __construct(public Activity $activity) {}
+    public function __construct(public Activity $activity, public bool $sendNotification = true) {}
 
     /**
      * Execute the job.
@@ -37,15 +53,36 @@ class EnrichActivityWithAiJob implements ShouldQueue
                 description: 'Structured evaluation of a running activity',
                 properties: [
                     new StringSchema('short_evaluation', 'A very brief (max 2 sentences) encouraging evaluation of the run.'),
-                    new StringSchema('extended_evaluation', 'A detailed analysis of the run, considering distance, pace, and heart rate zones. Specific advice for improvement or recovery.'),
+                    new StringSchema('extended_evaluation', 'A detailed analysis of the run, following a specific structure including Performance Analysis, Current Activity Overview, Historical Trends, Recommendations, and Additional Advice.'),
                 ],
                 requiredFields: ['short_evaluation', 'extended_evaluation']
             );
 
+            $systemPrompt = <<<'PROMPT'
+You are an expert running coach. You provide both brief encouraging feedback and detailed technical analysis.
+The 'extended_evaluation' MUST follow this exact structure and formatting use Markdown:
+
+# Performance Analysis
+
+## Summary of Activity
+[Provide a in-depth evaluation of the activity in 1-10 sentences.]
+
+## Historical Trends (Last 10 Days)
+[Provide 2-5 bullet points analyzing pacing improvement, heart rate consistency, and distance/duration trends compared to the provided history.]
+
+## Recommendations for Improvement
+[Provide 2-5 bullet points on balanced intensity, recovery focus, and progressive overload.]
+
+## Additional Advice
+[Provide 2-5 bullet points on listening to your body, consistency, and hydration/nutrition.]
+
+End with a summary sentence. Use the user's history from the last month to identify trends or changes in performance.
+PROMPT;
+
             $response = Prism::structured()
                 ->using(Provider::OpenAI, 'gpt-4o')
                 ->withSchema($schema)
-                ->withSystemPrompt("You are an expert running coach. You provide both brief encouraging feedback and detailed technical analysis. Use the user's history from the last month to identify trends or changes in performance.")
+                ->withSystemPrompt($systemPrompt)
                 ->withPrompt("Recent History (Last 30 days):\n{$historicalContext}\n\nCurrent Activity:\n{$activityData}")
                 ->asStructured();
 
@@ -57,7 +94,9 @@ class EnrichActivityWithAiJob implements ShouldQueue
             Log::debug("Activity evaluations generated. Tokens: {$response->usage->promptTokens} prompt, {$response->usage->completionTokens} completion");
 
             // Send notification
-            $this->activity->user->notify(new ActivityEvaluatedNotification($this->activity));
+            if ($this->sendNotification) {
+                $this->activity->user->notify(new ActivityEvaluatedNotification($this->activity));
+            }
 
             Log::info("Finished AI enrichment and sent notification for activity: {$this->activity->id}");
         } catch (\Exception $e) {

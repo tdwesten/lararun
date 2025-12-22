@@ -29,6 +29,10 @@ class ActivityController extends Controller
             abort(403);
         }
 
+        if (empty($activity->short_evaluation) || empty($activity->extended_evaluation)) {
+            \App\Jobs\EnrichActivityWithAiJob::dispatch($activity, false);
+        }
+
         $recommendation = DailyRecommendation::where('user_id', $activity->user_id)
             ->whereDate('date', $activity->start_date->toDateString())
             ->first();
