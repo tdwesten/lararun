@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Queue;
 uses(RefreshDatabase::class);
 
 test('it can regenerate evaluation for a specific activity', function () {
-    $activity = Activity::factory()->create();
+    $activity = Activity::withoutEvents(fn () => Activity::factory()->create());
     Queue::fake();
 
     $this->artisan("app:regenerate-activity-evaluation {$activity->id}")
@@ -23,8 +23,8 @@ test('it can regenerate evaluation for a specific activity', function () {
 
 test('it can regenerate evaluations for a specific user', function () {
     $user = User::factory()->create();
-    $activities = Activity::factory()->count(3)->create(['user_id' => $user->id]);
-    Activity::factory()->create(); // Another user's activity
+    $activities = Activity::withoutEvents(fn () => Activity::factory()->count(3)->create(['user_id' => $user->id]));
+    Activity::withoutEvents(fn () => Activity::factory()->create()); // Another user's activity
     Queue::fake();
 
     $this->artisan("app:regenerate-activity-evaluation --user={$user->id}")
@@ -36,7 +36,7 @@ test('it can regenerate evaluations for a specific user', function () {
 });
 
 test('it can regenerate all evaluations', function () {
-    Activity::factory()->count(5)->create();
+    Activity::withoutEvents(fn () => Activity::factory()->count(5)->create());
     Queue::fake();
 
     $this->artisan('app:regenerate-activity-evaluation --all')

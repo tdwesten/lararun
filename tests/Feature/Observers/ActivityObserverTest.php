@@ -6,9 +6,14 @@ use App\Models\Activity;
 use App\Models\Objective;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    Http::fake();
+});
 
 test('creating an activity dispatches enrich and training plan jobs', function () {
     Queue::fake();
@@ -39,10 +44,12 @@ test('updating an activity performance data dispatches jobs', function () {
         'status' => 'active',
     ]);
 
-    $activity = Activity::factory()->create([
-        'user_id' => $user->id,
-        'distance' => 5000,
-    ]);
+    $activity = Activity::withoutEvents(function () use ($user) {
+        return Activity::factory()->create([
+            'user_id' => $user->id,
+            'distance' => 5000,
+        ]);
+    });
 
     Queue::fake();
 
@@ -54,10 +61,12 @@ test('updating an activity performance data dispatches jobs', function () {
 
 test('updating non-performance data does not dispatch jobs', function () {
     $user = User::factory()->create();
-    $activity = Activity::factory()->create([
-        'user_id' => $user->id,
-        'short_evaluation' => null,
-    ]);
+    $activity = Activity::withoutEvents(function () use ($user) {
+        return Activity::factory()->create([
+            'user_id' => $user->id,
+            'short_evaluation' => null,
+        ]);
+    });
 
     Queue::fake();
 

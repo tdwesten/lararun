@@ -1,8 +1,8 @@
 <?php
 
-# CodeToad
-# Richie McMullen
-# 2019
+// CodeToad
+// Richie McMullen
+// 2019
 
 return [
 

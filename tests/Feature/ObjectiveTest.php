@@ -2,8 +2,10 @@
 
 use App\Models\Objective;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
+    Http::fake();
     $this->user = User::factory()->create([
         'email_verified_at' => now(),
     ]);

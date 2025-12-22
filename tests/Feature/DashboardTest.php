@@ -14,9 +14,12 @@ test('authenticated users can visit the dashboard and see activities', function 
         'strava_id' => '12345',
     ]);
 
-    $activities = Activity::factory()->count(3)->create([
-        'user_id' => $user->id,
-    ]);
+    $activities = Activity::withoutEvents(function () use ($user) {
+        return Activity::factory()->count(3)->create([
+            'user_id' => $user->id,
+            'short_evaluation' => 'Great run!',
+        ]);
+    });
 
     $latestActivity = $activities->sortByDesc('start_date')->first();
 

@@ -12,10 +12,12 @@ it('generates email content using AI', function () {
     ]);
 
     $user = User::factory()->create();
-    $activity = Activity::factory()->create([
-        'user_id' => $user->id,
-        'short_evaluation' => 'Great run! Keep it up.',
-    ]);
+    $activity = Activity::withoutEvents(function () use ($user) {
+        return Activity::factory()->create([
+            'user_id' => $user->id,
+            'short_evaluation' => 'Great run! Keep it up.',
+        ]);
+    });
 
     $notification = new ActivityEvaluatedNotification($activity);
     $mail = $notification->toMail($user);

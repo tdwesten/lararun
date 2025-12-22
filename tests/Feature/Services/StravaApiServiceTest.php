@@ -4,7 +4,6 @@ use App\Models\User;
 use App\Services\StravaApiService;
 use CodeToad\Strava\Strava;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 
 uses(RefreshDatabase::class);
 
@@ -19,7 +18,7 @@ test('it refreshes token if expired', function () {
     $stravaMock->shouldReceive('refreshToken')
         ->with('refresh-token')
         ->once()
-        ->andReturn((object)[
+        ->andReturn((object) [
             'access_token' => 'new-token',
             'refresh_token' => 'new-refresh-token',
             'expires_in' => 3600,

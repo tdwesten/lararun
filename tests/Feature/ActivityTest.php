@@ -6,15 +6,16 @@ use App\Models\DailyRecommendation;
 use App\Models\Objective;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
+    Http::fake();
     $this->user = User::factory()->create([
         'email_verified_at' => now(),
     ]);
-    // Mock the email.set middleware if necessary, but here we just ensure email is set (it is by factory)
 });
 
 test('guest cannot access activities index', function () {
@@ -23,7 +24,10 @@ test('guest cannot access activities index', function () {
 });
 
 test('user can access activities index', function () {
-    Activity::factory()->count(5)->create(['user_id' => $this->user->id]);
+    $user = $this->user;
+    Activity::withoutEvents(function () use ($user) {
+        Activity::factory()->count(5)->create(['user_id' => $user->id]);
+    });
 
     $this->actingAs($this->user)
         ->get(route('activities.index'))
@@ -35,7 +39,10 @@ test('user can access activities index', function () {
 });
 
 test('user can access activity show page', function () {
-    $activity = Activity::factory()->create(['user_id' => $this->user->id]);
+    $user = $this->user;
+    $activity = Activity::withoutEvents(function () use ($user) {
+        return Activity::factory()->create(['user_id' => $user->id]);
+    });
 
     $this->actingAs($this->user)
         ->get(route('activities.show', $activity))
@@ -49,7 +56,9 @@ test('user can access activity show page', function () {
 
 test('user cannot access another user activity', function () {
     $otherUser = User::factory()->create();
-    $activity = Activity::factory()->create(['user_id' => $otherUser->id]);
+    $activity = Activity::withoutEvents(function () use ($otherUser) {
+        return Activity::factory()->create(['user_id' => $otherUser->id]);
+    });
 
     $this->actingAs($this->user)
         ->get(route('activities.show', $activity))
@@ -57,10 +66,13 @@ test('user cannot access another user activity', function () {
 });
 
 test('activity show page includes recommendation for the same day', function () {
-    $activity = Activity::factory()->create([
-        'user_id' => $this->user->id,
-        'start_date' => now(),
-    ]);
+    $user = $this->user;
+    $activity = Activity::withoutEvents(function () use ($user) {
+        return Activity::factory()->create([
+            'user_id' => $user->id,
+            'start_date' => now(),
+        ]);
+    });
 
     $objective = Objective::factory()->create(['user_id' => $this->user->id]);
     $recommendation = DailyRecommendation::factory()->create([

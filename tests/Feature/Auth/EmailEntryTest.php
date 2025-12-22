@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Support\Facades\Notification;
 
 test('authenticated user without email is redirected to email entry page', function () {
     $user = User::factory()->create(['email' => null]);

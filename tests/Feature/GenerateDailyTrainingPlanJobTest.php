@@ -81,12 +81,14 @@ it('generates a daily training plan using AI and sends a notification', function
     ]);
 
     // Create some historical activities
-    Activity::factory()->count(3)->create([
-        'user_id' => $user->id,
-        'start_date' => now()->subDays(2),
-        'distance' => 5000,
-        'short_evaluation' => 'Good steady run.',
-    ]);
+    Activity::withoutEvents(function () use ($user) {
+        Activity::factory()->count(3)->create([
+            'user_id' => $user->id,
+            'start_date' => now()->subDays(2),
+            'distance' => 5000,
+            'short_evaluation' => 'Good steady run.',
+        ]);
+    });
 
     $job = new GenerateDailyTrainingPlanJob($user, $objective);
     $job->handle();

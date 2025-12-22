@@ -8,45 +8,36 @@ use Illuminate\Support\Facades\Log;
 
 class StravaApiService
 {
-    public function __construct(protected Strava $strava)
-    {
-    }
+    public function __construct(protected Strava $strava) {}
 
     /**
      * Get activities for a user.
-     *
-     * @param  User  $user
-     * @param  int  $perPage
-     * @return array
      */
     public function getActivities(User $user, int $perPage = 30): array
     {
         $token = $this->getValidToken($user);
 
-        if (!$token) {
+        if (! $token) {
             return [];
         }
 
         try {
             return $this->strava->activities($token, 1, $perPage);
         } catch (\Exception $e) {
-            Log::error('Strava API Error (getActivities): ' . $e->getMessage());
+            Log::error('Strava API Error (getActivities): '.$e->getMessage());
+
             return [];
         }
     }
 
     /**
      * Get detailed activity with zones.
-     *
-     * @param  User  $user
-     * @param  string  $stravaActivityId
-     * @return array
      */
     public function getActivityWithZones(User $user, string $stravaActivityId): array
     {
         $token = $this->getValidToken($user);
 
-        if (!$token) {
+        if (! $token) {
             return [];
         }
 
@@ -59,25 +50,23 @@ class StravaApiService
                 'zones' => $zones,
             ];
         } catch (\Exception $e) {
-            Log::error('Strava API Error (getActivityWithZones): ' . $e->getMessage());
+            Log::error('Strava API Error (getActivityWithZones): '.$e->getMessage());
+
             return [];
         }
     }
 
     /**
      * Ensure we have a valid access token.
-     *
-     * @param  User  $user
-     * @return string|null
      */
     protected function getValidToken(User $user): ?string
     {
-        if (!$user->strava_token || !$user->strava_refresh_token) {
+        if (! $user->strava_token || ! $user->strava_refresh_token) {
             return null;
         }
 
         // Refresh token if it expires in the next 5 minutes
-        if (!$user->strava_token_expires_at || $user->strava_token_expires_at->isPast() || now()->diffInMinutes($user->strava_token_expires_at, false) < 5) {
+        if (! $user->strava_token_expires_at || $user->strava_token_expires_at->isPast() || now()->diffInMinutes($user->strava_token_expires_at, false) < 5) {
             return $this->refreshToken($user);
         }
 
@@ -86,9 +75,6 @@ class StravaApiService
 
     /**
      * Refresh the access token.
-     *
-     * @param  User  $user
-     * @return string|null
      */
     protected function refreshToken(User $user): ?string
     {
@@ -105,7 +91,7 @@ class StravaApiService
                 return $response->access_token;
             }
         } catch (\Exception $e) {
-            Log::error('Strava Token Refresh Error: ' . $e->getMessage());
+            Log::error('Strava Token Refresh Error: '.$e->getMessage());
         }
 
         return null;
