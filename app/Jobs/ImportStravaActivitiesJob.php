@@ -84,8 +84,6 @@ class ImportStravaActivitiesJob implements ShouldQueue
                         'zone_data_available' => ! empty($zoneData),
                     ]);
 
-                    EnrichActivityWithAiJob::dispatch($activity);
-
                     $importedCount++;
                 } catch (\Exception $e) {
                     Log::error("Failed to import activity {$stravaActivity->id} for user {$this->user->id}: {$e->getMessage()}", [

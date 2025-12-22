@@ -7,6 +7,7 @@ use App\Models\DailyRecommendation;
 use App\Models\Objective;
 use App\Models\User;
 use App\Notifications\DailyTrainingPlanNotification;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -16,9 +17,24 @@ use Prism\Prism\Schema\ArraySchema;
 use Prism\Prism\Schema\ObjectSchema;
 use Prism\Prism\Schema\StringSchema;
 
-class GenerateDailyTrainingPlanJob implements ShouldQueue
+class GenerateDailyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
+
+    /**
+     * The number of seconds after which the job's unique lock will be released.
+     *
+     * @var int
+     */
+    public $uniqueFor = 3600;
+
+    /**
+     * Get the unique ID for the job.
+     */
+    public function uniqueId(): string
+    {
+        return (string) $this->user->id;
+    }
 
     /**
      * Create a new job instance.

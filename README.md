@@ -1,2 +1,2 @@
-# lararun
-A Laravel-based run coach
+# Lararun
+A Selfhosted Laravel-based running AI coach

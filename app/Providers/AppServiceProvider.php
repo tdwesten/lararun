@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Activity;
+use App\Observers\ActivityObserver;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,5 +26,6 @@ class AppServiceProvider extends ServiceProvider
             $event->extendSocialite('strava', \SocialiteProviders\Strava\Provider::class);
         });
 
+        Activity::observe(ActivityObserver::class);
     }
 }

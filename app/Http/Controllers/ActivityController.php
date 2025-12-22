@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\EnrichActivityWithAiJob;
 use App\Models\Activity;
 use App\Models\DailyRecommendation;
 use Illuminate\Http\Request;
@@ -30,7 +31,7 @@ class ActivityController extends Controller
         }
 
         if (empty($activity->short_evaluation) || empty($activity->extended_evaluation)) {
-            \App\Jobs\EnrichActivityWithAiJob::dispatch($activity, false);
+            EnrichActivityWithAiJob::dispatch($activity);
         }
 
         $recommendation = DailyRecommendation::where('user_id', $activity->user_id)

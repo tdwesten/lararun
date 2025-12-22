@@ -80,13 +80,15 @@ test('activity show page includes recommendation for the same day', function () 
 });
 
 test('activity show page dispatches enrich job if evaluation is missing', function () {
-    Queue::fake();
+    $activity = Activity::withoutEvents(function () {
+        return Activity::factory()->create([
+            'user_id' => $this->user->id,
+            'short_evaluation' => null,
+            'extended_evaluation' => null,
+        ]);
+    });
 
-    $activity = Activity::factory()->create([
-        'user_id' => $this->user->id,
-        'short_evaluation' => null,
-        'extended_evaluation' => null,
-    ]);
+    Queue::fake();
 
     $this->actingAs($this->user)
         ->get(route('activities.show', $activity))
@@ -98,13 +100,15 @@ test('activity show page dispatches enrich job if evaluation is missing', functi
 });
 
 test('activity show page does not dispatch enrich job if evaluation exists', function () {
-    Queue::fake();
+    $activity = Activity::withoutEvents(function () {
+        return Activity::factory()->create([
+            'user_id' => $this->user->id,
+            'short_evaluation' => 'Great run!',
+            'extended_evaluation' => 'You did well today.',
+        ]);
+    });
 
-    $activity = Activity::factory()->create([
-        'user_id' => $this->user->id,
-        'short_evaluation' => 'Great run!',
-        'extended_evaluation' => 'You did well today.',
-    ]);
+    Queue::fake();
 
     $this->actingAs($this->user)
         ->get(route('activities.show', $activity))
@@ -114,13 +118,15 @@ test('activity show page does not dispatch enrich job if evaluation exists', fun
 });
 
 test('activity show page does not dispatch multiple enrich jobs if one is already in progress', function () {
-    Queue::fake();
+    $activity = Activity::withoutEvents(function () {
+        return Activity::factory()->create([
+            'user_id' => $this->user->id,
+            'short_evaluation' => null,
+            'extended_evaluation' => null,
+        ]);
+    });
 
-    $activity = Activity::factory()->create([
-        'user_id' => $this->user->id,
-        'short_evaluation' => null,
-        'extended_evaluation' => null,
-    ]);
+    Queue::fake();
 
     $this->actingAs($this->user)->get(route('activities.show', $activity));
     $this->actingAs($this->user)->get(route('activities.show', $activity));
