@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import AppLayout from '@/layouts/app-layout';
-import { create, edit, index } from '@/routes/objectives';
+import { create, edit, index, show } from '@/routes/objectives';
 import { BreadcrumbItem, Objective } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Plus, Target, Trash2 } from 'lucide-react';
@@ -85,6 +85,9 @@ export default function Index({ objectives, currentObjective }: { objectives: Ob
                             <RunningDays days={currentObjective.running_days} />
                             <div className="mt-4 flex gap-2">
                                 <Button variant="outline" size="sm" asChild>
+                                    <Link href={show(currentObjective.id).url}>View Recommendations</Link>
+                                </Button>
+                                <Button variant="ghost" size="sm" asChild>
                                     <Link href={edit(currentObjective.id).url}>Edit</Link>
                                 </Button>
                             </div>
@@ -119,6 +122,9 @@ export default function Index({ objectives, currentObjective }: { objectives: Ob
                                     {objective.description && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{objective.description}</p>}
                                     <div className="mt-4 flex items-center justify-between">
                                         <div className="flex gap-2">
+                                            <Button variant="outline" size="sm" asChild>
+                                                <Link href={show(objective.id).url}>View</Link>
+                                            </Button>
                                             <Button variant="ghost" size="sm" asChild>
                                                 <Link href={edit(objective.id).url}>Edit</Link>
                                             </Button>

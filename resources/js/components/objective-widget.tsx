@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { create } from '@/routes/objectives';
+import { create, show } from '@/routes/objectives';
 import { Objective } from '@/types';
 import { Link } from '@inertiajs/react';
 import { Calendar, Target } from 'lucide-react';
@@ -9,7 +9,7 @@ import { Calendar, Target } from 'lucide-react';
 export default function ObjectiveWidget({ objective }: { objective: Objective | null }) {
     if (!objective) {
         return (
-            <Card className="flex h-full flex-col justify-between">
+            <Card className="flex h-full flex-col justify-between border-dashed">
                 <CardHeader>
                     <CardTitle className="text-lg">No Active Objective</CardTitle>
                     <CardDescription>You haven't set a goal yet.</CardDescription>
@@ -26,13 +26,16 @@ export default function ObjectiveWidget({ objective }: { objective: Objective | 
     const daysLeft = Math.ceil((new Date(objective.target_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
 
     return (
-        <Card className="flex h-full flex-col justify-between border-primary/20">
-            <CardHeader>
+        <Card className="flex h-full flex-col justify-between border-primary/20 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-5">
+                <Target className="h-24 w-24" />
+            </div>
+            <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">Current Goal</CardTitle>
                     <Target className="h-5 w-5 text-primary" />
                 </div>
-                <CardDescription>{objective.type}</CardDescription>
+                <CardDescription className="font-semibold text-primary">{objective.type}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -78,7 +81,7 @@ export default function ObjectiveWidget({ objective }: { objective: Objective | 
                     </div>
                 </div>
                 <Button asChild variant="outline" className="w-full">
-                    <Link href="/objectives">View Details</Link>
+                    <Link href={show(objective.id).url}>View Details</Link>
                 </Button>
             </CardContent>
         </Card>

@@ -15,6 +15,48 @@ test('user can see objectives index', function () {
     $response->assertStatus(200);
 });
 
+test('user can see objective detail', function () {
+    $objective = Objective::factory()->create([
+        'user_id' => $this->user->id,
+    ]);
+
+    $response = $this->actingAs($this->user)->get(route('objectives.show', $objective));
+
+    $response->assertStatus(200);
+    $response->assertInertia(fn ($page) => $page
+        ->component('objectives/show')
+        ->has('objective')
+    );
+});
+
+test('user can see objective detail with recommendations sorted', function () {
+    $objective = Objective::factory()->create([
+        'user_id' => $this->user->id,
+    ]);
+
+    $rec1 = \App\Models\DailyRecommendation::factory()->create([
+        'user_id' => $this->user->id,
+        'objective_id' => $objective->id,
+        'date' => now()->subDay()->toDateString(),
+    ]);
+
+    $rec2 = \App\Models\DailyRecommendation::factory()->create([
+        'user_id' => $this->user->id,
+        'objective_id' => $objective->id,
+        'date' => now()->toDateString(),
+    ]);
+
+    $response = $this->actingAs($this->user)->get(route('objectives.show', $objective));
+
+    $response->assertStatus(200);
+    $response->assertInertia(fn ($page) => $page
+        ->component('objectives/show')
+        ->has('objective.daily_recommendations', 2)
+        ->where('objective.daily_recommendations.0.id', $rec2->id) // Latest first
+        ->where('objective.daily_recommendations.1.id', $rec1->id)
+    );
+});
+
 test('user can create an objective', function () {
     $response = $this->actingAs($this->user)->post(route('objectives.store'), [
         'type' => '10 km',

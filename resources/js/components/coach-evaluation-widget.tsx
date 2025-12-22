@@ -33,7 +33,7 @@ export default function CoachEvaluationWidget({ activity }: { activity: Activity
                     </p>
                 </div>
                 <div className="text-xs text-muted-foreground pt-2">
-                    Coach AI is analyzing your performance and fatigue.
+                    Lararun Coach is analyzing your performance and fatigue.
                 </div>
             </CardContent>
         </Card>

@@ -49,6 +49,20 @@ class ObjectiveController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     */
+    public function show(Objective $objective): Response
+    {
+        $this->authorize('view', $objective);
+
+        return Inertia::render('objectives/show', [
+            'objective' => $objective->load(['dailyRecommendations' => function ($query) {
+                $query->latest('date');
+            }]),
+        ]);
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit(Objective $objective): Response

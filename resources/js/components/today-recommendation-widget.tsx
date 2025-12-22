@@ -1,6 +1,7 @@
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DailyRecommendation } from '@/types';
-import { Sparkles, Dumbbell, Info, Zap, Coffee } from 'lucide-react';
+import { Sparkles, Dumbbell, Zap, Coffee, Info } from 'lucide-react';
 
 interface TodayRecommendationWidgetProps {
     recommendation: DailyRecommendation | null;
@@ -49,14 +50,13 @@ export default function TodayRecommendationWidget({ recommendation }: TodayRecom
                     </p>
                 </div>
 
-                <div className="bg-muted/50 rounded-lg p-3 border border-border/50">
-                    <div className="flex items-start gap-2">
-                        <Info className="h-4 w-4 text-primary/60 mt-0.5 shrink-0" />
-                        <p className="text-xs text-muted-foreground italic leading-relaxed">
-                            {recommendation.reasoning}
-                        </p>
-                    </div>
-                </div>
+                <Alert variant="default" className="bg-muted/50 border-none">
+                    <Info className="h-4 w-4" />
+                    <AlertTitle className="text-xs font-semibold uppercase text-muted-foreground">Coach's Notes</AlertTitle>
+                    <AlertDescription className="text-xs italic text-muted-foreground">
+                        {recommendation.reasoning}
+                    </AlertDescription>
+                </Alert>
             </CardContent>
         </Card>
     );
