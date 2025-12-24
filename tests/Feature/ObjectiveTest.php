@@ -147,3 +147,85 @@ test('user can delete an objective', function () {
     $response->assertRedirect(route('objectives.index'));
     $this->assertDatabaseMissing('objectives', ['id' => $objective->id]);
 });
+
+test('objective detail view includes running stats', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+    
+    $objective = Objective::factory()->create([
+        'user_id' => $this->user->id,
+    ]);
+
+    // Create some activities for the user
+    \App\Models\Activity::factory()->create([
+        'user_id' => $this->user->id,
+        'type' => 'Run',
+        'distance' => 5000, // 5 km in meters
+        'moving_time' => 1800, // 30 minutes
+    ]);
+
+    \App\Models\Activity::factory()->create([
+        'user_id' => $this->user->id,
+        'type' => 'Run',
+        'distance' => 10000, // 10 km
+        'moving_time' => 3000, // 50 minutes
+    ]);
+
+    $response = $this->actingAs($this->user)->get(route('objectives.show', $objective));
+
+    $response->assertStatus(200);
+    $response->assertInertia(fn ($page) => $page
+        ->component('objectives/show')
+        ->has('objective')
+        ->has('runningStats')
+        ->where('runningStats.total_distance_km', 15)
+        ->where('runningStats.total_runs', 2)
+    );
+});
+
+test('running stats calculates best pace correctly', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+    
+    $objective = Objective::factory()->create([
+        'user_id' => $this->user->id,
+    ]);
+
+    // Slower run: 10 min/km pace
+    \App\Models\Activity::factory()->create([
+        'user_id' => $this->user->id,
+        'type' => 'Run',
+        'distance' => 5000, // 5 km
+        'moving_time' => 3000, // 50 minutes (600 sec/km)
+    ]);
+
+    // Faster run: 5 min/km pace
+    \App\Models\Activity::factory()->create([
+        'user_id' => $this->user->id,
+        'type' => 'Run',
+        'distance' => 5000, // 5 km
+        'moving_time' => 1500, // 25 minutes (300 sec/km)
+    ]);
+
+    $response = $this->actingAs($this->user)->get(route('objectives.show', $objective));
+
+    $response->assertStatus(200);
+    $response->assertInertia(fn ($page) => $page
+        ->has('runningStats')
+        ->where('runningStats.best_pace_per_km', '5:00 /km')
+    );
+});
+
+test('running stats handles no activities gracefully', function () {
+    $objective = Objective::factory()->create([
+        'user_id' => $this->user->id,
+    ]);
+
+    $response = $this->actingAs($this->user)->get(route('objectives.show', $objective));
+
+    $response->assertStatus(200);
+    $response->assertInertia(fn ($page) => $page
+        ->has('runningStats')
+        ->where('runningStats.total_distance_km', 0)
+        ->where('runningStats.total_runs', 0)
+        ->where('runningStats.best_pace_per_km', null)
+    );
+});

@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { index } from '@/routes/objectives';
-import { BreadcrumbItem, DailyRecommendation, Objective } from '@/types';
+import { BreadcrumbItem, DailyRecommendation, Objective, RunningStats } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Info, Target } from 'lucide-react';
+import { ArrowLeft, Calendar, Info, Target, Activity, TrendingUp, Clock, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function Show({ objective }: { objective: Objective }) {
+export default function Show({ objective, runningStats }: { objective: Objective; runningStats: RunningStats }) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Objectives',
@@ -43,6 +43,65 @@ export default function Show({ objective }: { objective: Objective }) {
                     <Badge className="ml-auto" variant={objective.status === 'active' ? 'default' : 'secondary'}>
                         {objective.status}
                     </Badge>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-4">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Distance</CardTitle>
+                            <Activity className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{runningStats.total_distance_km} km</div>
+                            <p className="text-xs text-muted-foreground mt-1">
+                                {runningStats.total_runs} {runningStats.total_runs === 1 ? 'run' : 'runs'} total
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Time</CardTitle>
+                            <Clock className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{runningStats.total_time_formatted}</div>
+                            <p className="text-xs text-muted-foreground mt-1">Time spent running</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Average Pace</CardTitle>
+                            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">
+                                {runningStats.average_pace_per_km || 'N/A'}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">Per kilometer</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Best Pace</CardTitle>
+                            <Zap className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">
+                                {runningStats.best_pace_per_km || 'N/A'}
+                            </div>
+                            {runningStats.fastest_run && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    {runningStats.fastest_run.distance_km} km on {new Date(runningStats.fastest_run.date).toLocaleDateString()}
+                                </p>
+                            )}
+                            {!runningStats.fastest_run && (
+                                <p className="text-xs text-muted-foreground mt-1">No runs yet</p>
+                            )}
+                        </CardContent>
+                    </Card>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-3">

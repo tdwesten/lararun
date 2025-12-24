@@ -59,6 +59,7 @@ class ObjectiveController extends Controller
             'objective' => $objective->load(['dailyRecommendations' => function ($query) {
                 $query->oldest('date')->whereDate('date', '>=', now())->take(7);
             }]),
+            'runningStats' => $objective->user->getRunningStats(),
         ]);
     }
 

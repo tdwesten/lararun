@@ -89,3 +89,18 @@ export interface DailyRecommendation {
     created_at: string;
     updated_at: string;
 }
+
+export interface RunningStats {
+    total_distance_km: number;
+    total_time_seconds: number;
+    total_time_formatted: string;
+    total_runs: number;
+    average_pace_per_km: string | null;
+    best_pace_per_km: string | null;
+    fastest_run: {
+        name: string;
+        distance_km: number;
+        pace: string;
+        date: string;
+    } | null;
+}
