@@ -1,6 +1,6 @@
 <?php
 
-use App\Jobs\GenerateDailyTrainingPlanJob;
+use App\Jobs\GenerateWeeklyTrainingPlanJob;
 use App\Models\Objective;
 use App\Models\User;
 use Illuminate\Support\Facades\Queue;
@@ -29,11 +29,11 @@ it('dispatches jobs for all users with active objectives', function () {
     $this->artisan('app:generate-daily-training-plans')
         ->assertExitCode(0);
 
-    Queue::assertPushed(GenerateDailyTrainingPlanJob::class, 2);
-    Queue::assertPushed(GenerateDailyTrainingPlanJob::class, function ($job) use ($user1, $objective1) {
+    Queue::assertPushed(GenerateWeeklyTrainingPlanJob::class, 2);
+    Queue::assertPushed(GenerateWeeklyTrainingPlanJob::class, function ($job) use ($user1, $objective1) {
         return $job->user->id === $user1->id && $job->objective->id === $objective1->id;
     });
-    Queue::assertPushed(GenerateDailyTrainingPlanJob::class, function ($job) use ($user2, $objective2) {
+    Queue::assertPushed(GenerateWeeklyTrainingPlanJob::class, function ($job) use ($user2, $objective2) {
         return $job->user->id === $user2->id && $job->objective->id === $objective2->id;
     });
 });

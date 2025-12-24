@@ -17,7 +17,7 @@ use Prism\Prism\Schema\ArraySchema;
 use Prism\Prism\Schema\ObjectSchema;
 use Prism\Prism\Schema\StringSchema;
 
-class GenerateDailyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
+class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
@@ -42,7 +42,8 @@ class GenerateDailyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
     public function __construct(
         public User $user,
         public Objective $objective,
-        public bool $force = false
+        public bool $force = false,
+        public bool $sendNotification = false
     ) {}
 
     /**
@@ -139,7 +140,7 @@ class GenerateDailyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
                     ]);
                 }
 
-                if ($planData['date'] === $startDate) {
+                if ($this->sendNotification && $planData['date'] === $startDate) {
                     $this->user->notify(new DailyTrainingPlanNotification($recommendation));
                 }
             }
