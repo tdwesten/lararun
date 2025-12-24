@@ -41,6 +41,10 @@ Use webhooks for real-time sync, queues for AI processing.
     - Target pace
     - AI reasoning/context
 * Store recommendations in database
+* Enhancement prompt feature:
+    - Users can add custom instructions to enhance training plans
+    - Prompts are stored with objectives and included in AI generation
+    - Regenerate button allows users to update their weekly plan with new instructions
 
 ## 5. Daily Email Notifications
 * Send daily email at 7:00 AM (fixed time for MVP)
@@ -83,6 +87,7 @@ Use webhooks for real-time sync, queues for AI processing.
 ✅ Recommendations are contextual (based on recent activities & goal)
 ✅ User can view current plan in dashboard
 ✅ Activities are imported automatically every hour with heart rate zone data and intensity scores
+✅ Users can enhance their training plans with custom instructions and regenerate recommendations
 
 # Frontend Guidelines
 - Use Tailwind CSS for styling.
