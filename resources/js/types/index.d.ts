@@ -71,6 +71,7 @@ export interface Objective {
     target_date: string;
     status: 'active' | 'completed' | 'abandoned';
     description: string | null;
+    enhancement_prompt: string | null;
     running_days: string[] | null;
     daily_recommendations?: DailyRecommendation[];
     created_at: string;

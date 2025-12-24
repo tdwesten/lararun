@@ -76,10 +76,16 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
             $objectiveInfo = $this->getObjectiveInfo();
             $today = now()->format('l, Y-m-d');
 
-            $prompt = "Objective:\n{$objectiveInfo}\n\n"
+            $basePrompt = "Objective:\n{$objectiveInfo}\n\n"
                 ."Recent History (Last 30 days):\n{$historicalContext}\n\n"
                 ."Last 3 Recommendations:\n{$recommendationContext}\n\n"
-                ."Today is {$today}.\n\n"
+                ."Today is {$today}.\n\n";
+
+            if ($this->objective->enhancement_prompt) {
+                $basePrompt .= "Additional Enhancement Instructions:\n{$this->objective->enhancement_prompt}\n\n";
+            }
+
+            $prompt = $basePrompt
                 ."Generate a training plan for the upcoming 7 days, starting from today ({$today}).\n\n"
                 .'Think hard about the best training sessions for each day to reach the objective. '
                 ."Consider fatigue, recovery, and the target date ({$this->objective->target_date->toDateString()}). "
