@@ -37,3 +37,22 @@ it('dispatches jobs for all users with active objectives', function () {
         return $job->user->id === $user2->id && $job->objective->id === $objective2->id;
     });
 });
+
+it('dispatches jobs with sendNotification set to true', function () {
+    Queue::fake();
+
+    $user = User::factory()->create();
+    $objective = Objective::factory()->create([
+        'user_id' => $user->id,
+        'status' => 'active',
+    ]);
+
+    $this->artisan('app:generate-daily-training-plans')
+        ->assertExitCode(0);
+
+    Queue::assertPushed(GenerateWeeklyTrainingPlanJob::class, function ($job) use ($user, $objective) {
+        return $job->user->id === $user->id
+            && $job->objective->id === $objective->id
+            && $job->sendNotification === true;
+    });
+});

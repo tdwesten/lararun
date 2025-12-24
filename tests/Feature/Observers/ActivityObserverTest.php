@@ -73,7 +73,7 @@ test('updating non-performance data does not dispatch jobs', function () {
     $activity->update(['short_evaluation' => 'Updated evaluation']);
 
     Queue::assertNotPushed(EnrichActivityWithAiJob::class);
-    Queue::assertNotPushed(GenerateDailyTrainingPlanJob::class);
+    Queue::assertNotPushed(GenerateWeeklyTrainingPlanJob::class);
 });
 
 test('creating an activity without active objective only dispatches enrich job', function () {
@@ -88,4 +88,24 @@ test('creating an activity without active objective only dispatches enrich job',
 
     Queue::assertPushed(EnrichActivityWithAiJob::class);
     Queue::assertNotPushed(GenerateWeeklyTrainingPlanJob::class);
+});
+
+test('creating an activity dispatches training plan job with sendNotification set to false', function () {
+    Queue::fake();
+
+    $user = User::factory()->create();
+    $objective = Objective::factory()->create([
+        'user_id' => $user->id,
+        'status' => 'active',
+    ]);
+
+    $activity = Activity::factory()->create([
+        'user_id' => $user->id,
+    ]);
+
+    Queue::assertPushed(GenerateWeeklyTrainingPlanJob::class, function ($job) use ($user, $objective) {
+        return $job->user->id === $user->id
+            && $job->objective->id === $objective->id
+            && $job->sendNotification === false;
+    });
 });
