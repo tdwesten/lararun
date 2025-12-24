@@ -90,7 +90,7 @@ it('generates a daily training plan using AI and sends a notification when sendN
         ]);
     });
 
-    $job = new GenerateWeeklyTrainingPlanJob($user, $objective, sendNotification: true);
+    $job = new GenerateWeeklyTrainingPlanJob(user: $user, objective: $objective, sendNotification: true);
     $job->handle();
 
     // Assert recommendations were created for 7 days
@@ -139,7 +139,7 @@ it('does not generate a daily training plan if all 7 days already exist', functi
         ]);
     }
 
-    $job = new GenerateWeeklyTrainingPlanJob($user, $objective);
+    $job = new GenerateWeeklyTrainingPlanJob(user: $user, objective: $objective);
     $job->handle();
 
     // Verify no new recommendation was created (still 7)
@@ -216,7 +216,7 @@ it('does not send notification when sendNotification is false', function () {
     $user = User::factory()->create();
     $objective = Objective::factory()->create(['user_id' => $user->id]);
 
-    $job = new GenerateWeeklyTrainingPlanJob($user, $objective, sendNotification: false);
+    $job = new GenerateWeeklyTrainingPlanJob(user: $user, objective: $objective, sendNotification: false);
     $job->handle();
 
     // Assert recommendations were created

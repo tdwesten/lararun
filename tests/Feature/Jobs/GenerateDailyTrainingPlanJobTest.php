@@ -176,7 +176,7 @@ it('replaces an existing daily recommendation for today', function () {
         ]),
     ]);
 
-    $job = new GenerateWeeklyTrainingPlanJob($user, $objective, force: true, sendNotification: true);
+    $job = new GenerateWeeklyTrainingPlanJob(user: $user, objective: $objective, force: true, sendNotification: true);
     $job->handle();
 
     // Verify the old one was updated
