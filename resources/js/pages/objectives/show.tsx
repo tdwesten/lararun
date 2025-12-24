@@ -176,11 +176,12 @@ export default function Show({ objective, runningStats }: { objective: Objective
                                             onChange={(e) => setData('enhancement_prompt', e.target.value)}
                                             className="min-h-24"
                                             aria-invalid={errors.enhancement_prompt ? 'true' : 'false'}
+                                            aria-describedby={`${errors.enhancement_prompt ? 'enhancement_prompt-error ' : ''}enhancement_prompt-description`}
                                         />
                                         {errors.enhancement_prompt && (
-                                            <p className="text-sm text-destructive">{errors.enhancement_prompt}</p>
+                                            <p id="enhancement_prompt-error" className="text-sm text-destructive">{errors.enhancement_prompt}</p>
                                         )}
-                                        <p className="text-xs text-muted-foreground">
+                                        <p id="enhancement_prompt-description" className="text-xs text-muted-foreground">
                                             Provide specific instructions to customize your training plan. The AI will regenerate the next 7 days with your preferences.
                                         </p>
                                     </div>

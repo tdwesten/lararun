@@ -107,7 +107,7 @@ class ObjectiveController extends Controller
     public function enhanceTrainings(EnhanceObjectiveTrainingsRequest $request, Objective $objective): RedirectResponse
     {
         $objective->update([
-            'enhancement_prompt' => $request->validated()['enhancement_prompt'],
+            'enhancement_prompt' => $request->validated()['enhancement_prompt'] ?: null,
         ]);
 
         GenerateWeeklyTrainingPlanJob::dispatch(
