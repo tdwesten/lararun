@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
-import { enhanceTrainings, index } from '@/routes/objectives';
+import objectives from '@/routes/objectives';
 import { BreadcrumbItem, DailyRecommendation, Objective, RunningStats } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Calendar, Info, Target, Activity, TrendingUp, Clock, Zap, Sparkles } from 'lucide-react';
@@ -15,7 +15,7 @@ export default function Show({ objective, runningStats }: { objective: Objective
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Objectives',
-            href: index().url,
+            href: objectives.index().url,
         },
         {
             title: objective.type,
@@ -36,7 +36,7 @@ export default function Show({ objective, runningStats }: { objective: Objective
             <div className="flex flex-1 flex-col gap-4 p-4">
                 <div className="flex items-center gap-4">
                     <Button variant="ghost" size="icon" asChild>
-                        <Link href={index().url}>
+                        <Link href={objectives.index().url}>
                             <ArrowLeft className="h-4 w-4" />
                         </Link>
                     </Button>
@@ -162,7 +162,7 @@ export default function Show({ objective, runningStats }: { objective: Objective
                             <CardContent>
                                 <form onSubmit={(e) => {
                                     e.preventDefault();
-                                    post(enhanceTrainings(objective.id).url);
+                                    post(objectives.enhanceTrainings(objective.id).url);
                                 }} className="space-y-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="enhancement_prompt">
