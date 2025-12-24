@@ -191,3 +191,156 @@ it('replaces an existing daily recommendation for today', function () {
 
     Notification::assertSentTo($user, DailyTrainingPlanNotification::class);
 });
+
+it('includes enhancement prompt in the AI request when provided', function () {
+    Notification::fake();
+
+    $user = User::factory()->create();
+    $objective = Objective::factory()->create([
+        'user_id' => $user->id,
+        'enhancement_prompt' => 'Focus more on interval training and include hill workouts',
+    ]);
+
+    $fake = Prism::fake([
+        StructuredResponseFake::make()->withStructured([
+            'training_plan' => [
+                [
+                    'date' => now()->toDateString(),
+                    'type' => 'Easy Run',
+                    'title' => 'Recovery Jog',
+                    'description' => '30 minutes at easy pace',
+                    'reasoning' => 'Based on your recent heavy sessions.',
+                ],
+                [
+                    'date' => now()->addDay()->toDateString(),
+                    'type' => 'Rest',
+                    'title' => 'Rest Day',
+                    'description' => 'No running today',
+                    'reasoning' => 'Recovery is key.',
+                ],
+                [
+                    'date' => now()->addDays(2)->toDateString(),
+                    'type' => 'Easy Run',
+                    'title' => 'Easy 5k',
+                    'description' => '5km at comfortable pace',
+                    'reasoning' => 'Building base.',
+                ],
+                [
+                    'date' => now()->addDays(3)->toDateString(),
+                    'type' => 'Intervals',
+                    'title' => 'Speed Work',
+                    'description' => '8x400m',
+                    'reasoning' => 'Improving pace.',
+                ],
+                [
+                    'date' => now()->addDays(4)->toDateString(),
+                    'type' => 'Easy Run',
+                    'title' => 'Short Easy Run',
+                    'description' => '20 mins easy',
+                    'reasoning' => 'Active recovery.',
+                ],
+                [
+                    'date' => now()->addDays(5)->toDateString(),
+                    'type' => 'Long Run',
+                    'title' => 'Weekend Long Run',
+                    'description' => '10km long run',
+                    'reasoning' => 'Endurance building.',
+                ],
+                [
+                    'date' => now()->addDays(6)->toDateString(),
+                    'type' => 'Rest',
+                    'title' => 'Rest Day',
+                    'description' => 'Full recovery',
+                    'reasoning' => 'Prepare for next week.',
+                ],
+            ],
+        ]),
+    ]);
+
+    $job = new GenerateWeeklyTrainingPlanJob(user: $user, objective: $objective);
+    $job->handle();
+
+    $fake->assertRequest(function ($recorded) {
+        $request = $recorded[0];
+        $prompt = $request->prompt();
+
+        expect($prompt)->toContain('Additional Enhancement Instructions:');
+        expect($prompt)->toContain('Focus more on interval training and include hill workouts');
+    });
+});
+
+it('does not include enhancement prompt section when not provided', function () {
+    Notification::fake();
+
+    $user = User::factory()->create();
+    $objective = Objective::factory()->create([
+        'user_id' => $user->id,
+        'enhancement_prompt' => null,
+    ]);
+
+    $fake = Prism::fake([
+        StructuredResponseFake::make()->withStructured([
+            'training_plan' => [
+                [
+                    'date' => now()->toDateString(),
+                    'type' => 'Easy Run',
+                    'title' => 'Recovery Jog',
+                    'description' => '30 minutes at easy pace',
+                    'reasoning' => 'Based on your recent heavy sessions.',
+                ],
+                [
+                    'date' => now()->addDay()->toDateString(),
+                    'type' => 'Rest',
+                    'title' => 'Rest Day',
+                    'description' => 'No running today',
+                    'reasoning' => 'Recovery is key.',
+                ],
+                [
+                    'date' => now()->addDays(2)->toDateString(),
+                    'type' => 'Easy Run',
+                    'title' => 'Easy 5k',
+                    'description' => '5km at comfortable pace',
+                    'reasoning' => 'Building base.',
+                ],
+                [
+                    'date' => now()->addDays(3)->toDateString(),
+                    'type' => 'Intervals',
+                    'title' => 'Speed Work',
+                    'description' => '8x400m',
+                    'reasoning' => 'Improving pace.',
+                ],
+                [
+                    'date' => now()->addDays(4)->toDateString(),
+                    'type' => 'Easy Run',
+                    'title' => 'Short Easy Run',
+                    'description' => '20 mins easy',
+                    'reasoning' => 'Active recovery.',
+                ],
+                [
+                    'date' => now()->addDays(5)->toDateString(),
+                    'type' => 'Long Run',
+                    'title' => 'Weekend Long Run',
+                    'description' => '10km long run',
+                    'reasoning' => 'Endurance building.',
+                ],
+                [
+                    'date' => now()->addDays(6)->toDateString(),
+                    'type' => 'Rest',
+                    'title' => 'Rest Day',
+                    'description' => 'Full recovery',
+                    'reasoning' => 'Prepare for next week.',
+                ],
+            ],
+        ]),
+    ]);
+
+    $job = new GenerateWeeklyTrainingPlanJob(user: $user, objective: $objective);
+    $job->handle();
+
+    $fake->assertRequest(function ($recorded) {
+        $request = $recorded[0];
+        $prompt = $request->prompt();
+
+        expect($prompt)->not->toContain('Additional Enhancement Instructions:');
+    });
+});

@@ -2,12 +2,15 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { index } from '@/routes/objectives';
 import { BreadcrumbItem, DailyRecommendation, Objective, RunningStats } from '@/types';
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Info, Target, Activity, TrendingUp, Clock, Zap } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowLeft, Calendar, Info, Target, Activity, TrendingUp, Clock, Zap, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { enhanceTrainings } from '@/actions/App/Http/Controllers/ObjectiveController';
 
 export default function Show({ objective, runningStats }: { objective: Objective; runningStats: RunningStats }) {
     const breadcrumbs: BreadcrumbItem[] = [
@@ -22,6 +25,10 @@ export default function Show({ objective, runningStats }: { objective: Objective
     ];
 
     const today = new Date().toISOString().split('T')[0];
+
+    const { data, setData, post, processing, errors, wasSuccessful } = useForm({
+        enhancement_prompt: objective.enhancement_prompt || '',
+    });
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -146,6 +153,51 @@ export default function Show({ objective, runningStats }: { objective: Objective
                     </Card>
 
                     <div className="md:col-span-2 space-y-4">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-sm">
+                                    <Sparkles className="h-4 w-4 text-primary" />
+                                    Enhance Training Plan
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <form onSubmit={(e) => {
+                                    e.preventDefault();
+                                    post(enhanceTrainings(objective.id).url);
+                                }} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="enhancement_prompt">
+                                            Additional Instructions
+                                        </Label>
+                                        <Textarea
+                                            id="enhancement_prompt"
+                                            placeholder="e.g., Focus more on interval training, include hill workouts, or add cross-training days..."
+                                            value={data.enhancement_prompt}
+                                            onChange={(e) => setData('enhancement_prompt', e.target.value)}
+                                            className="min-h-24"
+                                            aria-invalid={errors.enhancement_prompt ? 'true' : 'false'}
+                                            aria-describedby={`${errors.enhancement_prompt ? 'enhancement_prompt-error ' : ''}enhancement_prompt-description`}
+                                        />
+                                        {errors.enhancement_prompt && (
+                                            <p id="enhancement_prompt-error" className="text-sm text-destructive">{errors.enhancement_prompt}</p>
+                                        )}
+                                        <p id="enhancement_prompt-description" className="text-xs text-muted-foreground">
+                                            Provide specific instructions to customize your training plan. The AI will regenerate the next 7 days with your preferences.
+                                        </p>
+                                    </div>
+                                    <Button type="submit" disabled={processing} className="w-full sm:w-auto">
+                                        <Sparkles className="mr-2 h-4 w-4" />
+                                        {processing ? 'Regenerating...' : 'Regenerate Training Plan'}
+                                    </Button>
+                                    {wasSuccessful && (
+                                        <p className="text-sm text-green-600 dark:text-green-500">
+                                            Training plan regeneration started! Refresh the page in a few moments to see the updated recommendations.
+                                        </p>
+                                    )}
+                                </form>
+                            </CardContent>
+                        </Card>
+
                         <h3 className="text-lg font-semibold">Training Recommendations</h3>
                         <div className="space-y-4">
                             {objective.daily_recommendations?.map((recommendation: DailyRecommendation) => {

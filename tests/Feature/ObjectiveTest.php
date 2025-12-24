@@ -229,3 +229,77 @@ test('running stats handles no activities gracefully', function () {
         ->where('runningStats.best_pace_per_km', null)
     );
 });
+
+test('user can enhance training plan with additional prompt', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+    
+    $objective = Objective::factory()->create([
+        'user_id' => $this->user->id,
+    ]);
+
+    $response = $this->actingAs($this->user)->post(
+        route('objectives.enhance-trainings', $objective),
+        [
+            'enhancement_prompt' => 'Focus more on interval training and hill workouts',
+        ]
+    );
+
+    $response->assertRedirect(route('objectives.show', $objective));
+    $objective->refresh();
+    expect($objective->enhancement_prompt)->toBe('Focus more on interval training and hill workouts');
+    
+    \Illuminate\Support\Facades\Queue::assertPushed(\App\Jobs\GenerateWeeklyTrainingPlanJob::class);
+});
+
+test('user can regenerate training plan with empty enhancement prompt', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+    
+    $objective = Objective::factory()->create([
+        'user_id' => $this->user->id,
+        'enhancement_prompt' => 'Previous instructions',
+    ]);
+
+    $response = $this->actingAs($this->user)->post(
+        route('objectives.enhance-trainings', $objective),
+        [
+            'enhancement_prompt' => '',
+        ]
+    );
+
+    $response->assertRedirect(route('objectives.show', $objective));
+    $objective->refresh();
+    expect($objective->enhancement_prompt)->toBeNull();
+    
+    \Illuminate\Support\Facades\Queue::assertPushed(\App\Jobs\GenerateWeeklyTrainingPlanJob::class);
+});
+
+test('user cannot enhance another users objective training plan', function () {
+    $otherUser = User::factory()->create();
+    $objective = Objective::factory()->create([
+        'user_id' => $otherUser->id,
+    ]);
+
+    $response = $this->actingAs($this->user)->post(
+        route('objectives.enhance-trainings', $objective),
+        [
+            'enhancement_prompt' => 'Focus on speed work',
+        ]
+    );
+
+    $response->assertStatus(403);
+});
+
+test('enhancement prompt validation limits length', function () {
+    $objective = Objective::factory()->create([
+        'user_id' => $this->user->id,
+    ]);
+
+    $response = $this->actingAs($this->user)->post(
+        route('objectives.enhance-trainings', $objective),
+        [
+            'enhancement_prompt' => str_repeat('a', 2001), // Exceeds 2000 character limit
+        ]
+    );
+
+    $response->assertSessionHasErrors(['enhancement_prompt']);
+});

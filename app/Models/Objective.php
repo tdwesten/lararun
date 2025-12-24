@@ -16,6 +16,7 @@ class Objective extends Model
         'target_date',
         'status',
         'description',
+        'enhancement_prompt',
         'running_days',
     ];
 

@@ -39,6 +39,7 @@ Route::middleware(['auth', 'email.set', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::resource('objectives', ObjectiveController::class);
+    Route::post('objectives/{objective}/enhance-trainings', [ObjectiveController::class, 'enhanceTrainings'])->name('objectives.enhance-trainings');
     Route::get('activities', [\App\Http\Controllers\ActivityController::class, 'index'])->name('activities.index');
     Route::get('activities/{activity}', [\App\Http\Controllers\ActivityController::class, 'show'])->name('activities.show');
 });

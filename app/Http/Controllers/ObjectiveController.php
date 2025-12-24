@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EnhanceObjectiveTrainingsRequest;
 use App\Http\Requests\StoreObjectiveRequest;
 use App\Http\Requests\UpdateObjectiveRequest;
+use App\Jobs\GenerateWeeklyTrainingPlanJob;
 use App\Models\Objective;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -97,5 +99,25 @@ class ObjectiveController extends Controller
 
         return redirect()->route('objectives.index')
             ->with('success', 'Objective deleted successfully.');
+    }
+
+    /**
+     * Enhance the objective's training plan with additional instructions.
+     */
+    public function enhanceTrainings(EnhanceObjectiveTrainingsRequest $request, Objective $objective): RedirectResponse
+    {
+        $objective->update([
+            'enhancement_prompt' => $request->validated()['enhancement_prompt'] ?: null,
+        ]);
+
+        GenerateWeeklyTrainingPlanJob::dispatch(
+            $request->user(),
+            $objective,
+            force: true,
+            sendNotification: false
+        );
+
+        return redirect()->route('objectives.show', $objective)
+            ->with('success', 'Training plan is being regenerated with your enhancements.');
     }
 }
