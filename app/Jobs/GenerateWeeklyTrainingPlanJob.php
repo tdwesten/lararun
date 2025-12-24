@@ -38,6 +38,11 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * @param  User  $user  The user for whom to generate the training plan
+     * @param  Objective  $objective  The user's active objective
+     * @param  bool  $force  Force regeneration even if plans already exist for the next 7 days
+     * @param  bool  $sendNotification  Whether to send an email notification for today's recommendation
      */
     public function __construct(
         public User $user,

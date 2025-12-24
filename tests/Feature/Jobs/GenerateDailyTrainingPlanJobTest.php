@@ -88,7 +88,7 @@ it('includes the last 3 daily recommendations in the prompt', function () {
         ]),
     ]);
 
-    $job = new GenerateWeeklyTrainingPlanJob($user, $objective);
+    $job = new GenerateWeeklyTrainingPlanJob(user: $user, objective: $objective);
     $job->handle();
 
     $fake->assertRequest(function ($recorded) use ($lastThree, $oldest) {
