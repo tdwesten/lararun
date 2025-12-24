@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Jobs\EnrichActivityWithAiJob;
-use App\Jobs\GenerateDailyTrainingPlanJob;
+use App\Jobs\GenerateWeeklyTrainingPlanJob;
 use App\Models\Activity;
 
 class ActivityObserver
@@ -42,7 +42,7 @@ class ActivityObserver
         $objective = $activity->user->currentObjective;
 
         if ($objective) {
-            GenerateDailyTrainingPlanJob::dispatch($activity->user, $objective);
+            GenerateWeeklyTrainingPlanJob::dispatch($activity->user, $objective, force: false, sendNotification: false);
         }
     }
 }

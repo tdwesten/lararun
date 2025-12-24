@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\GenerateDailyTrainingPlanJob;
+use App\Jobs\GenerateWeeklyTrainingPlanJob;
 use App\Models\Objective;
 use Illuminate\Console\Command;
 
@@ -32,7 +32,7 @@ class GenerateDailyTrainingPlansCommand extends Command
         $this->info("Dispatching daily training plan jobs for {$objectives->count()} active objectives...");
 
         foreach ($objectives as $objective) {
-            GenerateDailyTrainingPlanJob::dispatch($objective->user, $objective);
+            GenerateWeeklyTrainingPlanJob::dispatch($objective->user, $objective, force: false, sendNotification: true);
         }
 
         $this->info('All jobs have been dispatched.');

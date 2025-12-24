@@ -1,6 +1,6 @@
 <?php
 
-use App\Jobs\GenerateDailyTrainingPlanJob;
+use App\Jobs\GenerateWeeklyTrainingPlanJob;
 use App\Models\Activity;
 use App\Models\DailyRecommendation;
 use App\Models\Objective;
@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Notification;
 use Prism\Prism\Facades\Prism;
 use Prism\Prism\Testing\StructuredResponseFake;
 
-it('generates a daily training plan using AI and sends a notification', function () {
+it('generates a daily training plan using AI and sends a notification when sendNotification is true', function () {
     Notification::fake();
 
     $jsonResponse = [
@@ -90,7 +90,7 @@ it('generates a daily training plan using AI and sends a notification', function
         ]);
     });
 
-    $job = new GenerateDailyTrainingPlanJob($user, $objective);
+    $job = new GenerateWeeklyTrainingPlanJob(user: $user, objective: $objective, sendNotification: true);
     $job->handle();
 
     // Assert recommendations were created for 7 days
@@ -139,7 +139,7 @@ it('does not generate a daily training plan if all 7 days already exist', functi
         ]);
     }
 
-    $job = new GenerateDailyTrainingPlanJob($user, $objective);
+    $job = new GenerateWeeklyTrainingPlanJob(user: $user, objective: $objective);
     $job->handle();
 
     // Verify no new recommendation was created (still 7)
@@ -150,4 +150,78 @@ it('does not generate a daily training plan if all 7 days already exist', functi
 
     // Verify Prism was not called
     $prismFake->assertCallCount(0);
+});
+
+it('does not send notification when sendNotification is false', function () {
+    Notification::fake();
+
+    $jsonResponse = [
+        'training_plan' => [
+            [
+                'date' => now()->toDateString(),
+                'type' => 'Easy Run',
+                'title' => 'Recovery Jog',
+                'description' => '30 minutes at easy pace',
+                'reasoning' => 'Based on your recent heavy sessions.',
+            ],
+            [
+                'date' => now()->addDay()->toDateString(),
+                'type' => 'Rest',
+                'title' => 'Rest Day',
+                'description' => 'No running today',
+                'reasoning' => 'Recovery is key.',
+            ],
+            [
+                'date' => now()->addDays(2)->toDateString(),
+                'type' => 'Easy Run',
+                'title' => 'Easy 5k',
+                'description' => '5km at comfortable pace',
+                'reasoning' => 'Building base.',
+            ],
+            [
+                'date' => now()->addDays(3)->toDateString(),
+                'type' => 'Intervals',
+                'title' => 'Speed Work',
+                'description' => '8x400m',
+                'reasoning' => 'Improving pace.',
+            ],
+            [
+                'date' => now()->addDays(4)->toDateString(),
+                'type' => 'Easy Run',
+                'title' => 'Short Easy Run',
+                'description' => '20 mins easy',
+                'reasoning' => 'Active recovery.',
+            ],
+            [
+                'date' => now()->addDays(5)->toDateString(),
+                'type' => 'Long Run',
+                'title' => 'Weekend Long Run',
+                'description' => '10km long run',
+                'reasoning' => 'Endurance building.',
+            ],
+            [
+                'date' => now()->addDays(6)->toDateString(),
+                'type' => 'Rest',
+                'title' => 'Rest Day',
+                'description' => 'Full recovery',
+                'reasoning' => 'Prepare for next week.',
+            ],
+        ],
+    ];
+
+    Prism::fake([
+        StructuredResponseFake::make()->withStructured($jsonResponse),
+    ]);
+
+    $user = User::factory()->create();
+    $objective = Objective::factory()->create(['user_id' => $user->id]);
+
+    $job = new GenerateWeeklyTrainingPlanJob(user: $user, objective: $objective, sendNotification: false);
+    $job->handle();
+
+    // Assert recommendations were created
+    expect(DailyRecommendation::where('user_id', $user->id)->count())->toBe(7);
+
+    // Assert NO notification was sent
+    Notification::assertNothingSent();
 });

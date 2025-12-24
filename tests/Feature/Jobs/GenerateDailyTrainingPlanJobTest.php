@@ -1,6 +1,6 @@
 <?php
 
-use App\Jobs\GenerateDailyTrainingPlanJob;
+use App\Jobs\GenerateWeeklyTrainingPlanJob;
 use App\Models\DailyRecommendation;
 use App\Models\Objective;
 use App\Models\User;
@@ -88,7 +88,7 @@ it('includes the last 3 daily recommendations in the prompt', function () {
         ]),
     ]);
 
-    $job = new GenerateDailyTrainingPlanJob($user, $objective);
+    $job = new GenerateWeeklyTrainingPlanJob(user: $user, objective: $objective);
     $job->handle();
 
     $fake->assertRequest(function ($recorded) use ($lastThree, $oldest) {
@@ -176,7 +176,7 @@ it('replaces an existing daily recommendation for today', function () {
         ]),
     ]);
 
-    $job = new GenerateDailyTrainingPlanJob($user, $objective, force: true);
+    $job = new GenerateWeeklyTrainingPlanJob(user: $user, objective: $objective, force: true, sendNotification: true);
     $job->handle();
 
     // Verify the old one was updated

@@ -1,7 +1,7 @@
 <?php
 
 use App\Jobs\EnrichActivityWithAiJob;
-use App\Jobs\GenerateDailyTrainingPlanJob;
+use App\Jobs\GenerateWeeklyTrainingPlanJob;
 use App\Models\Activity;
 use App\Models\Objective;
 use App\Models\User;
@@ -32,7 +32,7 @@ test('creating an activity dispatches enrich and training plan jobs', function (
         return $job->activity->id === $activity->id;
     });
 
-    Queue::assertPushed(GenerateDailyTrainingPlanJob::class, function ($job) use ($user, $objective) {
+    Queue::assertPushed(GenerateWeeklyTrainingPlanJob::class, function ($job) use ($user, $objective) {
         return $job->user->id === $user->id && $job->objective->id === $objective->id;
     });
 });
@@ -56,7 +56,7 @@ test('updating an activity performance data dispatches jobs', function () {
     $activity->update(['distance' => 6000]);
 
     Queue::assertPushed(EnrichActivityWithAiJob::class);
-    Queue::assertPushed(GenerateDailyTrainingPlanJob::class);
+    Queue::assertPushed(GenerateWeeklyTrainingPlanJob::class);
 });
 
 test('updating non-performance data does not dispatch jobs', function () {
@@ -73,7 +73,7 @@ test('updating non-performance data does not dispatch jobs', function () {
     $activity->update(['short_evaluation' => 'Updated evaluation']);
 
     Queue::assertNotPushed(EnrichActivityWithAiJob::class);
-    Queue::assertNotPushed(GenerateDailyTrainingPlanJob::class);
+    Queue::assertNotPushed(GenerateWeeklyTrainingPlanJob::class);
 });
 
 test('creating an activity without active objective only dispatches enrich job', function () {
@@ -87,5 +87,25 @@ test('creating an activity without active objective only dispatches enrich job',
     ]);
 
     Queue::assertPushed(EnrichActivityWithAiJob::class);
-    Queue::assertNotPushed(GenerateDailyTrainingPlanJob::class);
+    Queue::assertNotPushed(GenerateWeeklyTrainingPlanJob::class);
+});
+
+test('creating an activity dispatches training plan job with sendNotification set to false', function () {
+    Queue::fake();
+
+    $user = User::factory()->create();
+    $objective = Objective::factory()->create([
+        'user_id' => $user->id,
+        'status' => 'active',
+    ]);
+
+    $activity = Activity::factory()->create([
+        'user_id' => $user->id,
+    ]);
+
+    Queue::assertPushed(GenerateWeeklyTrainingPlanJob::class, function ($job) use ($user, $objective) {
+        return $job->user->id === $user->id
+            && $job->objective->id === $objective->id
+            && $job->sendNotification === false;
+    });
 });

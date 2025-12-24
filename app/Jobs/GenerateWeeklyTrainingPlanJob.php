@@ -17,7 +17,7 @@ use Prism\Prism\Schema\ArraySchema;
 use Prism\Prism\Schema\ObjectSchema;
 use Prism\Prism\Schema\StringSchema;
 
-class GenerateDailyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
+class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
@@ -38,11 +38,17 @@ class GenerateDailyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * @param  User  $user  The user for whom to generate the training plan
+     * @param  Objective  $objective  The user's active objective
+     * @param  bool  $force  Force regeneration even if plans already exist for the next 7 days
+     * @param  bool  $sendNotification  Whether to send an email notification for today's recommendation
      */
     public function __construct(
         public User $user,
         public Objective $objective,
-        public bool $force = false
+        public bool $force = false,
+        public bool $sendNotification = false
     ) {}
 
     /**
@@ -139,12 +145,16 @@ class GenerateDailyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
                     ]);
                 }
 
-                if ($planData['date'] === $startDate) {
+                if ($this->sendNotification && $planData['date'] === $startDate) {
                     $this->user->notify(new DailyTrainingPlanNotification($recommendation));
                 }
             }
 
-            Log::info("7-day training plan generated and notification sent for user: {$this->user->id}");
+            $logMessage = "7-day training plan generated for user: {$this->user->id}";
+            if ($this->sendNotification) {
+                $logMessage .= ' and notification sent';
+            }
+            Log::info($logMessage);
         } catch (\Exception $e) {
             Log::error("Failed to generate training plan for user {$this->user->id}: {$e->getMessage()}", [
                 'exception' => $e,
