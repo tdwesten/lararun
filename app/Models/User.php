@@ -102,27 +102,30 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getRunningStats(): array
     {
-        $activities = $this->activities()
+        $stats = $this->activities()
             ->where('type', 'Run')
-            ->get();
+            ->selectRaw('
+                COUNT(*) as total_runs,
+                SUM(distance) as total_distance,
+                SUM(moving_time) as total_time,
+                MIN(moving_time / NULLIF(distance / 1000, 0)) as best_pace_seconds
+            ')
+            ->first();
 
-        $totalDistance = $activities->sum('distance'); // in meters
-        $totalTime = $activities->sum('moving_time'); // in seconds
-        $totalRuns = $activities->count();
+        $totalDistance = $stats->total_distance ?? 0; // in meters
+        $totalTime = $stats->total_time ?? 0; // in seconds
+        $totalRuns = $stats->total_runs ?? 0;
+        $bestPace = $stats->best_pace_seconds;
 
-        // Calculate best pace (lowest time per km)
-        $bestPace = null;
+        // Get fastest run details
         $fastestRun = null;
-        
-        foreach ($activities as $activity) {
-            if ($activity->distance > 0) {
-                $paceInSecondsPerKm = ($activity->moving_time / ($activity->distance / 1000));
-                
-                if ($bestPace === null || $paceInSecondsPerKm < $bestPace) {
-                    $bestPace = $paceInSecondsPerKm;
-                    $fastestRun = $activity;
-                }
-            }
+        if ($bestPace) {
+            $fastestRun = $this->activities()
+                ->where('type', 'Run')
+                ->where('distance', '>', 0)
+                ->selectRaw('*, (moving_time / NULLIF(distance / 1000, 0)) as pace_seconds')
+                ->orderByRaw('(moving_time / NULLIF(distance / 1000, 0)) ASC')
+                ->first();
         }
 
         // Calculate average pace

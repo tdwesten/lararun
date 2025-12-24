@@ -189,20 +189,20 @@ test('running stats calculates best pace correctly', function () {
         'user_id' => $this->user->id,
     ]);
 
-    // Slower run: 10 min/km pace
+    // Slower run: 10 min/km pace (3000 sec / 5 km = 600 sec/km)
     \App\Models\Activity::factory()->create([
         'user_id' => $this->user->id,
         'type' => 'Run',
         'distance' => 5000, // 5 km
-        'moving_time' => 3000, // 50 minutes (600 sec/km)
+        'moving_time' => 3000, // 50 minutes
     ]);
 
-    // Faster run: 5 min/km pace
+    // Faster run: 5 min/km pace (1500 sec / 5 km = 300 sec/km)
     \App\Models\Activity::factory()->create([
         'user_id' => $this->user->id,
         'type' => 'Run',
         'distance' => 5000, // 5 km
-        'moving_time' => 1500, // 25 minutes (300 sec/km)
+        'moving_time' => 1500, // 25 minutes
     ]);
 
     $response = $this->actingAs($this->user)->get(route('objectives.show', $objective));
