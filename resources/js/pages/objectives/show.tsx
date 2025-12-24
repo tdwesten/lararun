@@ -5,12 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
-import { index } from '@/routes/objectives';
+import { enhanceTrainings, index } from '@/routes/objectives';
 import { BreadcrumbItem, DailyRecommendation, Objective, RunningStats } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Calendar, Info, Target, Activity, TrendingUp, Clock, Zap, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { enhanceTrainings } from '@/actions/App/Http/Controllers/ObjectiveController';
 
 export default function Show({ objective, runningStats }: { objective: Objective; runningStats: RunningStats }) {
     const breadcrumbs: BreadcrumbItem[] = [
