@@ -104,11 +104,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $stats = $this->activities()
             ->where('type', 'Run')
+            ->where('distance', '>', 0) // Exclude zero-distance activities
             ->selectRaw('
                 COUNT(*) as total_runs,
                 SUM(distance) as total_distance,
                 SUM(moving_time) as total_time,
-                MIN(moving_time / NULLIF(distance / 1000, 0)) as best_pace_seconds
+                MIN(moving_time / (distance / 1000)) as best_pace_seconds
             ')
             ->first();
 
@@ -123,8 +124,8 @@ class User extends Authenticatable implements MustVerifyEmail
             $fastestRun = $this->activities()
                 ->where('type', 'Run')
                 ->where('distance', '>', 0)
-                ->selectRaw('*, (moving_time / NULLIF(distance / 1000, 0)) as pace_seconds')
-                ->orderByRaw('(moving_time / NULLIF(distance / 1000, 0)) ASC')
+                ->selectRaw('*, (moving_time / (distance / 1000)) as pace_seconds')
+                ->orderBy('pace_seconds', 'ASC')
                 ->first();
         }
 
@@ -137,7 +138,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'total_distance_km' => round($totalDistance / 1000, 2),
             'total_time_seconds' => $totalTime,
-            'total_time_formatted' => $this->formatTime($totalTime),
+            'total_time_formatted' => $this->formatTime((int) $totalTime),
             'total_runs' => $totalRuns,
             'average_pace_per_km' => $averagePace ? $this->formatPace($averagePace) : null,
             'best_pace_per_km' => $bestPace ? $this->formatPace($bestPace) : null,
