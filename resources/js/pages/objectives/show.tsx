@@ -10,7 +10,7 @@ import { BreadcrumbItem, DailyRecommendation, Objective, RunningStats } from '@/
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Calendar, Info, Target, Activity, TrendingUp, Clock, Zap, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { enhanceTrainings } from '@/actions/App/Http/Controllers/ObjectiveController';
+import { enhanceTrainings } from '@/routes/objectives';
 
 export default function Show({ objective, runningStats }: { objective: Objective; runningStats: RunningStats }) {
     const breadcrumbs: BreadcrumbItem[] = [
