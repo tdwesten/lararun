@@ -145,7 +145,11 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
                 }
             }
 
-            Log::info("7-day training plan generated and notification sent for user: {$this->user->id}");
+            $logMessage = "7-day training plan generated for user: {$this->user->id}";
+            if ($this->sendNotification) {
+                $logMessage .= ' and notification sent';
+            }
+            Log::info($logMessage);
         } catch (\Exception $e) {
             Log::error("Failed to generate training plan for user {$this->user->id}: {$e->getMessage()}", [
                 'exception' => $e,
