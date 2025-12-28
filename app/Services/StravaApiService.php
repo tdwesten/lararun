@@ -83,6 +83,7 @@ class StravaApiService
     protected function refreshToken(User $user): ?string
     {
         try {
+            /** @var object{access_token: string, refresh_token: string, expires_in: int} $response */
             $response = $this->strava->refreshToken($user->strava_refresh_token);
 
             if (isset($response->access_token)) {

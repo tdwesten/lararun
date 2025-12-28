@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Activity;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -31,7 +32,7 @@ class ActivityEvaluatedNotification extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(User $notifiable): MailMessage
     {
         $summary = $this->getActivitySummary();
 
@@ -107,7 +108,7 @@ Strict Instructions:
      *
      * @return array<string, mixed>
      */
-    public function toArray(object $notifiable): array
+    public function toArray(User $notifiable): array
     {
         return [
             //

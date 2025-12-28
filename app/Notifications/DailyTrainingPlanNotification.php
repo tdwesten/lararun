@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\DailyRecommendation;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -30,7 +31,7 @@ class DailyTrainingPlanNotification extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(User $notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject("Your training plan for today: {$this->recommendation->title}")
@@ -45,7 +46,7 @@ class DailyTrainingPlanNotification extends Notification implements ShouldQueue
      *
      * @return array<string, mixed>
      */
-    public function toArray(object $notifiable): array
+    public function toArray(User $notifiable): array
     {
         return [
             'recommendation_id' => $this->recommendation->id,
