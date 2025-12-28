@@ -41,6 +41,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'strava_token',
         'strava_refresh_token',
         'strava_token_expires_at',
+        'locale',
     ];
 
     /**
@@ -170,9 +171,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Format time in seconds to human-readable format.
-     *
-     * @param int $seconds
-     * @return string
      */
     private function formatTime(int $seconds): string
     {
@@ -189,9 +187,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Format pace (seconds per km) to min:sec format.
-     *
-     * @param float $secondsPerKm
-     * @return string
      */
     private function formatPace(float $secondsPerKm): string
     {

@@ -20,6 +20,7 @@ test('profile information can be updated', function () {
         ->patch(route('profile.update'), [
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'locale' => 'en',
         ]);
 
     $response
@@ -41,6 +42,7 @@ test('email verification status is unchanged when the email address is unchanged
         ->patch(route('profile.update'), [
             'name' => 'Test User',
             'email' => $user->email,
+            'locale' => 'en',
         ]);
 
     $response

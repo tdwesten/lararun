@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+
 test('registration screen can be rendered', function () {
     $response = $this->get(route('register'));
 
@@ -16,4 +18,7 @@ test('new users can register', function () {
 
     $this->assertAuthenticated();
     $response->assertRedirect(route('dashboard', absolute: false));
+
+    $user = User::where('email', 'test@example.com')->first();
+    expect($user->locale)->toBe('en');
 });

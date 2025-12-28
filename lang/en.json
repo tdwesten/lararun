@@ -1,0 +1,21 @@
+{
+    "Profile settings": "Profile settings",
+    "Profile information": "Profile information",
+    "Update your name and email address": "Update your name and email address",
+    "Name": "Name",
+    "Email address": "Email address",
+    "Save": "Save",
+    "Saved": "Saved",
+    "Language": "Language",
+    "English": "English",
+    "Dutch": "Dutch",
+    "Select a language": "Select a language",
+    "Delete account": "Delete account",
+    "Delete your account and all of its resources": "Delete your account and all of its resources",
+    "Warning": "Warning",
+    "Please proceed with caution, this cannot be undone.": "Please proceed with caution, this cannot be undone.",
+    "Are you sure you want to delete your account?": "Are you sure you want to delete your account?",
+    "Once your account is deleted, all of its resources and data will also be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.": "Once your account is deleted, all of its resources and data will also be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.",
+    "Password": "Password",
+    "Cancel": "Cancel"
+}

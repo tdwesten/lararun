@@ -12,14 +12,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
+import { useTranslations } from '@/hooks/use-translations';
 import { edit } from '@/routes/profile';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Profile settings',
-        href: edit().url,
-    },
-];
 
 export default function Profile({
     mustVerifyEmail,
@@ -29,16 +31,24 @@ export default function Profile({
     status?: string;
 }) {
     const { auth } = usePage<SharedData>().props;
+    const { t } = useTranslations();
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: t('Profile settings'),
+            href: edit().url,
+        },
+    ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Profile settings" />
+            <Head title={t('Profile settings')} />
 
             <SettingsLayout>
                 <div className="space-y-6">
                     <HeadingSmall
-                        title="Profile information"
-                        description="Update your name and email address"
+                        title={t('Profile information')}
+                        description={t('Update your name and email address')}
                     />
 
                     <Form
@@ -51,8 +61,7 @@ export default function Profile({
                         {({ processing, recentlySuccessful, errors }) => (
                             <>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="name">Name</Label>
-
+                                    <Label htmlFor="name">{t('Name')}</Label>
                                     <Input
                                         id="name"
                                         className="mt-1 block w-full"
@@ -60,9 +69,8 @@ export default function Profile({
                                         name="name"
                                         required
                                         autoComplete="name"
-                                        placeholder="Full name"
+                                        placeholder={t('Name')}
                                     />
-
                                     <InputError
                                         className="mt-2"
                                         message={errors.name}
@@ -70,8 +78,7 @@ export default function Profile({
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label htmlFor="email">Email address</Label>
-
+                                    <Label htmlFor="email">{t('Email address')}</Label>
                                     <Input
                                         id="email"
                                         type="email"
@@ -80,12 +87,31 @@ export default function Profile({
                                         name="email"
                                         required
                                         autoComplete="username"
-                                        placeholder="Email address"
+                                        placeholder={t('Email address')}
                                     />
-
                                     <InputError
                                         className="mt-2"
                                         message={errors.email}
+                                    />
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="locale">{t('Language')}</Label>
+                                    <Select
+                                        name="locale"
+                                        defaultValue={auth.user.locale}
+                                    >
+                                        <SelectTrigger className="mt-1 block w-full">
+                                            <SelectValue placeholder={t('Select a language')} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="en">{t('English')}</SelectItem>
+                                            <SelectItem value="nl">{t('Dutch')}</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <InputError
+                                        className="mt-2"
+                                        message={errors.locale}
                                     />
                                 </div>
 
@@ -121,7 +147,7 @@ export default function Profile({
                                         disabled={processing}
                                         data-test="update-profile-button"
                                     >
-                                        Save
+                                        {t('Save')}
                                     </Button>
 
                                     <Transition
@@ -132,7 +158,7 @@ export default function Profile({
                                         leaveTo="opacity-0"
                                     >
                                         <p className="text-sm text-neutral-600">
-                                            Saved
+                                            {t('Saved')}
                                         </p>
                                     </Transition>
                                 </div>
