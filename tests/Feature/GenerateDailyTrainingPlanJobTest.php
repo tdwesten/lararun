@@ -118,8 +118,49 @@ it('generates a daily training plan using AI and sends a notification when sendN
         expect($request->prompt())->toContain('Objective:');
         expect($request->prompt())->toContain('5 km');
         expect($request->prompt())->toContain('Tuesday, Thursday, Saturday');
+        expect($request->prompt())->toContain('in English');
+
+        $systemPrompt = $request->systemPrompts()[0]->content;
+        expect($systemPrompt)->toContain('in English');
 
         return true;
+    });
+});
+
+it('uses Dutch language in AI prompts for Dutch users', function () {
+    Notification::fake();
+
+    $jsonResponse = [
+        'training_plan' => array_fill(0, 7, [
+            'date' => now()->toDateString(),
+            'type' => 'Intervals',
+            'title' => 'Snelheidstraining',
+            'description' => '8x400m op doeltempo',
+            'reasoning' => 'Verbeteren van snelheid.',
+        ]),
+    ];
+
+    $prismFake = Prism::fake([
+        StructuredResponseFake::make()->withStructured($jsonResponse),
+    ]);
+
+    $user = User::factory()->create(['locale' => 'nl']);
+    $objective = Objective::factory()->create(['user_id' => $user->id]);
+
+    $job = new GenerateWeeklyTrainingPlanJob(user: $user, objective: $objective);
+    $job->handle();
+
+    $prismFake->assertRequest(function ($requests) {
+        $request = $requests[0];
+        $systemPrompt = $request->systemPrompts()[0]->content;
+        expect($systemPrompt)->toContain('in Dutch');
+        expect($request->prompt())->toContain('in Dutch');
+
+        foreach ($request->schema()->properties[0]->items->properties as $property) {
+            if ($property->name !== 'date') {
+                expect($property->description)->toContain('Dutch');
+            }
+        }
     });
 });
 

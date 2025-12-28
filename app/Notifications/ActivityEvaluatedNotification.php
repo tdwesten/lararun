@@ -8,6 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Lang;
 use Prism\Prism\Facades\Prism;
 
 class ActivityEvaluatedNotification extends Notification implements ShouldQueue
@@ -35,10 +36,12 @@ class ActivityEvaluatedNotification extends Notification implements ShouldQueue
     public function toMail(User $notifiable): MailMessage
     {
         $summary = $this->getActivitySummary();
+        $locale = $notifiable->preferredLocale();
+        $language = $locale === 'nl' ? 'Dutch' : 'English';
 
         $response = Prism::text()
             ->using('openai', 'gpt-4o')
-            ->withSystemPrompt("You are Lararun's expert running coach. Write a brief, personalized email body to the runner {$notifiable->name} about their recent activity.
+            ->withSystemPrompt("You are Lararun's expert running coach. Write a brief, personalized email body to the runner {$notifiable->name} about their recent activity in {$language}.
 Use a professional yet encouraging tone.
 Strict Instructions:
 1. Use Markdown for formatting.
@@ -48,12 +51,13 @@ Strict Instructions:
 5. DO NOT include a 'Subject' line.
 6. DO NOT include a greeting (e.g., 'Hi Name').
 7. DO NOT include a sign-off (e.g., 'Best regards').
-8. Address the runner as {$notifiable->name} if you must mention them.")
+8. Address the runner as {$notifiable->name} if you must mention them.
+9. Write the entire email in {$language}.")
             ->withPrompt("Activity Summary:\n{$summary}\n\nCoach's Evaluation: {$this->activity->short_evaluation}")
             ->asText();
 
         return (new MailMessage)
-            ->subject("Your run is ready for review: {$this->activity->name}")
+            ->subject(Lang::get('Your run is ready for review: :name', ['name' => $this->activity->name], $locale))
             ->markdown('mail.activity-evaluated', [
                 'content' => $response->text,
                 'activity' => $this->activity,

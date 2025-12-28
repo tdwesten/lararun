@@ -65,9 +65,47 @@ it('enriches an activity with AI evaluations using historical context and sends 
     // Verify that Prism was called with context
     $prismFake->assertRequest(function ($requests) {
         expect($requests)->toHaveCount(1);
-        $prompt = $requests[0]->prompt();
+        $request = $requests[0];
+        $prompt = $request->prompt();
         expect($prompt)->toContain('Recent History (Last 30 days):');
         expect($prompt)->toContain('Activity Name:');
         expect($prompt)->toContain('6 km'); // round(6000 / 1000, 2) = 6
+
+        $systemPrompt = $request->systemPrompts()[0]->content;
+        expect($systemPrompt)->toContain('The \'short_evaluation\' and \'extended_evaluation\' MUST be written in English.');
+    });
+});
+
+it('uses Dutch language in AI prompts for Dutch users', function () {
+    Notification::fake();
+
+    $prismFake = Prism::fake([
+        StructuredResponseFake::make()->withStructured([
+            'short_evaluation' => 'Korte evaluatie',
+            'extended_evaluation' => 'Uitgebreide evaluatie',
+        ]),
+    ]);
+
+    $user = User::factory()->create(['locale' => 'nl']);
+    $activity = Activity::withoutEvents(function () use ($user) {
+        return Activity::factory()->create([
+            'user_id' => $user->id,
+            'start_date' => now(),
+            'distance' => 5000,
+            'moving_time' => 1500,
+        ]);
+    });
+
+    $job = new EnrichActivityWithAiJob($activity);
+    $job->handle();
+
+    $prismFake->assertRequest(function ($requests) {
+        $request = $requests[0];
+        $systemPrompt = $request->systemPrompts()[0]->content;
+        expect($systemPrompt)->toContain('The \'short_evaluation\' and \'extended_evaluation\' MUST be written in Dutch.');
+
+        foreach ($request->schema()->properties as $property) {
+            expect($property->description)->toContain('Dutch');
+        }
     });
 });

@@ -233,5 +233,15 @@
     "login using an authentication code": "login using an authentication code",
     "login using a recovery code": "login using a recovery code",
     "Welcome": "Welcome",
-    "Platform": "Platform"
+    "Platform": "Platform",
+    "Today's Training Plan: :title": "Today's Training Plan: :title",
+    "Type:": "Type:",
+    "Why this workout?": "Why this workout?",
+    "Go to Dashboard": "Go to Dashboard",
+    "Thanks,": "Thanks,",
+    "Your Lararun Coach": "Your Lararun Coach",
+    "Your training plan for today: :title": "Your training plan for today: :title",
+    "Hi :name,": "Hi :name,",
+    "View Dashboard": "View Dashboard",
+    "Your run is ready for review: :name": "Your run is ready for review: :name"
 }

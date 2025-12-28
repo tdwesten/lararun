@@ -1,12 +1,12 @@
 <x-mail::message>
-# Hi {{ $name }},
+# {{ __('Hi :name,', ['name' => $name]) }}
 
 {{ $content }}
 
 <x-mail::button :url="config('app.url') . '/dashboard'">
-View Dashboard
+{{ __('View Dashboard') }}
 </x-mail::button>
 
-Thanks,<br>
-Your Lararun Coach
+{{ __('Thanks,') }}<br>
+{{ __('Your Lararun Coach') }}
 </x-mail::message>

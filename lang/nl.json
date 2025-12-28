@@ -233,5 +233,15 @@
     "login using an authentication code": "inloggen met een verificatiecode",
     "login using a recovery code": "inloggen met een herstelcode",
     "Welcome": "Welkom",
-    "Platform": "Platform"
+    "Platform": "Platform",
+    "Today's Training Plan: :title": "Trainingsplan voor vandaag: :title",
+    "Type:": "Type:",
+    "Why this workout?": "Waarom deze training?",
+    "Go to Dashboard": "Ga naar Dashboard",
+    "Thanks,": "Bedankt,",
+    "Your Lararun Coach": "Je Lararun Coach",
+    "Your training plan for today: :title": "Je trainingsplan voor vandaag: :title",
+    "Hi :name,": "Hoi :name,",
+    "View Dashboard": "Bekijk Dashboard",
+    "Your run is ready for review: :name": "Je hardloopronde staat klaar voor review: :name"
 }

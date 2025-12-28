@@ -90,6 +90,8 @@ Use webhooks for real-time sync, queues for AI processing.
 ✅ User can view current plan in dashboard
 ✅ Activities are imported automatically every hour with heart rate zone data and intensity scores
 ✅ Users can enhance their training plans with custom instructions and regenerate recommendations
+✅ Multi-language support (English and Dutch) implemented with user preference in profile settings and applied to AI content generation and email notifications
+✅ The `guidelines.md` file is up-to-date based on the project's current state / new features.
 
 # Frontend Guidelines
 - Use Tailwind CSS for styling.
@@ -103,6 +105,14 @@ Use webhooks for real-time sync, queues for AI processing.
 - Use Shadcn for design system components. ONLY USE SHADCN FOR DESIGN SYSTEM COMPONENTS.
 - Use the `useTranslations` hook for all user-facing strings in React components to support English (en) and Dutch (nl).
 - Add all new translation strings to both `lang/en.json` and `lang/nl.json`.
+
+# Backend Guidelines
+- Use PHPStan for static analysis. You MUST run PHPStan before finalizing changes.
+- Use `composer lint` to run both Laravel Pint and PHPStan.
+- Use `composer test` to run tests and PHPStan.
+- Ensure all new features are covered by Pest tests.
+- Follow Laravel 12 best practices and structure.
+
 
 
 <laravel-boost-guidelines>

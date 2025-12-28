@@ -75,6 +75,8 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
             $recommendationContext = $this->getRecommendationContext();
             $objectiveInfo = $this->getObjectiveInfo();
             $today = now()->format('l, Y-m-d');
+            $locale = $this->user->preferredLocale();
+            $language = $locale === 'nl' ? 'Dutch' : 'English';
 
             $basePrompt = "Objective:\n{$objectiveInfo}\n\n"
                 ."Recent History (Last 30 days):\n{$historicalContext}\n\n"
@@ -86,10 +88,10 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
             }
 
             $prompt = $basePrompt
-                ."Generate a training plan for the upcoming 7 days, starting from today ({$today}).\n\n"
+                ."Generate a training plan for the upcoming 7 days, starting from today ({$today}), in {$language}.\n\n"
                 .'Think hard about the best training sessions for each day to reach the objective. '
                 ."Consider fatigue, recovery, and the target date ({$this->objective->target_date->toDateString()}). "
-                .'For each day, provide the type of run, title, description, reasoning, and the date (YYYY-MM-DD).';
+                ."For each day, provide the type of run, title, description, reasoning, and the date (YYYY-MM-DD). All text fields must be in {$language}.";
 
             $schema = new ObjectSchema(
                 name: 'training_plan_wrapper',
@@ -97,16 +99,16 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
                 properties: [
                     new ArraySchema(
                         name: 'training_plan',
-                        description: 'A list of 7 daily training plans for a runner starting from today',
+                        description: "A list of 7 daily training plans for a runner starting from today, written in {$language}",
                         items: new ObjectSchema(
                             name: 'daily_plan',
-                            description: 'A structured daily training plan',
+                            description: "A structured daily training plan in {$language}",
                             properties: [
                                 new StringSchema('date', 'The date of the workout (YYYY-MM-DD)'),
-                                new StringSchema('type', 'The type of run (e.g., Easy Run, Intervals, Long Run, Rest)'),
-                                new StringSchema('title', 'A short catchy title for the workout'),
-                                new StringSchema('description', 'Detailed instructions for the workout including distance/time and pace if applicable'),
-                                new StringSchema('reasoning', 'Explain why this specific workout is recommended for this day based on history and objective'),
+                                new StringSchema('type', "The type of run in {$language} (e.g., Easy Run, Intervals, Long Run, Rest)"),
+                                new StringSchema('title', "A short catchy title for the workout in {$language}"),
+                                new StringSchema('description', "Detailed instructions for the workout including distance/time and pace if applicable in {$language}"),
+                                new StringSchema('reasoning', "Explain why this specific workout is recommended for this day based on history and objective in {$language}"),
                             ],
                             requiredFields: ['date', 'type', 'title', 'description', 'reasoning']
                         ),
@@ -120,7 +122,7 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
             $response = Prism::structured()
                 ->using(Provider::OpenAI, 'gpt-4o')
                 ->withSchema($schema)
-                ->withSystemPrompt("You are Lararun's expert running coach. You provide highly personalized and scientifically sound training plans for a full week. You 'think hard' before providing a clear plan for each day.")
+                ->withSystemPrompt("You are Lararun's expert running coach. You provide highly personalized and scientifically sound training plans for a full week in {$language}. You 'think hard' before providing a clear plan for each day.")
                 ->withPrompt($prompt)
                 ->asStructured();
 

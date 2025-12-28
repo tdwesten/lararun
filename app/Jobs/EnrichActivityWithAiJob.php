@@ -47,19 +47,22 @@ class EnrichActivityWithAiJob implements ShouldBeUnique, ShouldQueue
         try {
             $activityData = $this->getActivitySummary();
             $historicalContext = $this->getHistoricalContext();
+            $locale = $this->activity->user->preferredLocale();
+            $language = $locale === 'nl' ? 'Dutch' : 'English';
 
             $schema = new ObjectSchema(
                 name: 'activity_evaluation',
                 description: 'Structured evaluation of a running activity',
                 properties: [
-                    new StringSchema('short_evaluation', 'A very brief (max 2 sentences) encouraging evaluation of the run.'),
-                    new StringSchema('extended_evaluation', 'A detailed analysis of the run, following a specific structure including Performance Analysis, Current Activity Overview, Historical Trends, Recommendations, and Additional Advice.'),
+                    new StringSchema('short_evaluation', "A very brief (max 2 sentences) encouraging evaluation of the run in {$language}."),
+                    new StringSchema('extended_evaluation', "A detailed analysis of the run in {$language}, following a specific structure including Performance Analysis, Current Activity Overview, Historical Trends, Recommendations, and Additional Advice."),
                 ],
                 requiredFields: ['short_evaluation', 'extended_evaluation']
             );
 
-            $systemPrompt = <<<'PROMPT'
+            $systemPrompt = <<<PROMPT
 You are an expert running coach. You provide both brief encouraging feedback and detailed technical analysis.
+The 'short_evaluation' and 'extended_evaluation' MUST be written in {$language}.
 The 'extended_evaluation' MUST follow this exact structure and formatting use Markdown:
 
 # Performance Analysis

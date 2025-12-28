@@ -31,10 +31,39 @@ it('generates email content using AI', function () {
         $request = $requests[0];
         $systemPrompts = collect($request->systemPrompts())->map(fn ($p) => $p->content)->implode("\n");
         expect($systemPrompts)->toContain("You are Lararun's expert running coach.");
-        expect($systemPrompts)->toContain("Write a brief, personalized email body to the runner {$user->name}");
+        expect($systemPrompts)->toContain("Write a brief, personalized email body to the runner {$user->name} about their recent activity in English.");
         expect($systemPrompts)->toContain('Use Markdown for formatting.');
         expect($systemPrompts)->toContain('DO NOT include a \'Subject\' line.');
+        expect($systemPrompts)->toContain('Write the entire email in English.');
         expect($request->prompt())->toContain('Activity Summary:');
         expect($request->prompt())->toContain("Coach's Evaluation: Great run! Keep it up.");
+    });
+});
+
+it('uses the correct locale and instructions for Dutch users', function () {
+    $prismFake = Prism::fake([
+        TextResponseFake::make()->withText('Dit is de door AI gegenereerde e-mailinhoud.'),
+    ]);
+
+    $user = User::factory()->create(['locale' => 'nl']);
+    $activity = Activity::withoutEvents(function () use ($user) {
+        return Activity::factory()->create([
+            'user_id' => $user->id,
+            'name' => 'Avondloop',
+            'short_evaluation' => 'Goede loop!',
+        ]);
+    });
+
+    $notification = new ActivityEvaluatedNotification($activity);
+    $mail = $notification->toMail($user);
+
+    // Check translated subject from lang/nl.json: "Your run is ready for review: :name" -> "Je hardloopronde staat klaar voor review: :name"
+    expect($mail->subject)->toBe('Je hardloopronde staat klaar voor review: Avondloop');
+
+    $prismFake->assertRequest(function ($requests) use ($user) {
+        $request = $requests[0];
+        $systemPrompts = collect($request->systemPrompts())->map(fn ($p) => $p->content)->implode("\n");
+        expect($systemPrompts)->toContain("Write a brief, personalized email body to the runner {$user->name} about their recent activity in Dutch.");
+        expect($systemPrompts)->toContain('Write the entire email in Dutch.');
     });
 });

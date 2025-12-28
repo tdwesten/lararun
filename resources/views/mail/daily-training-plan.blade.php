@@ -1,19 +1,19 @@
 <x-mail::message>
-# Today's Training Plan: {{ $recommendation->title }}
+# {{ __('Today\'s Training Plan: :title', ['title' => $recommendation->title]) }}
 
-**Type:** {{ $recommendation->type }}
+**{{ __('Type:') }}** {{ $recommendation->type }}
 
 {{ $recommendation->description }}
 
 <x-mail::panel>
-### Why this workout?
+### {{ __('Why this workout?') }}
 {{ $recommendation->reasoning }}
 </x-mail::panel>
 
 <x-mail::button :url="config('app.url') . '/dashboard'">
-Go to Dashboard
+{{ __('Go to Dashboard') }}
 </x-mail::button>
 
-Thanks,<br>
-Your Lararun Coach
+{{ __('Thanks,') }}<br>
+{{ __('Your Lararun Coach') }}
 </x-mail::message>

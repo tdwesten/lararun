@@ -8,6 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Lang;
 
 class DailyTrainingPlanNotification extends Notification implements ShouldQueue
 {
@@ -33,8 +34,10 @@ class DailyTrainingPlanNotification extends Notification implements ShouldQueue
      */
     public function toMail(User $notifiable): MailMessage
     {
+        $locale = $notifiable->preferredLocale();
+
         return (new MailMessage)
-            ->subject("Your training plan for today: {$this->recommendation->title}")
+            ->subject(Lang::get('Your training plan for today: :title', ['title' => $this->recommendation->title], $locale))
             ->markdown('mail.daily-training-plan', [
                 'recommendation' => $this->recommendation,
                 'name' => $notifiable->name,
