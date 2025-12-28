@@ -120,6 +120,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/prompts (PROMPTS) - v0
 - laravel/socialite (SOCIALITE) - v5
 - laravel/wayfinder (WAYFINDER) - v0
+- larastan/larastan (LARASTAN) - v3
 - laravel/mcp (MCP) - v0
 - laravel/pint (PINT) - v1
 - laravel/sail (SAIL) - v1
@@ -136,7 +137,6 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, naming.
 - Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
 - Check for existing components to reuse before writing a new one.
-- You (the AI agent) must always update these guidelines when significant architectural changes, new core features, or major convention shifts occur.
 
 ## Verification Scripts
 - Do not create verification scripts or tinker when tests cover that functionality and prove it works. Unit and feature tests are more important.
@@ -353,7 +353,7 @@ Wayfinder generates TypeScript functions and types for Laravel controllers and r
 - Run `php artisan wayfinder:generate` after route changes if Vite plugin isn't installed
 
 ### Feature Overview
-- Form Support: Use `.form()` with `--with-form` flag for HTML form attributes — ``<form {...store.form()}>`` → `action="/posts" method="post"`
+- Form Support: Use `.form()` with `--with-form` flag for HTML form attributes — `<form {...store.form()}>` → `action="/posts" method="post"`
 - HTTP Methods: Call `.get()`, `.post()`, `.patch()`, `.put()`, `.delete()` for specific methods — `show.head(1)` → `{ url: "/posts/1", method: "head" }`
 - Invokable Controllers: Import and invoke directly as functions. For example, `import StorePost from '@/actions/.../StorePostController'; StorePost()`
 - Named Routes: Import from `@/routes/` for non-controller routes. For example, `import { show } from '@/routes/post'; show(1)` for route name `post.show`
@@ -518,7 +518,7 @@ import { Link } from '@inertiajs/react'
 
 ## Inertia + React Forms
 
-<code-snippet name="Form Component Example" lang="react">
+<code-snippet name="`<Form>` Component Example" lang="react">
 
 import { Form } from '@inertiajs/react'
 

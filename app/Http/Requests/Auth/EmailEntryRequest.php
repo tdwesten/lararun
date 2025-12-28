@@ -11,7 +11,7 @@ class EmailEntryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() !== null && $this->user()->email === null;
+        return $this->user() !== null && empty($this->user()->email);
     }
 
     /**

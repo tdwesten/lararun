@@ -5,6 +5,30 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $strava_id
+ * @property string $name
+ * @property string $type
+ * @property float $distance
+ * @property int $moving_time
+ * @property int $elapsed_time
+ * @property \Illuminate\Support\Carbon|null $start_date
+ * @property array<string, mixed>|null $zone_data
+ * @property int|null $z1_time
+ * @property int|null $z2_time
+ * @property int|null $z3_time
+ * @property int|null $z4_time
+ * @property int|null $z5_time
+ * @property float|null $intensity_score
+ * @property bool $zone_data_available
+ * @property string|null $short_evaluation
+ * @property string|null $extended_evaluation
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ * @property-read float|null $best_pace_seconds
+ */
 class Activity extends Model
 {
     /** @use HasFactory<\Database\Factories\ActivityFactory> */
@@ -54,7 +78,7 @@ class Activity extends Model
     /**
      * Get the user that owns the activity.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User, \App\Models\Activity>
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, $this>
      */
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

@@ -5,6 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property int $objective_id
+ * @property \Illuminate\Support\Carbon|null $date
+ * @property string $type
+ * @property string $title
+ * @property string $description
+ * @property string $reasoning
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
 class DailyRecommendation extends Model
 {
     /** @use HasFactory<\Database\Factories\DailyRecommendationFactory> */
@@ -27,11 +39,21 @@ class DailyRecommendation extends Model
         ];
     }
 
+    /**
+     * Get the user that owns the recommendation.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, $this>
+     */
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get the objective that owns the recommendation.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Objective, $this>
+     */
     public function objective(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Objective::class);

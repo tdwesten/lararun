@@ -12,6 +12,8 @@ class StravaApiService
 
     /**
      * Get activities for a user.
+     *
+     * @return array<int, mixed>
      */
     public function getActivities(User $user, int $perPage = 30): array
     {
@@ -32,6 +34,8 @@ class StravaApiService
 
     /**
      * Get detailed activity with zones.
+     *
+     * @return array<string, mixed>
      */
     public function getActivityWithZones(User $user, string $stravaActivityId): array
     {

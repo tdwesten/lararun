@@ -35,7 +35,7 @@ class ActivityController extends Controller
         }
 
         $recommendation = DailyRecommendation::where('user_id', $activity->user_id)
-            ->whereDate('date', $activity->start_date->toDateString())
+            ->whereDate('date', $activity->start_date instanceof \Carbon\Carbon ? $activity->start_date->toDateString() : $activity->start_date)
             ->first();
 
         return Inertia::render('activities/show', [

@@ -57,11 +57,14 @@ class ObjectiveController extends Controller
     {
         $this->authorize('view', $objective);
 
+        /** @var \App\Models\User $user */
+        $user = $objective->user;
+
         return Inertia::render('objectives/show', [
             'objective' => $objective->load(['dailyRecommendations' => function ($query) {
                 $query->oldest('date')->whereDate('date', '>=', now())->take(7);
             }]),
-            'runningStats' => $objective->user->getRunningStats(),
+            'runningStats' => $user->getRunningStats(),
         ]);
     }
 

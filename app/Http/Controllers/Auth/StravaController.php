@@ -31,7 +31,10 @@ class StravaController extends Controller
      */
     public function redirect(): SymfonyRedirectResponse
     {
-        return Socialite::driver('strava')
+        /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
+        $driver = Socialite::driver('strava');
+
+        return $driver
             ->scopes(['activity:read', 'activity:read_all'])
             ->redirect();
     }
@@ -42,6 +45,7 @@ class StravaController extends Controller
     public function callback(): RedirectResponse
     {
         try {
+            /** @var \Laravel\Socialite\Two\User $stravaUser */
             $stravaUser = Socialite::driver('strava')->user();
         } catch (\Exception $e) {
             return redirect()->route('login');

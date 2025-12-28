@@ -180,7 +180,7 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
             : 'Not specified';
 
         return "Type: {$this->objective->type}\n"
-            ."Target Date: {$this->objective->target_date->toDateString()}\n"
+            ."Target Date: {$this->objective->target_date?->toDateString()}\n"
             ."Description: {$this->objective->description}\n"
             ."Preferred Running Days: {$runningDays}";
     }
@@ -203,7 +203,7 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
         $context = '';
         foreach ($historicalActivities as $activity) {
             $context .= "--- Activity ---\n";
-            $context .= "Date: {$activity->start_date->toDateString()}\n";
+            $context .= "Date: {$activity->start_date?->toDateString()}\n";
             $context .= 'Distance: '.round($activity->distance / 1000, 2)." km\n";
             $context .= "Intensity Score: {$activity->intensity_score}\n";
             $context .= "Coach's Evaluation: {$activity->short_evaluation}\n";
@@ -230,7 +230,7 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
         $context = '';
         foreach ($lastRecommendations as $recommendation) {
             $context .= "--- Recommendation ---\n";
-            $context .= "Date: {$recommendation->date->toDateString()}\n";
+            $context .= "Date: {$recommendation->date?->toDateString()}\n";
             $context .= "Type: {$recommendation->type}\n";
             $context .= "Title: {$recommendation->title}\n";
             $context .= "Description: {$recommendation->description}\n";

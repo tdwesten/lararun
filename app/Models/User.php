@@ -8,6 +8,21 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property string|null $password
+ * @property string|null $strava_id
+ * @property string|null $strava_token
+ * @property string|null $strava_refresh_token
+ * @property \Illuminate\Support\Carbon|null $strava_token_expires_at
+ * @property string|null $remember_token
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ * @property-read Objective|null $currentObjective
+ */
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -60,7 +75,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get the activities for the user.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Activity, \App\Models\User>
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Activity, $this>
      */
     public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -70,7 +85,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get the objectives for the user.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Objective, \App\Models\User>
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Objective, $this>
      */
     public function objectives(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -79,6 +94,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the current active objective for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<Objective, $this>
      */
     public function currentObjective(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
@@ -88,7 +105,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get the daily recommendations for the user.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\DailyRecommendation, \App\Models\User>
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<DailyRecommendation, $this>
      */
     public function dailyRecommendations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -146,7 +163,7 @@ class User extends Authenticatable implements MustVerifyEmail
                 'name' => $fastestRun->name,
                 'distance_km' => round($fastestRun->distance / 1000, 2),
                 'pace' => $this->formatPace(($fastestRun->moving_time / ($fastestRun->distance / 1000))),
-                'date' => $fastestRun->start_date->format('Y-m-d'),
+                'date' => $fastestRun->start_date?->format('Y-m-d'),
             ] : null,
         ];
     }
@@ -166,7 +183,7 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($hours > 0) {
             return sprintf('%dh %dm', $hours, $minutes);
         }
-        
+
         return sprintf('%dm %ds', $minutes, $secs);
     }
 
@@ -180,7 +197,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $minutes = floor($secondsPerKm / 60);
         $seconds = round($secondsPerKm % 60);
-        
+
         return sprintf('%d:%02d /km', $minutes, $seconds);
     }
 }

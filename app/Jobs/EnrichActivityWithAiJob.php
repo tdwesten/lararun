@@ -114,7 +114,7 @@ PROMPT;
     protected function getActivitySummary(?Activity $activity = null): string
     {
         $a = $activity ?? $this->activity;
-        $summary = "Date: {$a->start_date->toDateTimeString()}\n";
+        $summary = "Date: {$a->start_date?->toDateTimeString()}\n";
         $summary .= "Activity Name: {$a->name}\n";
         $summary .= "Type: {$a->type}\n";
         $summary .= 'Distance: '.round($a->distance / 1000, 2)." km\n";
