@@ -2,12 +2,15 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DailyRecommendation } from '@/types';
 import { Sparkles, Dumbbell, Zap, Coffee, Info } from 'lucide-react';
+import { useTranslations } from '@/hooks/use-translations';
 
 interface TodayRecommendationWidgetProps {
     recommendation: DailyRecommendation | null;
 }
 
 export default function TodayRecommendationWidget({ recommendation }: TodayRecommendationWidgetProps) {
+    const { t } = useTranslations();
+
     const getIcon = (type: string) => {
         const t = type.toLowerCase();
         if (t.includes('rest') || t.includes('recovery')) return <Coffee className="h-5 w-5 text-sky-500" />;
@@ -20,8 +23,8 @@ export default function TodayRecommendationWidget({ recommendation }: TodayRecom
         return (
             <Card className="flex h-full flex-col justify-between border-dashed">
                 <CardHeader>
-                    <CardTitle className="text-lg">Today's Training</CardTitle>
-                    <CardDescription>No plan generated for today yet.</CardDescription>
+                    <CardTitle className="text-lg">{t("Today's Training")}</CardTitle>
+                    <CardDescription>{t('No plan generated for today yet.')}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex items-center justify-center py-6">
                     <Sparkles className="h-12 w-12 text-muted-foreground/20" />
@@ -37,7 +40,7 @@ export default function TodayRecommendationWidget({ recommendation }: TodayRecom
             </div>
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Today's Training</CardTitle>
+                    <CardTitle className="text-lg">{t("Today's Training")}</CardTitle>
                     {getIcon(recommendation.type)}
                 </div>
                 <CardDescription className="font-semibold text-primary">{recommendation.type}</CardDescription>
@@ -52,7 +55,7 @@ export default function TodayRecommendationWidget({ recommendation }: TodayRecom
 
                 <Alert variant="default" className="bg-muted/50 border-none">
                     <Info className="h-4 w-4" />
-                    <AlertTitle className="text-xs font-semibold uppercase text-muted-foreground">Coach's Notes</AlertTitle>
+                    <AlertTitle className="text-xs font-semibold uppercase text-muted-foreground">{t("Coach's Notes")}</AlertTitle>
                     <AlertDescription className="text-xs italic text-muted-foreground">
                         {recommendation.reasoning}
                     </AlertDescription>

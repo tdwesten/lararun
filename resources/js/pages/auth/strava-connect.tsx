@@ -3,16 +3,18 @@ import AuthLayout from '@/layouts/auth-layout';
 import { redirect as stravaRedirect } from '@/routes/auth/strava';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { logout } from '@/routes';
+import { useTranslations } from '@/hooks/use-translations';
 
 export default function StravaConnect() {
+    const { t } = useTranslations();
     const { flash } = usePage<{ flash: { error?: string } }>().props;
 
     return (
         <AuthLayout
-            title="Connect Strava"
-            description="To use Lararun, you need to connect your Strava account."
+            title={t('Connect Strava')}
+            description={t('To use Lararun, you need to connect your Strava account.')}
         >
-            <Head title="Connect Strava" />
+            <Head title={t('Connect Strava')} />
 
             {flash.error && (
                 <div className="mb-4 text-center text-sm font-medium text-destructive">
@@ -26,7 +28,7 @@ export default function StravaConnect() {
                     asChild
                 >
                     <a href={stravaRedirect.url()}>
-                        Connect with Strava
+                        {t('Connect with Strava')}
                     </a>
                 </Button>
 
@@ -37,7 +39,7 @@ export default function StravaConnect() {
                         as="button"
                         className="text-sm text-muted-foreground underline hover:text-foreground"
                     >
-                        Log out
+                        {t('Log out')}
                     </Link>
                 </div>
             </div>

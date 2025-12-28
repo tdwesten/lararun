@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
 import { show, index } from '@/routes/activities';
+import { useTranslations } from '@/hooks/use-translations';
 
 interface PaginatedActivities {
     data: Activity[];
@@ -20,16 +21,18 @@ interface ActivitiesIndexProps {
     activities: PaginatedActivities;
 }
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Activities',
-        href: index().url,
-    },
-];
-
 export default function ActivitiesIndex({ activities }: ActivitiesIndexProps) {
+    const { t } = useTranslations();
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: t('Activities'),
+            href: index().url,
+        },
+    ];
+
     const formatDistance = (meters: number) => {
-        return (meters / 1000).toFixed(2) + ' km';
+        return (meters / 1000).toFixed(2) + ` ${t('km')}`;
     };
 
     const formatDuration = (seconds: number) => {
@@ -39,12 +42,12 @@ export default function ActivitiesIndex({ activities }: ActivitiesIndexProps) {
     };
 
     const formatPace = (distanceMeters: number, timeSeconds: number) => {
-        if (distanceMeters === 0) return '0:00 /km';
+        if (distanceMeters === 0) return `0:00 ${t('/km')}`;
         const distanceKm = distanceMeters / 1000;
         const paceMinPerKm = (timeSeconds / 60) / distanceKm;
         const minutes = Math.floor(paceMinPerKm);
         const seconds = Math.floor((paceMinPerKm - minutes) * 60);
-        return `${minutes}:${seconds.toString().padStart(2, '0')} /km`;
+        return `${minutes}:${seconds.toString().padStart(2, '0')} ${t('/km')}`;
     };
 
     const getIntensityColor = (score: string | null) => {
@@ -58,13 +61,13 @@ export default function ActivitiesIndex({ activities }: ActivitiesIndexProps) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Activities" />
+            <Head title={t('Activities')} />
 
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-2xl font-bold tracking-tight">Activities</h2>
-                        <p className="text-muted-foreground">Your synced running activities from Strava.</p>
+                        <h2 className="text-2xl font-bold tracking-tight">{t('Activities')}</h2>
+                        <p className="text-muted-foreground">{t('Your synced running activities from Strava.')}</p>
                     </div>
                 </div>
 
@@ -73,8 +76,8 @@ export default function ActivitiesIndex({ activities }: ActivitiesIndexProps) {
                         <Card>
                             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
                                 <ActivityIcon className="h-12 w-12 text-muted-foreground/50 mb-4" />
-                                <p className="text-muted-foreground font-medium">No activities found yet.</p>
-                                <p className="text-sm text-muted-foreground/70">Activities are synced automatically from your Strava account.</p>
+                                <p className="text-muted-foreground font-medium">{t('No activities found yet.')}</p>
+                                <p className="text-sm text-muted-foreground/70">{t('Activities are synced automatically from your Strava account.')}</p>
                             </CardContent>
                         </Card>
                     ) : (
@@ -142,11 +145,11 @@ export default function ActivitiesIndex({ activities }: ActivitiesIndexProps) {
                                         preserveScroll
                                     >
                                         <ChevronLeft className="h-4 w-4" />
-                                        Previous
+                                        {t('Previous')}
                                     </Link>
 
                                     <div className="text-sm text-muted-foreground px-4">
-                                        Page {activities.current_page} of {activities.last_page}
+                                        {t('Page :current of :last', { current: activities.current_page.toString(), last: activities.last_page.toString() })}
                                     </div>
 
                                     <Link
@@ -158,7 +161,7 @@ export default function ActivitiesIndex({ activities }: ActivitiesIndexProps) {
                                         only={['activities']}
                                         preserveScroll
                                     >
-                                        Next
+                                        {t('Next')}
                                         <ChevronRight className="h-4 w-4" />
                                     </Link>
                                 </div>

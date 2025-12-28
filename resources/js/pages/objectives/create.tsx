@@ -9,35 +9,37 @@ import AppLayout from '@/layouts/app-layout';
 import { index, store } from '@/routes/objectives';
 import { BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Objectives',
-        href: index().url,
-    },
-    {
-        title: 'Create',
-        href: '/objectives/create',
-    },
-];
-
-const DAYS_OF_WEEK = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday'
-];
+import { useTranslations } from '@/hooks/use-translations';
 
 export default function Create() {
+    const { t } = useTranslations();
     const { data, setData, post, processing, errors } = useForm({
         type: '',
         target_date: '',
         description: '',
         running_days: [] as string[],
     });
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: t('Objectives'),
+            href: index().url,
+        },
+        {
+            title: t('Create'),
+            href: '/objectives/create',
+        },
+    ];
+
+    const DAYS_OF_WEEK = [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'
+    ];
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -57,35 +59,35 @@ export default function Create() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create Objective" />
+            <Head title={t('Create Objective')} />
 
             <div className="mx-auto max-w-2xl p-4">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Create New Objective</CardTitle>
-                        <CardDescription>Define your next running goal. Note: Creating a new objective will abandon any currently active one.</CardDescription>
+                        <CardTitle>{t('Create New Objective')}</CardTitle>
+                        <CardDescription>{t('Define your next running goal. Note: Creating a new objective will abandon any currently active one.')}</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
-                                <Label htmlFor="type">Objective Type</Label>
+                                <Label htmlFor="type">{t('Objective Type')}</Label>
                                 <Select onValueChange={(value) => setData('type', value)} value={data.type}>
                                     <SelectTrigger id="type">
-                                        <SelectValue placeholder="Select a goal" />
+                                        <SelectValue placeholder={t('Select a goal')} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="5 km">5 km</SelectItem>
                                         <SelectItem value="10 km">10 km</SelectItem>
-                                        <SelectItem value="21.1 km">21.1 km (Half Marathon)</SelectItem>
-                                        <SelectItem value="42.2 km">42.2 km (Full Marathon)</SelectItem>
-                                        <SelectItem value="Speed">Run Faster (Improve Pace)</SelectItem>
+                                        <SelectItem value="21.1 km">{t('21.1 km (Half Marathon)')}</SelectItem>
+                                        <SelectItem value="42.2 km">{t('42.2 km (Full Marathon)')}</SelectItem>
+                                        <SelectItem value="Speed">{t('Run Faster (Improve Pace)')}</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <InputError message={errors.type} />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="target_date">Target Date</Label>
+                                <Label htmlFor="target_date">{t('Target Date')}</Label>
                                 <Input
                                     id="target_date"
                                     type="date"
@@ -97,7 +99,7 @@ export default function Create() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label>Preferred Running Days</Label>
+                                <Label>{t('Preferred Running Days')}</Label>
                                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                                     {DAYS_OF_WEEK.map((day) => (
                                         <div key={day} className="flex items-center space-x-2">
@@ -110,7 +112,7 @@ export default function Create() {
                                                 htmlFor={`day-${day}`}
                                                 className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                             >
-                                                {day}
+                                                {t(day)}
                                             </Label>
                                         </div>
                                     ))}
@@ -119,19 +121,19 @@ export default function Create() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="description">Description (Optional)</Label>
+                                <Label htmlFor="description">{t('Description (Optional)')}</Label>
                                 <Input
                                     id="description"
                                     value={data.description}
                                     onChange={(e) => setData('description', e.target.value)}
-                                    placeholder="e.g. Finish my first 10K under 50 minutes"
+                                    placeholder={t('e.g. Finish my first 10K under 50 minutes')}
                                 />
                                 <InputError message={errors.description} />
                             </div>
 
                             <div className="flex justify-end gap-4">
                                 <Button type="submit" disabled={processing}>
-                                    Create Objective
+                                    {t('Create Objective')}
                                 </Button>
                             </div>
                         </form>

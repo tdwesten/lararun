@@ -5,12 +5,15 @@ import { Activity as ActivityIcon, Clock, MapPin, Quote, Zap, ChevronRight } fro
 import { cn } from '@/lib/utils';
 import { Link } from '@inertiajs/react';
 import { show } from '@/routes/activities';
+import { useTranslations } from '@/hooks/use-translations';
 
 interface LastRunWidgetProps {
     activity: Activity | null;
 }
 
 export default function LastRunWidget({ activity }: LastRunWidgetProps) {
+    const { t } = useTranslations();
+
     const formatDistance = (meters: number) => {
         return (meters / 1000).toFixed(2) + ' km';
     };
@@ -22,12 +25,12 @@ export default function LastRunWidget({ activity }: LastRunWidgetProps) {
     };
 
     const formatPace = (distanceMeters: number, timeSeconds: number) => {
-        if (distanceMeters === 0) return '0:00 /km';
+        if (distanceMeters === 0) return `0:00 ${t('/km')}`;
         const distanceKm = distanceMeters / 1000;
         const paceMinPerKm = (timeSeconds / 60) / distanceKm;
         const minutes = Math.floor(paceMinPerKm);
         const seconds = Math.floor((paceMinPerKm - minutes) * 60);
-        return `${minutes}:${seconds.toString().padStart(2, '0')} /km`;
+        return `${minutes}:${seconds.toString().padStart(2, '0')} ${t('/km')}`;
     };
 
     const getIntensityColor = (score: string | null) => {
@@ -43,8 +46,8 @@ export default function LastRunWidget({ activity }: LastRunWidgetProps) {
         return (
             <Card className="flex h-full flex-col justify-between border-dashed">
                 <CardHeader>
-                    <CardTitle className="text-lg">Last Run</CardTitle>
-                    <CardDescription>No activities found yet.</CardDescription>
+                    <CardTitle className="text-lg">{t('Last Run')}</CardTitle>
+                    <CardDescription>{t('No activities found yet.')}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex items-center justify-center py-6">
                     <ActivityIcon className="h-12 w-12 text-muted-foreground/20" />
@@ -65,7 +68,7 @@ export default function LastRunWidget({ activity }: LastRunWidgetProps) {
                 <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <CardTitle className="text-lg group-hover:text-primary transition-colors">Last Run</CardTitle>
+                            <CardTitle className="text-lg group-hover:text-primary transition-colors">{t('Last Run')}</CardTitle>
                             <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                         </div>
                         <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">
@@ -78,19 +81,19 @@ export default function LastRunWidget({ activity }: LastRunWidgetProps) {
                     <div className="grid grid-cols-3 gap-2">
                         <div className="flex flex-col">
                             <span className="text-[10px] uppercase text-muted-foreground font-semibold flex items-center gap-1">
-                                <MapPin className="h-3 w-3" /> Distance
+                                <MapPin className="h-3 w-3" /> {t('Distance')}
                             </span>
                             <span className="text-sm font-bold">{formatDistance(activity.distance)}</span>
                         </div>
                         <div className="flex flex-col">
                             <span className="text-[10px] uppercase text-muted-foreground font-semibold flex items-center gap-1">
-                                <Clock className="h-3 w-3" /> Time
+                                <Clock className="h-3 w-3" /> {t('Time')}
                             </span>
                             <span className="text-sm font-bold">{formatDuration(activity.moving_time)}</span>
                         </div>
                         <div className="flex flex-col">
                             <span className="text-[10px] uppercase text-muted-foreground font-semibold flex items-center gap-1">
-                                <Zap className="h-3 w-3" /> Pace
+                                <Zap className="h-3 w-3" /> {t('Pace')}
                             </span>
                             <span className="text-sm font-bold">{formatPace(activity.distance, activity.moving_time)}</span>
                         </div>

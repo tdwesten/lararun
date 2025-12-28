@@ -6,13 +6,7 @@ import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { Activity, BreadcrumbItem, Objective, DailyRecommendation } from '@/types';
 import { Head } from '@inertiajs/react';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard().url,
-    },
-];
+import { useTranslations } from '@/hooks/use-translations';
 
 export default function Dashboard({
     activities,
@@ -23,11 +17,19 @@ export default function Dashboard({
     currentObjective: Objective | null;
     todayRecommendation: DailyRecommendation | null;
 }) {
+    const { t } = useTranslations();
     const latestActivity = activities.length > 0 ? activities[0] : null;
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: t('Dashboard'),
+            href: dashboard().url,
+        },
+    ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
+            <Head title={t('Dashboard')} />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3">
                     <ObjectiveWidget objective={currentObjective} />

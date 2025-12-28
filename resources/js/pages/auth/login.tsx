@@ -11,14 +11,17 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { useTranslations } from '@/hooks/use-translations';
 
 export default function Login({ status }: { status?: string }) {
+    const { t } = useTranslations();
+
     return (
         <AuthLayout
-            title="Log in to your account"
-            description="Enter your email and password to log in"
+            title={t('Log in to your account')}
+            description={t('Enter your email and password to log in')}
         >
-            <Head title="Log in" />
+            <Head title={t('Log in')} />
 
             {status && (
                 <div className="mb-4 text-center text-sm font-medium text-green-600">
@@ -36,7 +39,7 @@ export default function Login({ status }: { status?: string }) {
                     <>
                         <div className="grid gap-6">
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email">{t('Email address')}</Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -45,20 +48,20 @@ export default function Login({ status }: { status?: string }) {
                                     tabIndex={1}
                                     autoComplete="email"
                                     name="email"
-                                    placeholder="email@example.com"
+                                    placeholder={t('email@example.com')}
                                 />
                                 <InputError message={errors.email} />
                             </div>
 
                             <div className="grid gap-2">
                                 <div className="flex items-center justify-between">
-                                    <Label htmlFor="password">Password</Label>
+                                    <Label htmlFor="password">{t('Password')}</Label>
                                     <TextLink
                                         href={forgotPassword()}
                                         className="text-sm"
                                         tabIndex={5}
                                     >
-                                        Forgot your password?
+                                        {t('Forgot your password?')}
                                     </TextLink>
                                 </div>
                                 <Input
@@ -68,7 +71,7 @@ export default function Login({ status }: { status?: string }) {
                                     tabIndex={2}
                                     autoComplete="current-password"
                                     name="password"
-                                    placeholder="Password"
+                                    placeholder={t('Password')}
                                 />
                                 <InputError message={errors.password} />
                             </div>
@@ -76,7 +79,7 @@ export default function Login({ status }: { status?: string }) {
                             <div className="flex items-center gap-2">
                                 <Checkbox id="remember" name="remember" tabIndex={3} />
                                 <Label htmlFor="remember" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                    Remember me
+                                    {t('Remember me')}
                                 </Label>
                             </div>
 
@@ -87,7 +90,7 @@ export default function Login({ status }: { status?: string }) {
                                 data-test="login-button"
                             >
                                 {processing && <Spinner />}
-                                Log in
+                                {t('Log in')}
                             </Button>
                         </div>
 
@@ -97,7 +100,7 @@ export default function Login({ status }: { status?: string }) {
                             </div>
                             <div className="relative flex justify-center text-xs uppercase">
                                 <span className="bg-background px-2 text-muted-foreground">
-                                    Or continue with
+                                    {t('Or continue with')}
                                 </span>
                             </div>
                         </div>
@@ -108,14 +111,14 @@ export default function Login({ status }: { status?: string }) {
                             asChild
                         >
                             <a href={stravaRedirect.url()}>
-                                Log in with Strava
+                                {t('Log in with Strava')}
                             </a>
                         </Button>
 
                         <div className="text-center text-sm text-muted-foreground">
-                            Don't have an account?{' '}
+                            {t("Don't have an account?")}{' '}
                             <TextLink href={register()} tabIndex={6}>
-                                Register
+                                {t('Register')}
                             </TextLink>
                         </div>
                     </>

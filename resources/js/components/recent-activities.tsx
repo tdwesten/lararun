@@ -7,14 +7,17 @@ import { Link } from '@inertiajs/react';
 import { show } from '@/routes/activities';
 import { Button } from './ui/button';
 import { index } from '@/routes/activities';
+import { useTranslations } from '@/hooks/use-translations';
 
 interface RecentActivitiesProps {
     activities: Activity[];
 }
 
 export default function RecentActivities({ activities }: RecentActivitiesProps) {
+    const { t } = useTranslations();
+
     const formatDistance = (meters: number) => {
-        return (meters / 1000).toFixed(2) + ' km';
+        return (meters / 1000).toFixed(2) + ` ${t('km')}`;
     };
 
     const formatDuration = (seconds: number) => {
@@ -24,12 +27,12 @@ export default function RecentActivities({ activities }: RecentActivitiesProps) 
     };
 
     const formatPace = (distanceMeters: number, timeSeconds: number) => {
-        if (distanceMeters === 0) return '0:00 /km';
+        if (distanceMeters === 0) return `0:00 ${t('/km')}`;
         const distanceKm = distanceMeters / 1000;
         const paceMinPerKm = (timeSeconds / 60) / distanceKm;
         const minutes = Math.floor(paceMinPerKm);
         const seconds = Math.floor((paceMinPerKm - minutes) * 60);
-        return `${minutes}:${seconds.toString().padStart(2, '0')} /km`;
+        return `${minutes}:${seconds.toString().padStart(2, '0')} ${t('/km')}`;
     };
 
     const getIntensityColor = (score: string | null) => {
@@ -45,12 +48,12 @@ export default function RecentActivities({ activities }: RecentActivitiesProps) 
         <Card className="flex flex-col flex-1">
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                    <CardTitle>Recent Activities</CardTitle>
-                    <CardDescription>Your last 10 runs from Strava.</CardDescription>
+                    <CardTitle>{t('Recent Activities')}</CardTitle>
+                    <CardDescription>{t('Your last 10 runs from Strava.')}</CardDescription>
                 </div>
                 {activities.length > 0 && (
                     <Button variant="ghost" size="sm" asChild>
-                        <Link href={index().url}>View All</Link>
+                        <Link href={index().url}>{t('View All')}</Link>
                     </Button>
                 )}
             </CardHeader>
@@ -58,8 +61,8 @@ export default function RecentActivities({ activities }: RecentActivitiesProps) 
                 {activities.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-8 text-center">
                         <ActivityIcon className="h-12 w-12 text-muted-foreground/50 mb-4" />
-                        <p className="text-muted-foreground">No activities found yet.</p>
-                        <p className="text-sm text-muted-foreground/70">Activities are synced automatically every hour.</p>
+                        <p className="text-muted-foreground">{t('No activities found yet.')}</p>
+                        <p className="text-sm text-muted-foreground/70">{t('Activities are synced automatically every hour.')}</p>
                     </div>
                 ) : (
                     <div className="space-y-4">

@@ -7,15 +7,10 @@ import { create, edit, index, show } from '@/routes/objectives';
 import { BreadcrumbItem, Objective } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Plus, Target, Trash2 } from 'lucide-react';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Objectives',
-        href: index().url,
-    },
-];
+import { useTranslations } from '@/hooks/use-translations';
 
 function RunningDays({ days }: { days: string[] | null }) {
+    const { t } = useTranslations();
     if (!days || days.length === 0) return null;
 
     const dayLetters = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
@@ -34,7 +29,7 @@ function RunningDays({ days }: { days: string[] | null }) {
                                 ? "bg-primary text-primary-foreground border-primary"
                                 : "bg-muted text-muted-foreground border-transparent opacity-40"
                         )}
-                        title={dayNames[i]}
+                        title={t(dayNames[i])}
                     >
                         {letter}
                     </div>
@@ -46,27 +41,35 @@ function RunningDays({ days }: { days: string[] | null }) {
 
 export default function Index({ objectives, currentObjective }: { objectives: Objective[]; currentObjective: Objective | null }) {
     const { delete: destroy } = useForm();
+    const { t } = useTranslations();
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: t('Objectives'),
+            href: index().url,
+        },
+    ];
 
     const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this objective?')) {
+        if (confirm(t('Are you sure you want to delete this objective?'))) {
             destroy(index().url + '/' + id);
         }
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Objectives" />
+            <Head title={t('Objectives')} />
 
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-2xl font-bold tracking-tight">Objectives</h2>
-                        <p className="text-muted-foreground">Manage your running goals and track your progress.</p>
+                        <h2 className="text-2xl font-bold tracking-tight">{t('Objectives')}</h2>
+                        <p className="text-muted-foreground">{t('Manage your running goals and track your progress.')}</p>
                     </div>
                     <Button asChild>
                         <Link href={create().url}>
                             <Plus className="mr-2 h-4 w-4" />
-                            New Objective
+                            {t('New Objective')}
                         </Link>
                     </Button>
                 </div>
@@ -74,21 +77,21 @@ export default function Index({ objectives, currentObjective }: { objectives: Ob
                 {currentObjective && (
                     <Card className="border-primary/50">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Current Active Objective</CardTitle>
+                            <CardTitle className="text-sm font-medium">{t('Current Active Objective')}</CardTitle>
                             <Target className="h-4 w-4 text-primary" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{currentObjective.type}</div>
                             <p className="text-xs text-muted-foreground">
-                                Target Date: {new Date(currentObjective.target_date).toLocaleDateString()}
+                                {t('Target Date: ')}{new Date(currentObjective.target_date).toLocaleDateString()}
                             </p>
                             <RunningDays days={currentObjective.running_days} />
                             <div className="mt-4 flex gap-2">
                                 <Button variant="outline" size="sm" asChild>
-                                    <Link href={show(currentObjective.id).url}>View Recommendations</Link>
+                                    <Link href={show(currentObjective.id).url}>{t('View Recommendations')}</Link>
                                 </Button>
                                 <Button variant="ghost" size="sm" asChild>
-                                    <Link href={edit(currentObjective.id).url}>Edit</Link>
+                                    <Link href={edit(currentObjective.id).url}>{t('Edit')}</Link>
                                 </Button>
                             </div>
                         </CardContent>
@@ -96,7 +99,7 @@ export default function Index({ objectives, currentObjective }: { objectives: Ob
                 )}
 
                 <div className="mt-6">
-                    <h3 className="mb-4 text-lg font-medium">History</h3>
+                    <h3 className="mb-4 text-lg font-medium">{t('History')}</h3>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {objectives.map((objective) => (
                             <Card key={objective.id} className={objective.status !== 'active' ? 'opacity-70' : ''}>
@@ -111,22 +114,22 @@ export default function Index({ objectives, currentObjective }: { objectives: Ob
                                                   : 'secondary'
                                         }
                                     >
-                                        {objective.status}
+                                        {t(objective.status)}
                                     </Badge>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-xs text-muted-foreground">
-                                        Target: {new Date(objective.target_date).toLocaleDateString()}
+                                        {t('Target: ')}{new Date(objective.target_date).toLocaleDateString()}
                                     </div>
                                     <RunningDays days={objective.running_days} />
                                     {objective.description && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{objective.description}</p>}
                                     <div className="mt-4 flex items-center justify-between">
                                         <div className="flex gap-2">
                                             <Button variant="outline" size="sm" asChild>
-                                                <Link href={show(objective.id).url}>View</Link>
+                                                <Link href={show(objective.id).url}>{t('View')}</Link>
                                             </Button>
                                             <Button variant="ghost" size="sm" asChild>
-                                                <Link href={edit(objective.id).url}>Edit</Link>
+                                                <Link href={edit(objective.id).url}>{t('Edit')}</Link>
                                             </Button>
                                         </div>
                                         <Button variant="ghost" size="icon" onClick={() => handleDelete(objective.id)}>
@@ -139,7 +142,7 @@ export default function Index({ objectives, currentObjective }: { objectives: Ob
 
                         {objectives.length === 0 && (
                             <div className="col-span-full flex h-40 items-center justify-center rounded-lg border border-dashed">
-                                <p className="text-muted-foreground">No objectives found. Create your first one!</p>
+                                <p className="text-muted-foreground">{t('No objectives found. Create your first one!')}</p>
                             </div>
                         )}
                     </div>

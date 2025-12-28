@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 import { Spinner } from '@/components/ui/spinner';
+import { useTranslations } from '@/hooks/use-translations';
 
 interface ActivityShowProps {
     activity: Activity & {
@@ -23,6 +24,7 @@ interface ActivityShowProps {
 }
 
 export default function ActivityShow({ activity, recommendation }: ActivityShowProps) {
+    const { t } = useTranslations();
     const isEvaluating = !activity.short_evaluation || !activity.extended_evaluation;
 
     usePoll(3000, {
@@ -31,7 +33,7 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
     });
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: 'Activities',
+            title: t('Activities'),
             href: index().url,
         },
         {
@@ -41,7 +43,7 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
     ];
 
     const formatDistance = (meters: number) => {
-        return (meters / 1000).toFixed(2) + ' km';
+        return (meters / 1000).toFixed(2) + ` ${t('km')}`;
     };
 
     const formatDuration = (seconds: number) => {
@@ -56,12 +58,12 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
     };
 
     const formatPace = (distanceMeters: number, timeSeconds: number) => {
-        if (distanceMeters === 0) return '0:00 /km';
+        if (distanceMeters === 0) return `0:00 ${t('/km')}`;
         const distanceKm = distanceMeters / 1000;
         const paceMinPerKm = (timeSeconds / 60) / distanceKm;
         const minutes = Math.floor(paceMinPerKm);
         const seconds = Math.floor((paceMinPerKm - minutes) * 60);
-        return `${minutes}:${seconds.toString().padStart(2, '0')} /km`;
+        return `${minutes}:${seconds.toString().padStart(2, '0')} ${t('/km')}`;
     };
 
     const getIntensityColor = (score: string | null) => {
@@ -76,26 +78,26 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
     const getIntensityText = (score: string | null) => {
         if (!score) return 'N/A';
         const numScore = parseFloat(score);
-        if (numScore < 40) return 'Easy';
-        if (numScore < 80) return 'Moderate';
-        if (numScore < 120) return 'Heavy';
-        return 'Very Heavy';
+        if (numScore < 40) return t('Easy');
+        if (numScore < 80) return t('Moderate');
+        if (numScore < 120) return t('Heavy');
+        return t('Very Heavy');
     };
 
     const getRecommendationIcon = (type: string) => {
-        const t = type.toLowerCase();
-        if (t.includes('rest') || t.includes('recovery')) return <Coffee className="h-5 w-5 text-sky-500" />;
-        if (t.includes('interval') || t.includes('speed')) return <Zap className="h-5 w-5 text-amber-500" />;
-        if (t.includes('long')) return <Dumbbell className="h-5 w-5 text-emerald-500" />;
+        const t_type = type.toLowerCase();
+        if (t_type.includes('rest') || t_type.includes('recovery')) return <Coffee className="h-5 w-5 text-sky-500" />;
+        if (t_type.includes('interval') || t_type.includes('speed')) return <Zap className="h-5 w-5 text-amber-500" />;
+        if (t_type.includes('long')) return <Dumbbell className="h-5 w-5 text-emerald-500" />;
         return <Dumbbell className="h-5 w-5 text-primary" />;
     };
 
     const zones = [
-        { name: 'Zone 1', time: activity.z1_time || 0, color: 'bg-emerald-400' },
-        { name: 'Zone 2', time: activity.z2_time || 0, color: 'bg-emerald-600' },
-        { name: 'Zone 3', time: activity.z3_time || 0, color: 'bg-amber-500' },
-        { name: 'Zone 4', time: activity.z4_time || 0, color: 'bg-orange-600' },
-        { name: 'Zone 5', time: activity.z5_time || 0, color: 'bg-rose-600' },
+        { name: t('Zone 1'), time: activity.z1_time || 0, color: 'bg-emerald-400' },
+        { name: t('Zone 2'), time: activity.z2_time || 0, color: 'bg-emerald-600' },
+        { name: t('Zone 3'), time: activity.z3_time || 0, color: 'bg-amber-500' },
+        { name: t('Zone 4'), time: activity.z4_time || 0, color: 'bg-orange-600' },
+        { name: t('Zone 5'), time: activity.z5_time || 0, color: 'bg-rose-600' },
     ];
 
     const totalZoneTime = zones.reduce((acc, zone) => acc + zone.time, 0);
@@ -128,7 +130,7 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
                         </Badge>
                         {activity.intensity_score && (
                             <Badge className={cn("text-white border-none", getIntensityColor(activity.intensity_score))}>
-                                {getIntensityText(activity.intensity_score)} Intensity ({Math.round(parseFloat(activity.intensity_score))})
+                                {getIntensityText(activity.intensity_score)} {t('Intensity')} ({Math.round(parseFloat(activity.intensity_score))})
                             </Badge>
                         )}
                     </div>
@@ -138,31 +140,31 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
                     {/* Primary Stats */}
                     <Card className="md:col-span-2">
                         <CardHeader>
-                            <CardTitle>Activity Summary</CardTitle>
+                            <CardTitle>{t('Activity Summary')}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
                                 <div className="space-y-1">
                                     <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                                        <MapPin className="h-4 w-4" /> Distance
+                                        <MapPin className="h-4 w-4" /> {t('Distance')}
                                     </p>
                                     <p className="text-2xl font-bold">{formatDistance(activity.distance)}</p>
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                                        <Clock className="h-4 w-4" /> Moving Time
+                                        <Clock className="h-4 w-4" /> {t('Moving Time')}
                                     </p>
                                     <p className="text-2xl font-bold">{formatDuration(activity.moving_time)}</p>
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                                        <Zap className="h-4 w-4" /> Avg Pace
+                                        <Zap className="h-4 w-4" /> {t('Avg Pace')}
                                     </p>
                                     <p className="text-2xl font-bold">{formatPace(activity.distance, activity.moving_time)}</p>
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                                        <Clock className="h-4 w-4" /> Elapsed Time
+                                        <Clock className="h-4 w-4" /> {t('Elapsed Time')}
                                     </p>
                                     <p className="text-2xl font-bold">{formatDuration(activity.elapsed_time)}</p>
                                 </div>
@@ -177,7 +179,7 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
                         </div>
                         <CardHeader className="pb-2">
                             <div className="flex items-center justify-between">
-                                <CardTitle className="text-lg">Planned Training</CardTitle>
+                                <CardTitle className="text-lg">{t('Planned Training')}</CardTitle>
                                 {recommendation ? getRecommendationIcon(recommendation.type) : <Info className="h-5 w-5 text-muted-foreground" />}
                             </div>
                             {recommendation && <CardDescription className="font-semibold text-primary">{recommendation.type}</CardDescription>}
@@ -202,7 +204,7 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
                                 </div>
                             ) : (
                                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                                    <p className="text-sm text-muted-foreground">No specific recommendation found for this day.</p>
+                                    <p className="text-sm text-muted-foreground">{t('No specific recommendation found for this day.')}</p>
                                 </div>
                             )}
                         </CardContent>
@@ -214,7 +216,7 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
                     <Card className="h-fit">
                         <CardHeader>
                             <div className="flex items-center justify-between">
-                                <CardTitle>Coach AI Evaluation</CardTitle>
+                                <CardTitle>{t('Coach AI Evaluation')}</CardTitle>
                                 <Quote className="h-5 w-5 text-primary" />
                             </div>
                         </CardHeader>
@@ -223,8 +225,8 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
                                 <div className="py-12 flex flex-col items-center justify-center space-y-4 border rounded-lg border-dashed bg-primary/5">
                                     <Spinner className="h-8 w-8 text-primary" />
                                     <div className="text-center space-y-1">
-                                        <p className="font-medium text-foreground">Generating AI Evaluation</p>
-                                        <p className="text-sm text-muted-foreground">Your coach is analyzing your run. This usually takes 10-20 seconds.</p>
+                                        <p className="font-medium text-foreground">{t('Generating AI Evaluation')}</p>
+                                        <p className="text-sm text-muted-foreground">{t('Your coach is analyzing your run. This usually takes 10-20 seconds.')}</p>
                                     </div>
                                 </div>
                             ) : (
@@ -239,14 +241,14 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
 
                                     {activity.extended_evaluation ? (
                                         <div className="space-y-2">
-                                            <h4 className="font-semibold text-sm uppercase text-muted-foreground tracking-wider">Detailed Analysis</h4>
+                                            <h4 className="font-semibold text-sm uppercase text-muted-foreground tracking-wider">{t('Detailed Analysis')}</h4>
                                             <div className="prose prose-sm dark:prose-invert max-w-none text-foreground leading-relaxed">
                                                 <ReactMarkdown>{activity.extended_evaluation}</ReactMarkdown>
                                             </div>
                                         </div>
                                     ) : (
                                         <div className="py-8 text-center border rounded-lg border-dashed">
-                                            <p className="text-muted-foreground">Detailed evaluation not available for this activity.</p>
+                                            <p className="text-muted-foreground">{t('Detailed evaluation not available for this activity.')}</p>
                                         </div>
                                     )}
                                 </>
@@ -257,15 +259,15 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
                     {/* Zone Data */}
                     <Card className="h-fit">
                         <CardHeader>
-                            <CardTitle>Heart Rate Zones</CardTitle>
-                            <CardDescription>Time spent in each effort zone.</CardDescription>
+                            <CardTitle>{t('Heart Rate Zones')}</CardTitle>
+                            <CardDescription>{t('Time spent in each effort zone.')}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             {!activity.zone_data_available ? (
                                 <div className="flex flex-col items-center justify-center py-12 text-center">
                                     <Info className="h-12 w-12 text-muted-foreground/20 mb-4" />
-                                    <p className="text-muted-foreground font-medium">No heart rate data available.</p>
-                                    <p className="text-sm text-muted-foreground/70">Ensure your device records heart rate and Strava permissions are correct.</p>
+                                    <p className="text-muted-foreground font-medium">{t('No heart rate data available.')}</p>
+                                    <p className="text-sm text-muted-foreground/70">{t('Ensure your device records heart rate and Strava permissions are correct.')}</p>
                                 </div>
                             ) : (
                                 <div className="space-y-6">
@@ -286,7 +288,7 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
                                         ))}
                                     </div>
                                     <div className="pt-4 border-t text-xs text-muted-foreground">
-                                        Total heart rate recorded: {formatDuration(totalZoneTime)}
+                                        {t('Total heart rate recorded: ')}{formatDuration(totalZoneTime)}
                                     </div>
                                 </div>
                             )}

@@ -5,18 +5,21 @@ import { create, show } from '@/routes/objectives';
 import { Objective } from '@/types';
 import { Link } from '@inertiajs/react';
 import { Calendar, Target } from 'lucide-react';
+import { useTranslations } from '@/hooks/use-translations';
 
 export default function ObjectiveWidget({ objective }: { objective: Objective | null }) {
+    const { t } = useTranslations();
+
     if (!objective) {
         return (
             <Card className="flex h-full flex-col justify-between border-dashed">
                 <CardHeader>
-                    <CardTitle className="text-lg">No Active Objective</CardTitle>
-                    <CardDescription>You haven't set a goal yet.</CardDescription>
+                    <CardTitle className="text-lg">{t('No Active Objective')}</CardTitle>
+                    <CardDescription>{t("You haven't set a goal yet.")}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Button asChild className="w-full">
-                        <Link href={create().url}>Set a Goal</Link>
+                        <Link href={create().url}>{t('Set a Goal')}</Link>
                     </Button>
                 </CardContent>
             </Card>
@@ -32,7 +35,7 @@ export default function ObjectiveWidget({ objective }: { objective: Objective | 
             </div>
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Current Goal</CardTitle>
+                    <CardTitle className="text-lg">{t('Current Goal')}</CardTitle>
                     <Target className="h-5 w-5 text-primary" />
                 </div>
                 <CardDescription className="font-semibold text-primary">{objective.type}</CardDescription>
@@ -41,15 +44,15 @@ export default function ObjectiveWidget({ objective }: { objective: Objective | 
                 <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="h-4 w-4" />
-                        <span>Target: {new Date(objective.target_date).toLocaleDateString()}</span>
+                        <span>{t('Target: ')}{new Date(objective.target_date).toLocaleDateString()}</span>
                     </div>
 
                     {objective.running_days && objective.running_days.length > 0 && (
                         <div className="flex gap-1">
                             {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((letter, i) => {
-                                const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                                const days = [t('Monday'), t('Tuesday'), t('Wednesday'), t('Thursday'), t('Friday'), t('Saturday'), t('Sunday')];
                                 const dayName = days[i];
-                                const isActive = objective.running_days?.includes(dayName);
+                                const isActive = objective.running_days?.includes(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][i]);
                                 return (
                                     <div
                                         key={`${dayName}-${i}`}
@@ -70,7 +73,7 @@ export default function ObjectiveWidget({ objective }: { objective: Objective | 
                 </div>
 
                 <div className="space-y-1">
-                    <div className="text-2xl font-bold">{daysLeft > 0 ? daysLeft : 0} Days Left</div>
+                    <div className="text-2xl font-bold">{daysLeft > 0 ? daysLeft : 0} {t('Days Left')}</div>
                     <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
                         <div
                             className="h-full bg-primary"
@@ -81,7 +84,7 @@ export default function ObjectiveWidget({ objective }: { objective: Objective | 
                     </div>
                 </div>
                 <Button asChild variant="outline" className="w-full">
-                    <Link href={show(objective.id).url}>View Details</Link>
+                    <Link href={show(objective.id).url}>{t('View Details')}</Link>
                 </Button>
             </CardContent>
         </Card>

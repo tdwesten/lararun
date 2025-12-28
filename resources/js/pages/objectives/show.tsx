@@ -10,11 +10,13 @@ import { BreadcrumbItem, DailyRecommendation, Objective, RunningStats } from '@/
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Calendar, Info, Target, Activity, TrendingUp, Clock, Zap, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslations } from '@/hooks/use-translations';
 
 export default function Show({ objective, runningStats }: { objective: Objective; runningStats: RunningStats }) {
+    const { t } = useTranslations();
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: 'Objectives',
+            title: t('Objectives'),
             href: objectives.index().url,
         },
         {
@@ -31,7 +33,7 @@ export default function Show({ objective, runningStats }: { objective: Objective
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Objective: ${objective.type}`} />
+            <Head title={t('Objective: :type', { type: objective.type })} />
 
             <div className="flex flex-1 flex-col gap-4 p-4">
                 <div className="flex items-center gap-4">
@@ -43,55 +45,55 @@ export default function Show({ objective, runningStats }: { objective: Objective
                     <div>
                         <h2 className="text-2xl font-bold tracking-tight">{objective.type}</h2>
                         <p className="text-muted-foreground">
-                            Target Date: {new Date(objective.target_date).toLocaleDateString()}
+                            {t('Target Date: ')}{new Date(objective.target_date).toLocaleDateString()}
                         </p>
                     </div>
                     <Badge className="ml-auto" variant={objective.status === 'active' ? 'default' : 'secondary'}>
-                        {objective.status}
+                        {t(objective.status)}
                     </Badge>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-4">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Distance</CardTitle>
+                            <CardTitle className="text-sm font-medium">{t('Total Distance')}</CardTitle>
                             <Activity className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{runningStats.total_distance_km} km</div>
+                            <div className="text-2xl font-bold">{runningStats.total_distance_km} {t('km')}</div>
                             <p className="text-xs text-muted-foreground mt-1">
-                                {runningStats.total_runs} {runningStats.total_runs === 1 ? 'run' : 'runs'} total
+                                {runningStats.total_runs} {runningStats.total_runs === 1 ? t('run') : t('runs')} {t('total')}
                             </p>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Time</CardTitle>
+                            <CardTitle className="text-sm font-medium">{t('Total Time')}</CardTitle>
                             <Clock className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{runningStats.total_time_formatted}</div>
-                            <p className="text-xs text-muted-foreground mt-1">Time spent running</p>
+                            <p className="text-xs text-muted-foreground mt-1">{t('Time spent running')}</p>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Average Pace</CardTitle>
+                            <CardTitle className="text-sm font-medium">{t('Average Pace')}</CardTitle>
                             <TrendingUp className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
                                 {runningStats.average_pace_per_km || 'N/A'}
                             </div>
-                            <p className="text-xs text-muted-foreground mt-1">Per kilometer</p>
+                            <p className="text-xs text-muted-foreground mt-1">{t('Per kilometer')}</p>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Best Pace</CardTitle>
+                            <CardTitle className="text-sm font-medium">{t('Best Pace')}</CardTitle>
                             <Zap className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
@@ -100,11 +102,11 @@ export default function Show({ objective, runningStats }: { objective: Objective
                             </div>
                             {runningStats.fastest_run && (
                                 <p className="text-xs text-muted-foreground mt-1">
-                                    {runningStats.fastest_run.distance_km} km on {new Date(runningStats.fastest_run.date).toLocaleDateString()}
+                                    {runningStats.fastest_run.distance_km} {t('km')} {t('on')} {new Date(runningStats.fastest_run.date).toLocaleDateString()}
                                 </p>
                             )}
                             {!runningStats.fastest_run && (
-                                <p className="text-xs text-muted-foreground mt-1">No runs yet</p>
+                                <p className="text-xs text-muted-foreground mt-1">{t('No runs yet')}</p>
                             )}
                         </CardContent>
                     </Card>
@@ -115,18 +117,18 @@ export default function Show({ objective, runningStats }: { objective: Objective
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-sm">
                                 <Target className="h-4 w-4 text-primary" />
-                                Goal Details
+                                {t('Goal Details')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {objective.description && (
                                 <div>
-                                    <div className="text-xs font-semibold uppercase text-muted-foreground">Description</div>
+                                    <div className="text-xs font-semibold uppercase text-muted-foreground">{t('Description')}</div>
                                     <p className="mt-1 text-sm">{objective.description}</p>
                                 </div>
                             )}
                             <div>
-                                <div className="text-xs font-semibold uppercase text-muted-foreground">Running Days</div>
+                                <div className="text-xs font-semibold uppercase text-muted-foreground">{t('Running Days')}</div>
                                 <div className="mt-2 flex gap-1">
                                     {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((letter, i) => {
                                         const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -140,7 +142,7 @@ export default function Show({ objective, runningStats }: { objective: Objective
                                                         ? "bg-primary text-primary-foreground border-primary"
                                                         : "bg-muted text-muted-foreground border-transparent opacity-40"
                                                 )}
-                                                title={dayNames[i]}
+                                                title={t(dayNames[i])}
                                             >
                                                 {letter}
                                             </div>
@@ -156,7 +158,7 @@ export default function Show({ objective, runningStats }: { objective: Objective
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-sm">
                                     <Sparkles className="h-4 w-4 text-primary" />
-                                    Enhance Training Plan
+                                    {t('Enhance Training Plan')}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
@@ -166,11 +168,11 @@ export default function Show({ objective, runningStats }: { objective: Objective
                                 }} className="space-y-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="enhancement_prompt">
-                                            Additional Instructions
+                                            {t('Additional Instructions')}
                                         </Label>
                                         <Textarea
                                             id="enhancement_prompt"
-                                            placeholder="e.g., Focus more on interval training, include hill workouts, or add cross-training days..."
+                                            placeholder={t('e.g., Focus more on interval training, include hill workouts, or add cross-training days...')}
                                             value={data.enhancement_prompt}
                                             onChange={(e) => setData('enhancement_prompt', e.target.value)}
                                             className="min-h-24"
@@ -181,23 +183,23 @@ export default function Show({ objective, runningStats }: { objective: Objective
                                             <p id="enhancement_prompt-error" className="text-sm text-destructive">{errors.enhancement_prompt}</p>
                                         )}
                                         <p id="enhancement_prompt-description" className="text-xs text-muted-foreground">
-                                            Provide specific instructions to customize your training plan. The AI will regenerate the next 7 days with your preferences.
+                                            {t('Provide specific instructions to customize your training plan. The AI will regenerate the next 7 days with your preferences.')}
                                         </p>
                                     </div>
                                     <Button type="submit" disabled={processing} className="w-full sm:w-auto">
                                         <Sparkles className="mr-2 h-4 w-4" />
-                                        {processing ? 'Regenerating...' : 'Regenerate Training Plan'}
+                                        {processing ? t('Regenerating...') : t('Regenerate Training Plan')}
                                     </Button>
                                     {wasSuccessful && (
                                         <p className="text-sm text-green-600 dark:text-green-500">
-                                            Training plan regeneration started! Refresh the page in a few moments to see the updated recommendations.
+                                            {t('Training plan regeneration started! Refresh the page in a few moments to see the updated recommendations.')}
                                         </p>
                                     )}
                                 </form>
                             </CardContent>
                         </Card>
 
-                        <h3 className="text-lg font-semibold">Training Recommendations</h3>
+                        <h3 className="text-lg font-semibold">{t('Training Recommendations')}</h3>
                         <div className="space-y-4">
                             {objective.daily_recommendations?.map((recommendation: DailyRecommendation) => {
                                 const isToday = recommendation.date.startsWith(today);
@@ -217,7 +219,7 @@ export default function Show({ objective, runningStats }: { objective: Objective
                                                             month: 'long',
                                                             day: 'numeric'
                                                         })}
-                                                        {isToday && " (Today)"}
+                                                        {isToday && ` ${t('(Today)')}`}
                                                     </span>
                                                 </div>
                                                 <Badge variant="outline">{recommendation.type}</Badge>
@@ -229,7 +231,7 @@ export default function Show({ objective, runningStats }: { objective: Objective
 
                                             <Alert variant="default" className="bg-muted/50 border-none">
                                                 <Info className="h-4 w-4" />
-                                                <AlertTitle className="text-xs font-semibold uppercase text-muted-foreground">Coach's Notes</AlertTitle>
+                                                <AlertTitle className="text-xs font-semibold uppercase text-muted-foreground">{t("Coach's Notes")}</AlertTitle>
                                                 <AlertDescription className="text-xs italic text-muted-foreground">
                                                     {recommendation.reasoning}
                                                 </AlertDescription>
@@ -241,8 +243,8 @@ export default function Show({ objective, runningStats }: { objective: Objective
 
                             {(!objective.daily_recommendations || objective.daily_recommendations.length === 0) && (
                                 <div className="flex h-32 flex-col items-center justify-center rounded-lg border border-dashed text-muted-foreground">
-                                    <p>No recommendations yet.</p>
-                                    <p className="text-xs">They will appear here once generated.</p>
+                                    <p>{t('No recommendations yet.')}</p>
+                                    <p className="text-xs">{t('They will appear here once generated.')}</p>
                                 </div>
                             )}
                         </div>

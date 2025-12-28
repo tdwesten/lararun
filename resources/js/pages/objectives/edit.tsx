@@ -9,27 +9,30 @@ import AppLayout from '@/layouts/app-layout';
 import { index, update } from '@/routes/objectives';
 import { BreadcrumbItem, Objective } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-
-const DAYS_OF_WEEK = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday'
-];
+import { useTranslations } from '@/hooks/use-translations';
 
 export default function Edit({ objective }: { objective: Objective }) {
+    const { t } = useTranslations();
+
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: 'Objectives',
+            title: t('Objectives'),
             href: index().url,
         },
         {
-            title: 'Edit',
+            title: t('Edit'),
             href: `/objectives/${objective.id}/edit`,
         },
+    ];
+
+    const DAYS_OF_WEEK = [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'
     ];
 
     const { data, setData, put, processing, errors } = useForm({
@@ -58,50 +61,50 @@ export default function Edit({ objective }: { objective: Objective }) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit Objective" />
+            <Head title={t('Edit Objective')} />
 
             <div className="mx-auto max-w-2xl p-4">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Edit Objective</CardTitle>
-                        <CardDescription>Update your running goal details.</CardDescription>
+                        <CardTitle>{t('Edit Objective')}</CardTitle>
+                        <CardDescription>{t('Update your running goal details.')}</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
-                                <Label htmlFor="type">Objective Type</Label>
+                                <Label htmlFor="type">{t('Objective Type')}</Label>
                                 <Select onValueChange={(value) => setData('type', value as Objective['type'])} value={data.type}>
                                     <SelectTrigger id="type">
-                                        <SelectValue placeholder="Select a goal" />
+                                        <SelectValue placeholder={t('Select a goal')} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="5 km">5 km</SelectItem>
                                         <SelectItem value="10 km">10 km</SelectItem>
-                                        <SelectItem value="21.1 km">21.1 km (Half Marathon)</SelectItem>
-                                        <SelectItem value="42.2 km">42.2 km (Full Marathon)</SelectItem>
-                                        <SelectItem value="Speed">Run Faster (Improve Pace)</SelectItem>
+                                        <SelectItem value="21.1 km">{t('21.1 km (Half Marathon)')}</SelectItem>
+                                        <SelectItem value="42.2 km">{t('42.2 km (Full Marathon)')}</SelectItem>
+                                        <SelectItem value="Speed">{t('Run Faster (Improve Pace)')}</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <InputError message={errors.type} />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="status">Status</Label>
+                                <Label htmlFor="status">{t('Status')}</Label>
                                 <Select onValueChange={(value) => setData('status', value as Objective['status'])} value={data.status}>
                                     <SelectTrigger id="status">
-                                        <SelectValue placeholder="Select status" />
+                                        <SelectValue placeholder={t('Select status')} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="active">Active</SelectItem>
-                                        <SelectItem value="completed">Completed</SelectItem>
-                                        <SelectItem value="abandoned">Abandoned</SelectItem>
+                                        <SelectItem value="active">{t('active')}</SelectItem>
+                                        <SelectItem value="completed">{t('completed')}</SelectItem>
+                                        <SelectItem value="abandoned">{t('abandoned')}</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <InputError message={errors.status} />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="target_date">Target Date</Label>
+                                <Label htmlFor="target_date">{t('Target Date')}</Label>
                                 <Input
                                     id="target_date"
                                     type="date"
@@ -112,7 +115,7 @@ export default function Edit({ objective }: { objective: Objective }) {
                             </div>
 
                             <div className="space-y-2">
-                                <Label>Preferred Running Days</Label>
+                                <Label>{t('Preferred Running Days')}</Label>
                                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                                     {DAYS_OF_WEEK.map((day) => (
                                         <div key={day} className="flex items-center space-x-2">
@@ -125,7 +128,7 @@ export default function Edit({ objective }: { objective: Objective }) {
                                                 htmlFor={`day-${day}`}
                                                 className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                             >
-                                                {day}
+                                                {t(day)}
                                             </Label>
                                         </div>
                                     ))}
@@ -134,7 +137,7 @@ export default function Edit({ objective }: { objective: Objective }) {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="description">Description (Optional)</Label>
+                                <Label htmlFor="description">{t('Description (Optional)')}</Label>
                                 <Input
                                     id="description"
                                     value={data.description}
@@ -145,7 +148,7 @@ export default function Edit({ objective }: { objective: Objective }) {
 
                             <div className="flex justify-end gap-4">
                                 <Button type="submit" disabled={processing}>
-                                    Update Objective
+                                    {t('Update Objective')}
                                 </Button>
                             </div>
                         </form>
