@@ -101,6 +101,8 @@ Use webhooks for real-time sync, queues for AI processing.
 - Use Prettier for code formatting.
 - Use Boost for debugging.
 - Use Shadcn for design system components. ONLY USE SHADCN FOR DESIGN SYSTEM COMPONENTS.
+- Use the `useTranslations` hook for all user-facing strings in React components to support English (en) and Dutch (nl).
+- Add all new translation strings to both `lang/en.json` and `lang/nl.json`.
 
 
 <laravel-boost-guidelines>
@@ -386,7 +388,7 @@ Wayfinder generates TypeScript functions and types for Laravel controllers and r
 
 
 ### Wayfinder + Inertia
-If your application uses the `<Form>` component from Inertia, you can use Wayfinder to generate form action and method automatically.
+If your application uses the `Form` component from Inertia, you can use Wayfinder to generate form action and method automatically.
 <code-snippet name="Wayfinder Form Component (React)" lang="typescript">
 
 <Form {...store.form()}><input name="title" /></Form>
@@ -518,7 +520,7 @@ import { Link } from '@inertiajs/react'
 
 ## Inertia + React Forms
 
-<code-snippet name="`<Form>` Component Example" lang="react">
+<code-snippet name="Form Component Example" lang="react">
 
 import { Form } from '@inertiajs/react'
 

@@ -102,7 +102,7 @@ class ImportStravaActivitiesJob implements ShouldQueue
     /**
      * Parse zone data from Strava API response.
      *
-     * @param array<int, mixed>|null $zoneData
+     * @param  array<int, mixed>|null  $zoneData
      * @return array<string, int>
      */
     protected function parseZones(?array $zoneData): array
@@ -132,7 +132,7 @@ class ImportStravaActivitiesJob implements ShouldQueue
     /**
      * Calculate intensity score weighted by zones.
      *
-     * @param array<string, int> $zones
+     * @param  array<string, int>  $zones
      */
     protected function calculateIntensityScore(array $zones): float
     {

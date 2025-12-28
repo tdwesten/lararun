@@ -66,7 +66,15 @@ class HandleInertiaRequests extends Middleware
         $path = base_path("lang/$locale.json");
 
         if (file_exists($path)) {
-            return json_decode(file_get_contents($path), true);
+            $content = file_get_contents($path);
+
+            if (is_string($content)) {
+                $decoded = json_decode($content, true);
+
+                if (is_array($decoded)) {
+                    return $decoded;
+                }
+            }
         }
 
         return [];
