@@ -21,9 +21,10 @@ Route::get('auth/strava/callback', [StravaController::class, 'callback'])->name(
 Route::middleware('auth')->group(function () {
     Route::get('auth/email', [EmailEntryController::class, 'show'])->name('auth.email.show');
     Route::post('auth/email', [EmailEntryController::class, 'store'])->name('auth.email.store');
+    Route::get('auth/strava/connect', [StravaController::class, 'connect'])->name('auth.strava.connect');
 });
 
-Route::middleware(['auth', 'email.set', 'verified'])->group(function () {
+Route::middleware(['auth', 'email.set', 'verified', 'strava.connected'])->group(function () {
     Route::get('dashboard', function (Request $request) {
         return Inertia::render('dashboard', [
             'activities' => Activity::query()

@@ -21,7 +21,10 @@ test('authenticated user without email is NOT redirected to email entry page fro
 });
 
 test('authenticated user with email is not redirected to email entry page', function () {
-    $user = User::factory()->create(['email' => 'test@example.com']);
+    $user = User::factory()->create([
+        'email' => 'test@example.com',
+        'strava_token' => 'fake-token',
+    ]);
 
     $response = $this->actingAs($user)->get(route('dashboard'));
 

@@ -104,3 +104,79 @@ test('it does not overwrite existing email if strava returns null email', functi
     $user->refresh();
     expect($user->email)->toBe('existing@example.com');
 });
+
+test('authenticated user can connect strava account', function () {
+    $user = User::factory()->create([
+        'strava_id' => null,
+        'strava_token' => null,
+        'email' => 'original@example.com',
+    ]);
+
+    $abstractUser = Mockery::mock(SocialiteUser::class);
+    $abstractUser->shouldReceive('getId')->andReturn('55555');
+    $abstractUser->shouldReceive('getName')->andReturn('Strava User');
+    $abstractUser->shouldReceive('getEmail')->andReturn('strava@example.com');
+    $abstractUser->token = 'connect-token';
+    $abstractUser->refreshToken = 'connect-refresh-token';
+    $abstractUser->expiresIn = 3600;
+
+    Socialite::shouldReceive('driver')->with('strava')->andReturn(Mockery::mock('Laravel\Socialite\Two\AbstractProvider')->shouldReceive('user')->andReturn($abstractUser)->getMock());
+
+    $response = $this->actingAs($user)->get(route('auth.strava.callback'));
+
+    $response->assertRedirect(route('dashboard'));
+    $this->assertAuthenticatedAs($user);
+
+    $user->refresh();
+    expect($user->strava_id)->toBe('55555')
+        ->and($user->strava_token)->toBe('connect-token')
+        ->and($user->email)->toBe('original@example.com');
+});
+
+test('cannot connect strava account if already taken by another user', function () {
+    User::factory()->create([
+        'strava_id' => '12345',
+    ]);
+
+    $user = User::factory()->create([
+        'strava_id' => null,
+    ]);
+
+    $abstractUser = Mockery::mock(SocialiteUser::class);
+    $abstractUser->shouldReceive('getId')->andReturn('12345');
+    $abstractUser->shouldReceive('getName')->andReturn('Strava User');
+    $abstractUser->shouldReceive('getEmail')->andReturn('strava@example.com');
+    $abstractUser->token = 'connect-token';
+    $abstractUser->refreshToken = 'connect-refresh-token';
+    $abstractUser->expiresIn = 3600;
+
+    Socialite::shouldReceive('driver')->with('strava')->andReturn(Mockery::mock('Laravel\Socialite\Two\AbstractProvider')->shouldReceive('user')->andReturn($abstractUser)->getMock());
+
+    $response = $this->actingAs($user)->get(route('auth.strava.callback'));
+
+    $response->assertRedirect(route('auth.strava.connect'));
+    $response->assertSessionHas('error', 'This Strava account is already connected to another user.');
+
+    $user->refresh();
+    expect($user->strava_id)->toBeNull();
+});
+
+test('strava connect screen can be rendered', function () {
+    $user = User::factory()->create([
+        'strava_token' => null,
+    ]);
+
+    $response = $this->actingAs($user)->get(route('auth.strava.connect'));
+
+    $response->assertStatus(200);
+});
+
+test('strava connect screen redirects if already connected', function () {
+    $user = User::factory()->create([
+        'strava_token' => 'some-token',
+    ]);
+
+    $response = $this->actingAs($user)->get(route('auth.strava.connect'));
+
+    $response->assertRedirect(route('dashboard'));
+});

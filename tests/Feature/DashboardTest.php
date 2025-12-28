@@ -12,6 +12,7 @@ test('authenticated users can visit the dashboard and see activities', function 
     $user = User::factory()->create([
         'email_verified_at' => now(),
         'strava_id' => '12345',
+        'strava_token' => 'fake-token',
     ]);
 
     $activities = Activity::withoutEvents(function () use ($user) {

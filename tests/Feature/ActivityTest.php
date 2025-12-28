@@ -15,6 +15,7 @@ beforeEach(function () {
     Http::fake();
     $this->user = User::factory()->create([
         'email_verified_at' => now(),
+        'strava_token' => 'fake-token',
     ]);
 });
 

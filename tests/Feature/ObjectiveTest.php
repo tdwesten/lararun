@@ -8,6 +8,7 @@ beforeEach(function () {
     Http::fake();
     $this->user = User::factory()->create([
         'email_verified_at' => now(),
+        'strava_token' => 'fake-token',
     ]);
 });
 
@@ -150,7 +151,7 @@ test('user can delete an objective', function () {
 
 test('objective detail view includes running stats', function () {
     \Illuminate\Support\Facades\Queue::fake();
-    
+
     $objective = Objective::factory()->create([
         'user_id' => $this->user->id,
     ]);
@@ -184,7 +185,7 @@ test('objective detail view includes running stats', function () {
 
 test('running stats calculates best pace correctly', function () {
     \Illuminate\Support\Facades\Queue::fake();
-    
+
     $objective = Objective::factory()->create([
         'user_id' => $this->user->id,
     ]);
@@ -232,7 +233,7 @@ test('running stats handles no activities gracefully', function () {
 
 test('user can enhance training plan with additional prompt', function () {
     \Illuminate\Support\Facades\Queue::fake();
-    
+
     $objective = Objective::factory()->create([
         'user_id' => $this->user->id,
     ]);
@@ -247,13 +248,13 @@ test('user can enhance training plan with additional prompt', function () {
     $response->assertRedirect(route('objectives.show', $objective));
     $objective->refresh();
     expect($objective->enhancement_prompt)->toBe('Focus more on interval training and hill workouts');
-    
+
     \Illuminate\Support\Facades\Queue::assertPushed(\App\Jobs\GenerateWeeklyTrainingPlanJob::class);
 });
 
 test('user can regenerate training plan with empty enhancement prompt', function () {
     \Illuminate\Support\Facades\Queue::fake();
-    
+
     $objective = Objective::factory()->create([
         'user_id' => $this->user->id,
         'enhancement_prompt' => 'Previous instructions',
@@ -269,7 +270,7 @@ test('user can regenerate training plan with empty enhancement prompt', function
     $response->assertRedirect(route('objectives.show', $objective));
     $objective->refresh();
     expect($objective->enhancement_prompt)->toBeNull();
-    
+
     \Illuminate\Support\Facades\Queue::assertPushed(\App\Jobs\GenerateWeeklyTrainingPlanJob::class);
 });
 

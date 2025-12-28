@@ -7,11 +7,25 @@ use App\Jobs\ImportStravaActivitiesJob;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Inertia\Response;
 use Laravel\Socialite\Facades\Socialite;
 use Symfony\Component\HttpFoundation\RedirectResponse as SymfonyRedirectResponse;
 
 class StravaController extends Controller
 {
+    /**
+     * Show the Strava connection page.
+     */
+    public function connect(): Response|RedirectResponse
+    {
+        if (Auth::user()->strava_token) {
+            return redirect()->route('dashboard');
+        }
+
+        return Inertia::render('auth/strava-connect');
+    }
+
     /**
      * Redirect the user to the Strava authentication page.
      */
@@ -33,9 +47,22 @@ class StravaController extends Controller
             return redirect()->route('login');
         }
 
-        $user = User::firstOrNew([
-            'strava_id' => $stravaUser->getId(),
-        ]);
+        if (Auth::check()) {
+            /** @var User $user */
+            $user = Auth::user();
+
+            // Check if this Strava ID is already taken by another user
+            $existingUser = User::where('strava_id', $stravaUser->getId())->where('id', '!=', $user->id)->first();
+            if ($existingUser) {
+                return redirect()->route('auth.strava.connect')->with('error', 'This Strava account is already connected to another user.');
+            }
+
+            $user->strava_id = $stravaUser->getId();
+        } else {
+            $user = User::firstOrNew([
+                'strava_id' => $stravaUser->getId(),
+            ]);
+        }
 
         $user->fill([
             'name' => $stravaUser->getName(),
@@ -44,7 +71,7 @@ class StravaController extends Controller
             'strava_token_expires_at' => now()->addSeconds($stravaUser->expiresIn),
         ]);
 
-        if ($stravaUser->getEmail()) {
+        if (! $user->email && $stravaUser->getEmail()) {
             $user->email = $stravaUser->getEmail();
         }
 
@@ -54,7 +81,9 @@ class StravaController extends Controller
             $user->markEmailAsVerified();
         }
 
-        Auth::login($user);
+        if (! Auth::check()) {
+            Auth::login($user);
+        }
 
         ImportStravaActivitiesJob::dispatch($user);
 

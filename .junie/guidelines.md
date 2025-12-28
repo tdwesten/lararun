@@ -12,9 +12,10 @@ Use webhooks for real-time sync, queues for AI processing.
 # Lararun MVP Features
 
 ## 1. Authentication & Onboarding
-* User registration/login (Laravel Breeze/Jetstream)
-* Strava OAuth connection
-* Email verification flow (mandatory for users without email from Strava)
+* User registration/login via Email & Password (Laravel Fortify)
+* Strava OAuth connection (Socialite)
+* Mandatory Strava connection: Users are prompted to connect Strava after registration if not done via OAuth. Protected routes require `strava_token`.
+* Email verification flow (mandatory for all users)
 * Initial profile setup (experience level, available training days/week)
 
 ## 2. Strava Integration
@@ -82,6 +83,7 @@ Use webhooks for real-time sync, queues for AI processing.
 
 ## Success Criteria
 ✅ User can connect Strava and see activities (Backend sync implemented)
+✅ User can register/login with email and password and connect Strava afterwards
 ✅ User can set a goal with target date
 ✅ User receives daily email with AI training recommendation
 ✅ Recommendations are contextual (based on recent activities & goal)
@@ -134,6 +136,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, naming.
 - Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
 - Check for existing components to reuse before writing a new one.
+- You (the AI agent) must always update these guidelines when significant architectural changes, new core features, or major convention shifts occur.
 
 ## Verification Scripts
 - Do not create verification scripts or tinker when tests cover that functionality and prove it works. Unit and feature tests are more important.
