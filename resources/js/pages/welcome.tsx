@@ -21,6 +21,11 @@ export default function Welcome() {
                         <Button size="lg">{t('Log in')}</Button>
                     </Link>
                 </div>
+                <div className="absolute bottom-6 text-sm text-muted-foreground">
+                    <Link href="/privacy" className="hover:underline">
+                        Privacy Policy
+                    </Link>
+                </div>
             </div>
         </>
     );

@@ -15,6 +15,10 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::get('/privacy', function () {
+    return Inertia::render('privacy');
+})->name('privacy');
+
 Route::get('auth/strava', [StravaController::class, 'redirect'])->name('auth.strava.redirect');
 Route::get('auth/strava/callback', [StravaController::class, 'callback'])->name('auth.strava.callback');
 
