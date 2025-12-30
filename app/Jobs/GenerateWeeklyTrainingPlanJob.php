@@ -181,10 +181,33 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
             ? implode(', ', $this->objective->running_days)
             : 'Not specified';
 
-        return "Type: {$this->objective->type}\n"
+        $info = "Type: {$this->objective->type}\n"
             ."Target Date: {$this->objective->target_date?->toDateString()}\n"
             ."Description: {$this->objective->description}\n"
             ."Preferred Running Days: {$runningDays}";
+
+        // Add user profile context
+        if ($this->user->age) {
+            $info .= "\nRunner Age: {$this->user->age}";
+        }
+        if ($this->user->weight_kg) {
+            $info .= "\nRunner Weight: {$this->user->weight_kg} kg";
+        }
+        if ($this->user->fitness_level) {
+            $info .= "\nFitness Level: {$this->user->fitness_level}";
+        }
+        if ($this->user->injury_history) {
+            $info .= "\nInjury History: {$this->user->injury_history}";
+        }
+        if ($this->user->training_preferences) {
+            $info .= "\nTraining Preferences: {$this->user->training_preferences}";
+        }
+
+        // Add current recovery score
+        $recoveryScore = $this->user->getCurrentRecoveryScore();
+        $info .= "\nCurrent Recovery Score: {$recoveryScore}/10";
+
+        return $info;
     }
 
     /**
@@ -208,6 +231,9 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
             $context .= "Date: {$activity->start_date?->toDateString()}\n";
             $context .= 'Distance: '.round($activity->distance / 1000, 2)." km\n";
             $context .= "Intensity Score: {$activity->intensity_score}\n";
+            if ($activity->recovery_score) {
+                $context .= "Recovery Score: {$activity->recovery_score}/10\n";
+            }
             $context .= "Coach's Evaluation: {$activity->short_evaluation}\n";
         }
 
@@ -220,6 +246,7 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
     protected function getRecommendationContext(): string
     {
         $lastRecommendations = DailyRecommendation::where('user_id', $this->user->id)
+            ->with('feedback')
             ->orderByDesc('date')
             ->orderByDesc('id')
             ->limit(3)
@@ -236,6 +263,21 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
             $context .= "Type: {$recommendation->type}\n";
             $context .= "Title: {$recommendation->title}\n";
             $context .= "Description: {$recommendation->description}\n";
+
+            // Include user feedback if available
+            if ($recommendation->feedback) {
+                $context .= "User Feedback:\n";
+                $context .= "  Status: {$recommendation->feedback->status}\n";
+                if ($recommendation->feedback->difficulty_rating) {
+                    $context .= "  Difficulty: {$recommendation->feedback->difficulty_rating}/5\n";
+                }
+                if ($recommendation->feedback->enjoyment_rating) {
+                    $context .= "  Enjoyment: {$recommendation->feedback->enjoyment_rating}/5\n";
+                }
+                if ($recommendation->feedback->notes) {
+                    $context .= "  Notes: {$recommendation->feedback->notes}\n";
+                }
+            }
         }
 
         return $context;

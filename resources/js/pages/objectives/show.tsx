@@ -4,16 +4,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import WorkoutFeedbackModal from '@/components/workout-feedback-modal';
 import AppLayout from '@/layouts/app-layout';
 import objectives from '@/routes/objectives';
 import { BreadcrumbItem, DailyRecommendation, Objective, RunningStats } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Info, Target, Activity, TrendingUp, Clock, Zap, Sparkles } from 'lucide-react';
+import { ArrowLeft, Calendar, Info, Target, Activity, TrendingUp, Clock, Zap, Sparkles, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from '@/hooks/use-translations';
+import { useState } from 'react';
 
 export default function Show({ objective, runningStats }: { objective: Objective; runningStats: RunningStats }) {
     const { t } = useTranslations();
+    const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+    const [selectedRecommendation, setSelectedRecommendation] = useState<number | null>(null);
+
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: t('Objectives'),
@@ -203,6 +208,7 @@ export default function Show({ objective, runningStats }: { objective: Objective
                         <div className="space-y-4">
                             {objective.daily_recommendations?.map((recommendation: DailyRecommendation) => {
                                 const isToday = recommendation.date.startsWith(today);
+                                const isPast = new Date(recommendation.date) < new Date(today);
 
                                 return (
                                     <Card key={recommendation.id} className={cn(
@@ -222,7 +228,22 @@ export default function Show({ objective, runningStats }: { objective: Objective
                                                         {isToday && ` ${t('(Today)')}`}
                                                     </span>
                                                 </div>
-                                                <Badge variant="outline">{recommendation.type}</Badge>
+                                                <div className="flex items-center gap-2">
+                                                    <Badge variant="outline">{recommendation.type}</Badge>
+                                                    {(isToday || isPast) && (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={() => {
+                                                                setSelectedRecommendation(recommendation.id);
+                                                                setFeedbackModalOpen(true);
+                                                            }}
+                                                        >
+                                                            <MessageSquare className="h-3 w-3 mr-1" />
+                                                            {t('Feedback')}
+                                                        </Button>
+                                                    )}
+                                                </div>
                                             </div>
                                             <CardTitle className="mt-2">{recommendation.title}</CardTitle>
                                         </CardHeader>
@@ -250,6 +271,17 @@ export default function Show({ objective, runningStats }: { objective: Objective
                         </div>
                     </div>
                 </div>
+                {selectedRecommendation && (
+                    <WorkoutFeedbackModal
+                        recommendationId={selectedRecommendation}
+                        isOpen={feedbackModalOpen}
+                        onClose={() => {
+                            setFeedbackModalOpen(false);
+                            setSelectedRecommendation(null);
+                        }}
+                    />
+                )}
+            </div>
             </div>
         </AppLayout>
     );

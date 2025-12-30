@@ -40,6 +40,13 @@ Route::middleware(['auth', 'email.set', 'verified', 'strava.connected'])->group(
             'todayRecommendation' => $request->user()->dailyRecommendations()
                 ->whereDate('date', now()->toDateString())
                 ->first(),
+            'activityStreak' => $request->user()->getActivityStreak(),
+            'recoveryScore' => $request->user()->getCurrentRecoveryScore(),
+            'personalRecords' => $request->user()->personalRecords()
+                ->with('activity:id,name')
+                ->latest('achieved_date')
+                ->limit(6)
+                ->get(),
         ]);
     })->name('dashboard');
 
@@ -47,6 +54,7 @@ Route::middleware(['auth', 'email.set', 'verified', 'strava.connected'])->group(
     Route::post('objectives/{objective}/enhance-trainings', [ObjectiveController::class, 'enhanceTrainings'])->name('objectives.enhance-trainings');
     Route::get('activities', [\App\Http\Controllers\ActivityController::class, 'index'])->name('activities.index');
     Route::get('activities/{activity}', [\App\Http\Controllers\ActivityController::class, 'show'])->name('activities.show');
+    Route::post('api/workout-feedback/{recommendation}', [\App\Http\Controllers\WorkoutFeedbackController::class, 'store'])->name('workout-feedback.store');
 });
 
 require __DIR__.'/settings.php';
