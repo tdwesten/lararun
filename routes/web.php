@@ -30,6 +30,28 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'email.set', 'verified', 'strava.connected'])->group(function () {
     Route::get('dashboard', function (Request $request) {
+        // Get trend data for last 7 days
+        $chartData = \Flowframe\Trend\Trend::model(Activity::class)
+            ->between(
+                start: now()->subDays(6)->startOfDay(),
+                end: now()->endOfDay(),
+            )
+            ->perDay()
+            ->count()
+            ->map(function ($item) use ($request) {
+                // Get activities for this date
+                $activities = Activity::where('user_id', $request->user()->id)
+                    ->whereDate('start_date', $item->date)
+                    ->where('type', 'Run')
+                    ->get();
+                
+                return [
+                    'date' => $item->date,
+                    'count' => $activities->count(),
+                    'distance' => round($activities->sum('distance') / 1000, 2), // Convert to km
+                ];
+            });
+
         return Inertia::render('dashboard', [
             'activities' => Activity::query()
                 ->where('user_id', $request->user()->id)
@@ -47,6 +69,7 @@ Route::middleware(['auth', 'email.set', 'verified', 'strava.connected'])->group(
                 ->latest('achieved_date')
                 ->limit(6)
                 ->get(),
+            'chartData' => $chartData,
         ]);
     })->name('dashboard');
 
