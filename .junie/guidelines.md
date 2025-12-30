@@ -56,29 +56,43 @@ Use webhooks for real-time sync, queues for AI processing.
     - Link back to dashboard
 * Enable/disable email notifications
 
-## 6. Dashboard (Simple)
+## 6. Dashboard
 * Current objective widget (progress, days remaining)
 * Today's recommended workout card
-* Recent activities list (last 7 days)
-* This week's stats (runs, total distance, avg pace)
+* Last run widget
+* Activity streak widget (consecutive days with activity)
+* Recovery score widget (0-10 scale based on recent intensity)
+* Recent activities list (last 10 activities)
+* Personal records sidebar (top 6 PRs with achievement dates)
 
 ## 7. Settings
-* Disconnect Strava
-* Update objective target date
-* Toggle email notifications on/off
-* Delete account
+* **Profile Settings**:
+    - Name and email
+    - Language preference (English/Dutch)
+    - Runner profile: age, weight, fitness level (beginner/intermediate/advanced/elite)
+    - Injury history and training preferences (text fields for AI coach context)
+* **Password Settings**: Change password
+* **Two-Factor Authentication**: Enable/disable 2FA
+* **Appearance Settings**: Theme preferences
+* **Account Management**: Delete account
 
-## Out of Scope for MVP
+## Post-MVP Features (Implemented)
+* ✅ **Runner Profile**: Age, weight, fitness level, injury history, and training preferences
+* ✅ **Workout Feedback**: Users can rate completed workouts (difficulty 1-5, enjoyment 1-5, notes)
+* ✅ **Personal Records**: Auto-tracked PRs for 5K, 10K, half marathon, marathon, longest run, and fastest pace
+* ✅ **Recovery Tracking**: Recovery score (0-10) and estimated recovery hours per activity
+* ✅ **Activity Streaks**: Track consecutive days with activity, with "on fire" badge for 7+ days
+* ✅ **Enhanced Dashboard**: 5-column widget layout with personal records sidebar
+* ✅ **Plan adjustments based on performance**: AI coach now considers user feedback and recovery status
+
+## Out of Scope
 * ❌ Multiple concurrent objectives
-* ❌ Custom training plan editing
-* ❌ Activity analysis/feedback
+* ❌ Custom training plan editing (users can enhance plans with custom prompts)
 * ❌ Progress charts/visualization
 * ❌ Weekly/monthly reports
 * ❌ Manual activity logging
 * ❌ Social/community features
 * ❌ Mobile app
-* ❌ Workout completion tracking
-* ❌ Plan adjustments based on performance
 * ❌ Race predictions
 
 ## Success Criteria
@@ -91,6 +105,12 @@ Use webhooks for real-time sync, queues for AI processing.
 ✅ Activities are imported automatically every hour with heart rate zone data and intensity scores
 ✅ Users can enhance their training plans with custom instructions and regenerate recommendations
 ✅ Multi-language support (English and Dutch) implemented with user preference in profile settings and applied to AI content generation and email notifications
+✅ **Runner profiles provide context**: Age, weight, fitness level, injury history, and preferences inform AI coaching
+✅ **Workout feedback loop**: Users can rate completed workouts; feedback influences future recommendations
+✅ **Personal records tracked**: 5K, 10K, half marathon, marathon, longest run, and fastest pace auto-detected
+✅ **Recovery monitoring**: Activities have recovery scores; users see current recovery status on dashboard
+✅ **Activity streaks gamify consistency**: Track consecutive activity days with visual motivation
+✅ **Enhanced AI context**: Coach uses profile data, recovery scores, and user feedback for safer, personalized plans
 ✅ The `guidelines.md` file is up-to-date based on the project's current state / new features.
 
 # Frontend Guidelines
