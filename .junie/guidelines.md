@@ -123,8 +123,9 @@ Use webhooks for real-time sync, queues for AI processing.
 - Use Prettier for code formatting.
 - Use Boost for debugging.
 - Use Shadcn for design system components. ONLY USE SHADCN FOR DESIGN SYSTEM COMPONENTS.
-- Use the `useTranslations` hook for all user-facing strings in React components to support English (en) and Dutch (nl).
-- Add all new translation strings to both `lang/en.json` and `lang/nl.json`.
+- **Always use translations for user-facing text**: Use the `useTranslations` hook for all user-facing strings in React components to support English (en) and Dutch (nl).
+- **Add all new translation strings to both `lang/en.json` and `lang/nl.json`** - never hardcode user-facing text in components.
+- **Backend translations**: Use Laravel's `__()` helper or `trans()` for translatable strings in PHP code, emails, and notifications.
 
 # Backend Guidelines
 - Use PHPStan for static analysis. You MUST run PHPStan before finalizing changes.
@@ -135,6 +136,7 @@ Use webhooks for real-time sync, queues for AI processing.
 - **Always use PHP Enums for fields with a fixed set of values** (e.g., status fields, types, categories). Place enums in `app/Enums/`.
 - **Use Action Classes for complex business logic** - extract multi-step operations into dedicated action classes in `app/Actions/` following single responsibility principle.
 - **Run PHPStan/Larastan** after making changes to ensure type safety and catch potential issues: `vendor/bin/phpstan analyse` or `composer lint`.
+- **Always use translations**: Use `__()` or `trans()` for all user-facing strings in backend code, emails, and notifications to support multiple languages.
 
 
 
