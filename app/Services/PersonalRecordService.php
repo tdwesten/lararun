@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\RecordType;
 use App\Models\Activity;
 use App\Models\PersonalRecord;
 use Illuminate\Support\Facades\Log;
@@ -22,10 +23,10 @@ class PersonalRecordService
         $pace = $timeSeconds / $distanceKm; // seconds per km
 
         // Check for distance-based records
-        $this->checkDistanceRecord($activity, $distanceKm, $timeSeconds, 5, 'fastest_5k');
-        $this->checkDistanceRecord($activity, $distanceKm, $timeSeconds, 10, 'fastest_10k');
-        $this->checkDistanceRecord($activity, $distanceKm, $timeSeconds, 21.0975, 'fastest_half_marathon');
-        $this->checkDistanceRecord($activity, $distanceKm, $timeSeconds, 42.195, 'fastest_marathon');
+        $this->checkDistanceRecord($activity, $distanceKm, $timeSeconds, 5, RecordType::Fastest5K);
+        $this->checkDistanceRecord($activity, $distanceKm, $timeSeconds, 10, RecordType::Fastest10K);
+        $this->checkDistanceRecord($activity, $distanceKm, $timeSeconds, 21.0975, RecordType::FastestHalfMarathon);
+        $this->checkDistanceRecord($activity, $distanceKm, $timeSeconds, 42.195, RecordType::FastestMarathon);
 
         // Check for longest run
         $this->checkLongestRun($activity, $activity->distance);
@@ -44,7 +45,7 @@ class PersonalRecordService
         float $actualDistance,
         int $actualTime,
         float $targetDistance,
-        string $recordType
+        RecordType $recordType
     ): void {
         // Allow 5% tolerance for distance matching
         $tolerance = $targetDistance * 0.05;
@@ -80,14 +81,14 @@ class PersonalRecordService
     private function checkLongestRun(Activity $activity, float $distance): void
     {
         $existingRecord = PersonalRecord::where('user_id', $activity->user_id)
-            ->where('record_type', 'longest_run')
+            ->where('record_type', RecordType::LongestRun)
             ->first();
 
         if (! $existingRecord || $distance > $existingRecord->value) {
             PersonalRecord::updateOrCreate(
                 [
                     'user_id' => $activity->user_id,
-                    'record_type' => 'longest_run',
+                    'record_type' => RecordType::LongestRun,
                 ],
                 [
                     'activity_id' => $activity->id,
@@ -106,14 +107,14 @@ class PersonalRecordService
     private function checkFastestPace(Activity $activity, float $pace): void
     {
         $existingRecord = PersonalRecord::where('user_id', $activity->user_id)
-            ->where('record_type', 'fastest_pace')
+            ->where('record_type', RecordType::FastestPace)
             ->first();
 
         if (! $existingRecord || $pace < $existingRecord->value) {
             PersonalRecord::updateOrCreate(
                 [
                     'user_id' => $activity->user_id,
-                    'record_type' => 'fastest_pace',
+                    'record_type' => RecordType::FastestPace,
                 ],
                 [
                     'activity_id' => $activity->id,

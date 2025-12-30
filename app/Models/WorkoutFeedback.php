@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\WorkoutStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property int $user_id
  * @property int $daily_recommendation_id
- * @property string $status
+ * @property WorkoutStatus $status
  * @property int|null $difficulty_rating
  * @property int|null $enjoyment_rating
  * @property string|null $notes
@@ -31,6 +32,13 @@ class WorkoutFeedback extends Model
         'enjoyment_rating',
         'notes',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'status' => WorkoutStatus::class,
+        ];
+    }
 
     /**
      * Get the user that owns the feedback.

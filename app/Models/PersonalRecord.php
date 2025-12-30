@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RecordType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property int $user_id
  * @property int $activity_id
- * @property string $record_type
+ * @property RecordType $record_type
  * @property float $value
  * @property \Illuminate\Support\Carbon $achieved_date
  * @property \Illuminate\Support\Carbon $created_at
@@ -33,6 +34,7 @@ class PersonalRecord extends Model
         return [
             'achieved_date' => 'date',
             'value' => 'decimal:2',
+            'record_type' => RecordType::class,
         ];
     }
 

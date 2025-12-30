@@ -132,6 +132,9 @@ Use webhooks for real-time sync, queues for AI processing.
 - Use `composer test` to run tests and PHPStan.
 - Ensure all new features are covered by Pest tests.
 - Follow Laravel 12 best practices and structure.
+- **Always use PHP Enums for fields with a fixed set of values** (e.g., status fields, types, categories). Place enums in `app/Enums/`.
+- **Use Action Classes for complex business logic** - extract multi-step operations into dedicated action classes in `app/Actions/` following single responsibility principle.
+- **Run PHPStan/Larastan** after making changes to ensure type safety and catch potential issues: `vendor/bin/phpstan analyse` or `composer lint`.
 
 
 

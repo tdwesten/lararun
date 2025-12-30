@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\WorkoutStatus;
 use App\Models\DailyRecommendation;
 use App\Models\WorkoutFeedback;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Enum;
 
 class WorkoutFeedbackController extends Controller
 {
@@ -20,7 +22,7 @@ class WorkoutFeedbackController extends Controller
         $this->authorize('view', $recommendation);
 
         $validated = $request->validate([
-            'status' => 'required|in:completed,skipped,partially_completed',
+            'status' => ['required', new Enum(WorkoutStatus::class)],
             'difficulty_rating' => 'nullable|integer|min:1|max:5',
             'enjoyment_rating' => 'nullable|integer|min:1|max:5',
             'notes' => 'nullable|string|max:1000',

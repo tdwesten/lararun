@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\FitnessLevel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,7 +26,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string|null $locale
  * @property int|null $age
  * @property float|null $weight_kg
- * @property string $fitness_level
+ * @property FitnessLevel $fitness_level
  * @property string|null $injury_history
  * @property string|null $training_preferences
  * @property-read Objective|null $currentObjective
@@ -90,6 +91,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'strava_token_expires_at' => 'datetime',
+            'fitness_level' => FitnessLevel::class,
         ];
     }
 

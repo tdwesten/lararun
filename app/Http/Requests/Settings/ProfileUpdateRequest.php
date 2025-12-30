@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests\Settings;
 
+use App\Enums\FitnessLevel;
 use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 
 class ProfileUpdateRequest extends FormRequest
 {
@@ -34,7 +36,7 @@ class ProfileUpdateRequest extends FormRequest
 
             'weight_kg' => ['nullable', 'numeric', 'min:30', 'max:300'],
 
-            'fitness_level' => ['nullable', 'string', Rule::in(['beginner', 'intermediate', 'advanced', 'elite'])],
+            'fitness_level' => ['nullable', new Enum(FitnessLevel::class)],
 
             'injury_history' => ['nullable', 'string', 'max:1000'],
 
