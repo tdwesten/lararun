@@ -44,7 +44,7 @@ Route::middleware(['auth', 'email.set', 'verified', 'strava.connected'])->group(
                     ->whereDate('start_date', $item->date)
                     ->where('type', 'Run')
                     ->get();
-                
+
                 return [
                     'date' => $item->date,
                     'count' => $activities->count(),

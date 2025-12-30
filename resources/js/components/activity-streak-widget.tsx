@@ -10,7 +10,7 @@ export default function ActivityStreakWidget({ streak }: ActivityStreakWidgetPro
     const { t } = useTranslations();
 
     return (
-        <Card className="col-span-1">
+        <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{t('Activity Streak')}</CardTitle>
                 <Flame className={`h-4 w-4 ${streak > 0 ? 'text-orange-500' : 'text-muted-foreground'}`} />

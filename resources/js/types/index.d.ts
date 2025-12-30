@@ -60,11 +60,21 @@ export interface Activity {
     elapsed_time: number;
     start_date: string;
     intensity_score: string | null;
+    recovery_score: number | null;
     zone_data_available: boolean;
+    stream_data: StreamData[] | null;
     short_evaluation: string | null;
     extended_evaluation: string | null;
     created_at: string;
     updated_at: string;
+}
+
+export interface StreamData {
+    type: string;
+    data: number[];
+    series_type: string;
+    original_size: number;
+    resolution: string;
 }
 
 export interface Objective {

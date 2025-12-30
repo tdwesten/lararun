@@ -25,10 +25,9 @@ class ActivityObserver
     public function updated(Activity $activity): void
     {
         $relevantFields = ['distance', 'moving_time', 'elapsed_time', 'z1_time', 'z2_time', 'z3_time', 'z4_time', 'z5_time'];
-        $changes = array_keys($activity->getChanges());
 
         // Only dispatch if performance data changed
-        if (! empty(array_intersect($changes, $relevantFields))) {
+        if ($activity->wasChanged($relevantFields)) {
             $this->dispatchJobs($activity);
             $this->checkPersonalRecords($activity);
             $this->calculateRecovery($activity);
@@ -79,9 +78,8 @@ class ActivityObserver
         $intensityMultiplier = $activity->intensity_score / 5; // 1-2x based on intensity
         $estimatedRecoveryHours = (int) round($baseRecoveryHours * $intensityMultiplier);
 
-        // Use update() instead of updateQuietly() to allow other observers to run
-        // This is intentional as recovery data should trigger any related model events
-        $activity->update([
+        // Use updateQuietly() to avoid triggering this observer again recursively
+        $activity->updateQuietly([
             'recovery_score' => $recoveryScore,
             'estimated_recovery_hours' => $estimatedRecoveryHours,
         ]);

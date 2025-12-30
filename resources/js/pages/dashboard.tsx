@@ -43,19 +43,19 @@ export default function Dashboard({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={t('Dashboard')} />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3 lg:grid-cols-5">
+                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
                     <ObjectiveWidget objective={currentObjective} />
                     <TodayRecommendationWidget recommendation={todayRecommendation} />
                     <LastRunWidget activity={latestActivity} />
-                    <ActivityStreakWidget streak={activityStreak} />
-                    <RecoveryScoreWidget recoveryScore={recoveryScore} />
                 </div>
                 <div className="grid gap-4 md:grid-cols-3">
                     <div className="md:col-span-2 space-y-4">
                         <RunningProgressChart data={chartData} period="week" />
                         <RecentActivities activities={activities} />
                     </div>
-                    <div className="md:col-span-1">
+                    <div className="md:col-span-1 space-y-4">
+                        <ActivityStreakWidget streak={activityStreak} />
+                        <RecoveryScoreWidget recoveryScore={recoveryScore} />
                         <PersonalRecordsWidget records={personalRecords} />
                     </div>
                 </div>

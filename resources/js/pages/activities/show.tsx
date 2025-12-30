@@ -11,6 +11,9 @@ import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslations } from '@/hooks/use-translations';
+import HeartRateZonesChart from '@/components/heart-rate-zones-chart';
+import ScoreGauge from '@/components/score-gauge';
+import ActivityCharts from '@/components/activity-charts';
 
 interface ActivityShowProps {
     activity: Activity & {
@@ -211,48 +214,37 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
                     </Card>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2">
-                    {/* Evaluation */}
-                    <Card className="h-fit">
+                <div className="grid gap-6 md:grid-cols-3">
+                    {/* Intensity Score */}
+                    <Card>
                         <CardHeader>
-                            <div className="flex items-center justify-between">
-                                <CardTitle>{t('Coach AI Evaluation')}</CardTitle>
-                                <Quote className="h-5 w-5 text-primary" />
-                            </div>
+                            <CardTitle>{t('Intensity Score')}</CardTitle>
+                            <CardDescription>{t('Based on heart rate and duration.')}</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-6">
-                            {isEvaluating ? (
-                                <div className="py-12 flex flex-col items-center justify-center space-y-4 border rounded-lg border-dashed bg-primary/5">
-                                    <Spinner className="h-8 w-8 text-primary" />
-                                    <div className="text-center space-y-1">
-                                        <p className="font-medium text-foreground">{t('Generating AI Evaluation')}</p>
-                                        <p className="text-sm text-muted-foreground">{t('Your coach is analyzing your run. This usually takes 10-20 seconds.')}</p>
-                                    </div>
-                                </div>
-                            ) : (
-                                <>
-                                    {activity.short_evaluation && (
-                                        <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 relative">
-                                            <p className="text-lg italic font-medium text-foreground leading-relaxed">
-                                                "{activity.short_evaluation}"
-                                            </p>
-                                        </div>
-                                    )}
+                        <CardContent className="flex items-center justify-center pb-6">
+                             <ScoreGauge
+                                value={activity.intensity_score ? Math.round(parseFloat(activity.intensity_score)) : 0}
+                                max={150}
+                                label={t('Intensity')}
+                                color="hsl(var(--primary))"
+                                description={getIntensityText(activity.intensity_score)}
+                            />
+                        </CardContent>
+                    </Card>
 
-                                    {activity.extended_evaluation ? (
-                                        <div className="space-y-2">
-                                            <h4 className="font-semibold text-sm uppercase text-muted-foreground tracking-wider">{t('Detailed Analysis')}</h4>
-                                            <div className="prose prose-sm dark:prose-invert max-w-none text-foreground leading-relaxed">
-                                                <ReactMarkdown>{activity.extended_evaluation}</ReactMarkdown>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="py-8 text-center border rounded-lg border-dashed">
-                                            <p className="text-muted-foreground">{t('Detailed evaluation not available for this activity.')}</p>
-                                        </div>
-                                    )}
-                                </>
-                            )}
+                    {/* Recovery Score */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>{t('Recovery Score')}</CardTitle>
+                            <CardDescription>{t('Estimated recovery status.')}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex items-center justify-center pb-6">
+                             <ScoreGauge
+                                value={activity.recovery_score ? activity.recovery_score : 0}
+                                max={10}
+                                label={t('Recovery')}
+                                color="hsl(var(--emerald-500))"
+                            />
                         </CardContent>
                     </Card>
 
@@ -271,22 +263,7 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
                                 </div>
                             ) : (
                                 <div className="space-y-6">
-                                    <div className="space-y-4">
-                                        {zones.map((zone) => (
-                                            <div key={zone.name} className="space-y-1.5">
-                                                <div className="flex items-center justify-between text-sm">
-                                                    <span className="font-medium">{zone.name}</span>
-                                                    <span className="text-muted-foreground">{formatDuration(zone.time)} ({totalZoneTime > 0 ? Math.round((zone.time / totalZoneTime) * 100) : 0}%)</span>
-                                                </div>
-                                                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                                                    <div
-                                                        className={cn("h-full", zone.color)}
-                                                        style={{ width: `${totalZoneTime > 0 ? (zone.time / totalZoneTime) * 100 : 0}%` }}
-                                                    />
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <HeartRateZonesChart zones={zones} />
                                     <div className="pt-4 border-t text-xs text-muted-foreground">
                                         {t('Total heart rate recorded: ')}{formatDuration(totalZoneTime)}
                                     </div>
@@ -295,6 +272,52 @@ export default function ActivityShow({ activity, recommendation }: ActivityShowP
                         </CardContent>
                     </Card>
                 </div>
+
+                <ActivityCharts streamData={activity.stream_data} />
+
+                {/* Evaluation */}
+                <Card className="h-fit">
+                    <CardHeader>
+                        <div className="flex items-center justify-between">
+                            <CardTitle>{t('Coach AI Evaluation')}</CardTitle>
+                            <Quote className="h-5 w-5 text-primary" />
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {isEvaluating ? (
+                            <div className="py-12 flex flex-col items-center justify-center space-y-4 border rounded-lg border-dashed bg-primary/5">
+                                <Spinner className="h-8 w-8 text-primary" />
+                                <div className="text-center space-y-1">
+                                    <p className="font-medium text-foreground">{t('Generating AI Evaluation')}</p>
+                                    <p className="text-sm text-muted-foreground">{t('Your coach is analyzing your run. This usually takes 10-20 seconds.')}</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                {activity.short_evaluation && (
+                                    <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 relative">
+                                        <p className="text-lg italic font-medium text-foreground leading-relaxed">
+                                            "{activity.short_evaluation}"
+                                        </p>
+                                    </div>
+                                )}
+
+                                {activity.extended_evaluation ? (
+                                    <div className="space-y-2">
+                                        <h4 className="font-semibold text-sm uppercase text-muted-foreground tracking-wider">{t('Detailed Analysis')}</h4>
+                                        <div className="prose prose-sm dark:prose-invert max-w-none text-foreground leading-relaxed">
+                                            <ReactMarkdown>{activity.extended_evaluation}</ReactMarkdown>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="py-8 text-center border rounded-lg border-dashed">
+                                        <p className="text-muted-foreground">{t('Detailed evaluation not available for this activity.')}</p>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
         </AppLayout>
     );

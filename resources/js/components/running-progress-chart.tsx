@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { useTranslations } from '@/hooks/use-translations';
-import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 export interface ChartDataPoint {
     date: string;
@@ -47,6 +47,12 @@ export default function RunningProgressChart({ data, period = 'week' }: RunningP
                         }}
                     >
                         <CartesianGrid vertical={false} />
+                        <YAxis
+                            tickLine={false}
+                            axisLine={false}
+                            tickMargin={8}
+                            tickCount={5}
+                        />
                         <XAxis
                             dataKey="date"
                             tickLine={false}

@@ -49,6 +49,7 @@ class Activity extends Model
         'elapsed_time',
         'start_date',
         'zone_data',
+        'stream_data',
         'z1_time',
         'z2_time',
         'z3_time',
@@ -72,6 +73,7 @@ class Activity extends Model
         return [
             'start_date' => 'datetime',
             'zone_data' => 'array',
+            'stream_data' => 'array',
             'zone_data_available' => 'boolean',
             'intensity_score' => 'decimal:2',
             'recovery_score' => 'decimal:1',

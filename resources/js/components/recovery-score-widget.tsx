@@ -21,7 +21,7 @@ export default function RecoveryScoreWidget({ recoveryScore }: RecoveryScoreWidg
     const progressValue = (recoveryScore / 10) * 100;
 
     return (
-        <Card className="col-span-1">
+        <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{t('Recovery Status')}</CardTitle>
                 {recoveryScore < 4 ? (

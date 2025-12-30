@@ -71,7 +71,7 @@ class PersonalRecordService
                 ]
             );
 
-            Log::info("New personal record set: {$recordType} for user {$activity->user_id}");
+            Log::info("New personal record set: {$recordType->value} for user {$activity->user_id}");
         }
     }
 

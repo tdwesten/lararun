@@ -293,7 +293,6 @@ export default function Show({ objective, runningStats }: { objective: Objective
                     />
                 )}
             </div>
-            </div>
         </AppLayout>
     );
 }
