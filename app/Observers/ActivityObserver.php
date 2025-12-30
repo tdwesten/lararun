@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Jobs\EnrichActivityWithAiJob;
 use App\Jobs\GenerateWeeklyTrainingPlanJob;
 use App\Models\Activity;
+use App\Services\PersonalRecordService;
 
 class ActivityObserver
 {
@@ -14,6 +15,8 @@ class ActivityObserver
     public function created(Activity $activity): void
     {
         $this->dispatchJobs($activity);
+        $this->checkPersonalRecords($activity);
+        $this->calculateRecovery($activity);
     }
 
     /**
@@ -27,6 +30,8 @@ class ActivityObserver
         // Only dispatch if performance data changed
         if (! empty(array_intersect($changes, $relevantFields))) {
             $this->dispatchJobs($activity);
+            $this->checkPersonalRecords($activity);
+            $this->calculateRecovery($activity);
         }
     }
 
@@ -44,5 +49,41 @@ class ActivityObserver
         if ($objective) {
             GenerateWeeklyTrainingPlanJob::dispatch($activity->user, $objective, force: false, sendNotification: false);
         }
+    }
+
+    /**
+     * Check and update personal records for this activity.
+     */
+    protected function checkPersonalRecords(Activity $activity): void
+    {
+        $service = app(PersonalRecordService::class);
+        $service->checkAndUpdateRecords($activity);
+    }
+
+    /**
+     * Calculate recovery score and estimated recovery time.
+     */
+    protected function calculateRecovery(Activity $activity): void
+    {
+        if ($activity->type !== 'Run' || ! $activity->intensity_score) {
+            return;
+        }
+
+        // Calculate recovery based on intensity score
+        // Higher intensity = lower immediate recovery score
+        $recoveryScore = max(0, 10 - $activity->intensity_score);
+
+        // Estimate recovery hours based on intensity and distance
+        $distanceKm = $activity->distance / 1000;
+        $baseRecoveryHours = $distanceKm * 2; // 2 hours per km as baseline
+        $intensityMultiplier = $activity->intensity_score / 5; // 1-2x based on intensity
+        $estimatedRecoveryHours = (int) round($baseRecoveryHours * $intensityMultiplier);
+
+        // Use update() instead of updateQuietly() to allow other observers to run
+        // This is intentional as recovery data should trigger any related model events
+        $activity->update([
+            'recovery_score' => $recoveryScore,
+            'estimated_recovery_hours' => $estimatedRecoveryHours,
+        ]);
     }
 }

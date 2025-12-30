@@ -58,6 +58,8 @@ class Activity extends Model
         'zone_data_available',
         'short_evaluation',
         'extended_evaluation',
+        'recovery_score',
+        'estimated_recovery_hours',
     ];
 
     /**
@@ -72,6 +74,7 @@ class Activity extends Model
             'zone_data' => 'array',
             'zone_data_available' => 'boolean',
             'intensity_score' => 'decimal:2',
+            'recovery_score' => 'decimal:1',
         ];
     }
 
