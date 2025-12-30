@@ -17,12 +17,14 @@ interface PersonalRecordsWidgetProps {
     records: PersonalRecord[];
 }
 
+const METERS_TO_KM = 1000;
+
 export default function PersonalRecordsWidget({ records }: PersonalRecordsWidgetProps) {
     const { t } = useTranslations();
 
     const formatRecordValue = (type: string, value: number): string => {
         if (type === 'longest_run') {
-            return `${(value / 1000).toFixed(2)} km`;
+            return `${(value / METERS_TO_KM).toFixed(2)} km`;
         }
         if (type === 'fastest_pace') {
             const minutes = Math.floor(value / 60);

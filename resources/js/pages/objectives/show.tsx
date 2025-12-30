@@ -9,7 +9,18 @@ import AppLayout from '@/layouts/app-layout';
 import objectives from '@/routes/objectives';
 import { BreadcrumbItem, DailyRecommendation, Objective, RunningStats } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Info, Target, Activity, TrendingUp, Clock, Zap, Sparkles, MessageSquare } from 'lucide-react';
+import {
+    ArrowLeft,
+    Calendar,
+    Info,
+    Target,
+    Activity,
+    TrendingUp,
+    Clock,
+    Zap,
+    Sparkles,
+    MessageSquare,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from '@/hooks/use-translations';
 import { useState } from 'react';

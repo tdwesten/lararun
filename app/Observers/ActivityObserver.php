@@ -79,7 +79,9 @@ class ActivityObserver
         $intensityMultiplier = $activity->intensity_score / 5; // 1-2x based on intensity
         $estimatedRecoveryHours = (int) round($baseRecoveryHours * $intensityMultiplier);
 
-        $activity->updateQuietly([
+        // Use update() instead of updateQuietly() to allow other observers to run
+        // This is intentional as recovery data should trigger any related model events
+        $activity->update([
             'recovery_score' => $recoveryScore,
             'estimated_recovery_hours' => $estimatedRecoveryHours,
         ]);

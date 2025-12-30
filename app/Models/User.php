@@ -162,8 +162,9 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     {
         $streak = 0;
         $currentDate = now()->startOfDay();
+        $maxStreakDays = 365; // Limit to prevent infinite loops and performance issues
 
-        while (true) {
+        while ($streak < $maxStreakDays) {
             $hasActivity = $this->activities()
                 ->whereDate('start_date', $currentDate)
                 ->exists();
