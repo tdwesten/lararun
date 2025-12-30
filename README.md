@@ -10,6 +10,14 @@ Lararun is a self-hosted AI running coach built with Laravel, designed to help y
 - **Daily Recommendations**: Receive personalized workout suggestions every day.
 - **Email Notifications**: Stay on track with daily emails via Lettermint.
 - **Self-Hosted**: You own your data and your coach.
+- **Runner Profile**: Provide age, fitness level, injury history, and preferences for personalized plans.
+- **Workout Feedback**: Rate completed workouts to help the coach learn your preferences.
+- **Personal Records**: Automatic tracking of your best times for 5K, 10K, half marathon, and more.
+- **Recovery Tracking**: Real-time recovery score (0-10) based on recent activity intensity.
+- **Activity Streaks**: Track consecutive days with activity to build consistency.
+- **Enhanced Dashboard**: Comprehensive overview with quick stats and personal records.
+
+See [FEATURES.md](FEATURES.md) for detailed information about new features.
 
 ## Installation
 
