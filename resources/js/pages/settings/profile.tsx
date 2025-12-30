@@ -10,6 +10,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { useTranslations } from '@/hooks/use-translations';
@@ -141,11 +142,121 @@ export default function Profile({
                                             )}
                                         </div>
                                     )}
+                            </>
+                        )}
+                    </Form>
+                </div>
+
+                <div className="space-y-6 pt-8 border-t">
+                    <HeadingSmall
+                        title={t('Runner Profile')}
+                        description={t('Help the AI coach personalize your training plans')}
+                    />
+
+                    <Form
+                        {...ProfileController.update.form()}
+                        options={{
+                            preserveScroll: true,
+                        }}
+                        className="space-y-6"
+                    >
+                        {({ processing, recentlySuccessful, errors }) => (
+                            <>
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="age">{t('Age')}</Label>
+                                        <Input
+                                            id="age"
+                                            type="number"
+                                            className="mt-1 block w-full"
+                                            defaultValue={auth.user.age}
+                                            name="age"
+                                            min="13"
+                                            max="120"
+                                            placeholder={t('Age')}
+                                        />
+                                        <InputError
+                                            className="mt-2"
+                                            message={errors.age}
+                                        />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="weight_kg">{t('Weight (kg)')}</Label>
+                                        <Input
+                                            id="weight_kg"
+                                            type="number"
+                                            step="0.1"
+                                            className="mt-1 block w-full"
+                                            defaultValue={auth.user.weight_kg}
+                                            name="weight_kg"
+                                            min="30"
+                                            max="300"
+                                            placeholder={t('Weight in kg')}
+                                        />
+                                        <InputError
+                                            className="mt-2"
+                                            message={errors.weight_kg}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="fitness_level">{t('Fitness Level')}</Label>
+                                    <Select
+                                        name="fitness_level"
+                                        defaultValue={auth.user.fitness_level || 'intermediate'}
+                                    >
+                                        <SelectTrigger className="mt-1 block w-full">
+                                            <SelectValue placeholder={t('Select your fitness level')} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="beginner">{t('Beginner')}</SelectItem>
+                                            <SelectItem value="intermediate">{t('Intermediate')}</SelectItem>
+                                            <SelectItem value="advanced">{t('Advanced')}</SelectItem>
+                                            <SelectItem value="elite">{t('Elite')}</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <InputError
+                                        className="mt-2"
+                                        message={errors.fitness_level}
+                                    />
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="injury_history">{t('Injury History')}</Label>
+                                    <Textarea
+                                        id="injury_history"
+                                        className="mt-1 block w-full min-h-20"
+                                        defaultValue={auth.user.injury_history || ''}
+                                        name="injury_history"
+                                        placeholder={t('Describe any past injuries or concerns (e.g., knee issues, shin splints, etc.)')}
+                                    />
+                                    <InputError
+                                        className="mt-2"
+                                        message={errors.injury_history}
+                                    />
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="training_preferences">{t('Training Preferences')}</Label>
+                                    <Textarea
+                                        id="training_preferences"
+                                        className="mt-1 block w-full min-h-20"
+                                        defaultValue={auth.user.training_preferences || ''}
+                                        name="training_preferences"
+                                        placeholder={t('Any preferences for your training (e.g., prefer outdoor running, like interval training, etc.)')}
+                                    />
+                                    <InputError
+                                        className="mt-2"
+                                        message={errors.training_preferences}
+                                    />
+                                </div>
 
                                 <div className="flex items-center gap-4">
                                     <Button
                                         disabled={processing}
-                                        data-test="update-profile-button"
+                                        data-test="update-runner-profile-button"
                                     >
                                         {t('Save')}
                                     </Button>

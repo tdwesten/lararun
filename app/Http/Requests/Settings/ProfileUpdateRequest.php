@@ -29,6 +29,16 @@ class ProfileUpdateRequest extends FormRequest
             ],
 
             'locale' => ['required', 'string', Rule::in(['en', 'nl'])],
+
+            'age' => ['nullable', 'integer', 'min:13', 'max:120'],
+
+            'weight_kg' => ['nullable', 'numeric', 'min:30', 'max:300'],
+
+            'fitness_level' => ['nullable', 'string', Rule::in(['beginner', 'intermediate', 'advanced', 'elite'])],
+
+            'injury_history' => ['nullable', 'string', 'max:1000'],
+
+            'training_preferences' => ['nullable', 'string', 'max:1000'],
         ];
     }
 }
