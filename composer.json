@@ -11,6 +11,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "flowframe/laravel-trend": "*",
         "inertiajs/inertia-laravel": "^2.0",
         "kenini/strava": "dev-master",
         "laravel/fortify": "^1.30",

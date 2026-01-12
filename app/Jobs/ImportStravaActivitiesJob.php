@@ -61,6 +61,7 @@ class ImportStravaActivitiesJob implements ShouldQueue
 
                 try {
                     $detailedData = $stravaApiService->getActivityWithZones($this->user, $stravaActivity->id);
+                    $streamData = $stravaApiService->getActivityStreams($this->user, $stravaActivity->id);
 
                     $zoneData = $detailedData['zones'] ?? null;
                     $flattenedZones = $this->parseZones($zoneData);
@@ -75,6 +76,7 @@ class ImportStravaActivitiesJob implements ShouldQueue
                         'elapsed_time' => $stravaActivity->elapsed_time,
                         'start_date' => Carbon::parse($stravaActivity->start_date),
                         'zone_data' => $zoneData,
+                        'stream_data' => $streamData,
                         'z1_time' => $flattenedZones['z1'],
                         'z2_time' => $flattenedZones['z2'],
                         'z3_time' => $flattenedZones['z3'],

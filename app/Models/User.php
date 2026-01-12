@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\FitnessLevel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,6 +24,11 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  * @property string|null $locale
+ * @property int|null $age
+ * @property float|null $weight_kg
+ * @property FitnessLevel $fitness_level
+ * @property string|null $injury_history
+ * @property string|null $training_preferences
  * @property-read Objective|null $currentObjective
  */
 class User extends Authenticatable implements HasLocalePreference, MustVerifyEmail
@@ -52,6 +58,11 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         'strava_refresh_token',
         'strava_token_expires_at',
         'locale',
+        'age',
+        'weight_kg',
+        'fitness_level',
+        'injury_history',
+        'training_preferences',
     ];
 
     /**
@@ -80,6 +91,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'strava_token_expires_at' => 'datetime',
+            'fitness_level' => FitnessLevel::class,
         ];
     }
 
@@ -121,6 +133,87 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     public function dailyRecommendations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(DailyRecommendation::class);
+    }
+
+    /**
+     * Get the workout feedback for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<WorkoutFeedback, $this>
+     */
+    public function workoutFeedback(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(WorkoutFeedback::class);
+    }
+
+    /**
+     * Get the personal records for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<PersonalRecord, $this>
+     */
+    public function personalRecords(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PersonalRecord::class);
+    }
+
+    /**
+     * Get the user's current activity streak.
+     *
+     * @return int Number of consecutive days with activity
+     */
+    public function getActivityStreak(): int
+    {
+        $streak = 0;
+        $currentDate = now()->startOfDay();
+        $maxStreakDays = 365; // Limit to prevent infinite loops and performance issues
+
+        while ($streak < $maxStreakDays) {
+            $hasActivity = $this->activities()
+                ->whereDate('start_date', $currentDate)
+                ->exists();
+
+            if (! $hasActivity) {
+                break;
+            }
+
+            $streak++;
+            $currentDate->subDay();
+        }
+
+        return $streak;
+    }
+
+    /**
+     * Calculate current recovery score based on recent activities.
+     *
+     * @return float Recovery score from 0-10
+     */
+    public function getCurrentRecoveryScore(): float
+    {
+        // Get activities from last 7 days
+        $recentActivities = $this->activities()
+            ->where('start_date', '>=', now()->subDays(7))
+            ->orderByDesc('start_date')
+            ->get();
+
+        if ($recentActivities->isEmpty()) {
+            return 10.0; // Fully recovered if no recent activities
+        }
+
+        // Calculate fatigue based on intensity and recency
+        $totalFatigue = 0;
+        foreach ($recentActivities as $activity) {
+            $daysAgo = now()->diffInDays($activity->start_date);
+            $intensityScore = $activity->intensity_score ?? 5.0;
+
+            // More recent activities contribute more to fatigue
+            $recencyFactor = max(0, 1 - ($daysAgo / 7));
+            $totalFatigue += ($intensityScore / 10) * $recencyFactor;
+        }
+
+        // Convert fatigue to recovery score (inverted)
+        $recoveryScore = max(0, 10 - ($totalFatigue * 2));
+
+        return round($recoveryScore, 1);
     }
 
     /**

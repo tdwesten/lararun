@@ -58,4 +58,14 @@ class DailyRecommendation extends Model
     {
         return $this->belongsTo(Objective::class);
     }
+
+    /**
+     * Get the workout feedback for this recommendation.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<WorkoutFeedback, $this>
+     */
+    public function feedback(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(WorkoutFeedback::class);
+    }
 }

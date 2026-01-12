@@ -61,6 +61,30 @@ class StravaApiService
     }
 
     /**
+     * Get activity streams (time, heartrate, velocity_smooth, etc.).
+     *
+     * @return array<string, mixed>
+     */
+    public function getActivityStreams(User $user, string $stravaActivityId): array
+    {
+        $token = $this->getValidToken($user);
+
+        if (! $token) {
+            return [];
+        }
+
+        try {
+            $keys = ['time', 'heartrate', 'velocity_smooth', 'altitude', 'distance'];
+
+            return $this->strava->activityStream($token, $stravaActivityId, $keys);
+        } catch (\Exception $e) {
+            Log::error('Strava API Error (getActivityStreams): '.$e->getMessage());
+
+            return [];
+        }
+    }
+
+    /**
      * Ensure we have a valid access token.
      */
     protected function getValidToken(User $user): ?string

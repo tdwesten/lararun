@@ -57,6 +57,11 @@ test('it imports activities and calculates intensity score', function () {
         ->once()
         ->andReturn(['activity' => $activitiesData[0], 'zones' => $zonesData]);
 
+    $stravaApiService->shouldReceive('getActivityStreams')
+        ->with(Mockery::on(fn ($u) => $u->id === $user->id), '123456')
+        ->once()
+        ->andReturn([]);
+
     $job = new ImportStravaActivitiesJob($user);
     $job->handle($stravaApiService);
 

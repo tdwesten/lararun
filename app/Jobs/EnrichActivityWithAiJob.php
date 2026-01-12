@@ -89,7 +89,7 @@ PROMPT;
                 ->withPrompt("Recent History (Last 30 days):\n{$historicalContext}\n\nCurrent Activity:\n{$activityData}")
                 ->asStructured();
 
-            $this->activity->update([
+            $this->activity->updateQuietly([
                 'short_evaluation' => trim($response->structured['short_evaluation']),
                 'extended_evaluation' => trim($response->structured['extended_evaluation']),
             ]);
