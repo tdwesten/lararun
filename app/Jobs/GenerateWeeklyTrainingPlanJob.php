@@ -197,8 +197,8 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
         if ($this->user->weight_kg) {
             $info .= "\nRunner Weight: {$this->user->weight_kg} kg";
         }
-        if ($this->user->fitness_level) {
-            $info .= "\nFitness Level: {$this->user->fitness_level}";
+        if (isset($this->user->fitness_level)) {
+            $info .= "\nFitness Level: {$this->user->fitness_level->value}";
         }
         if ($this->user->injury_history) {
             $info .= "\nInjury History: {$this->user->injury_history}";
@@ -271,7 +271,7 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
             // Include user feedback if available
             if ($recommendation->feedback) {
                 $context .= "User Feedback:\n";
-                $context .= "  Status: {$recommendation->feedback->status}\n";
+                $context .= "  Status: {$recommendation->feedback->status->value}\n";
                 if ($recommendation->feedback->difficulty_rating) {
                     $context .= "  Difficulty: {$recommendation->feedback->difficulty_rating}/5\n";
                 }
