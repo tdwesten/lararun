@@ -1,12 +1,11 @@
 <?php
 
+use App\Enums\RecordType;
 use App\Models\Activity;
 use App\Models\User;
-use App\Models\PersonalRecord;
-use App\Enums\RecordType;
 use App\Services\PersonalRecordService;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Bus;
 
 uses(RefreshDatabase::class);
 
@@ -24,7 +23,7 @@ it('detects a new 5k personal record', function () {
         'start_date' => now(),
     ]);
 
-    $service = new PersonalRecordService();
+    $service = new PersonalRecordService;
     $service->checkAndUpdateRecords($activity);
 
     $this->assertDatabaseHas('personal_records', [
@@ -46,7 +45,7 @@ it('updates a personal record if a better one is achieved', function () {
         'moving_time' => 1500, // 25:00
     ]);
 
-    $service = new PersonalRecordService();
+    $service = new PersonalRecordService;
     $service->checkAndUpdateRecords($activity1);
 
     $this->assertDatabaseHas('personal_records', [
@@ -82,7 +81,7 @@ it('detects fastest pace record', function () {
         'moving_time' => 480, // 4:00/km = 240s/km
     ]);
 
-    $service = new PersonalRecordService();
+    $service = new PersonalRecordService;
     $service->checkAndUpdateRecords($activity);
 
     $this->assertDatabaseHas('personal_records', [

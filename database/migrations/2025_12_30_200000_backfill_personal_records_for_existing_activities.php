@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\RecordType;
 use App\Models\Activity;
 use App\Models\User;
 use App\Services\PersonalRecordService;
@@ -14,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         $service = app(PersonalRecordService::class);
-        
+
         // Get all users with running activities
         User::whereHas('activities', function ($query) {
             $query->where('type', 'Run')->where('distance', '>', 0);
