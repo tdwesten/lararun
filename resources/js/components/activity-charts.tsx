@@ -12,6 +12,24 @@ interface ActivityChartsProps {
 export default function ActivityCharts({ streamData }: ActivityChartsProps) {
     const { t } = useTranslations();
 
+    const formatPace = (seconds: number) => {
+        const numSeconds = Number(seconds);
+        if (isNaN(numSeconds)) return '--:--';
+        const totalSeconds = Math.round(numSeconds);
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const formatDuration = (seconds: number) => {
+        const numSeconds = Number(seconds);
+        if (isNaN(numSeconds)) return '0:00';
+        const totalSeconds = Math.round(numSeconds);
+        const minutes = Math.floor(totalSeconds / 60);
+        const remainingSeconds = totalSeconds % 60;
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    };
+
     const data = useMemo(() => {
         if (!streamData) {
             // Placeholder data if no real data is available
@@ -29,11 +47,18 @@ export default function ActivityCharts({ streamData }: ActivityChartsProps) {
         // Use the shortest stream length to avoid index out of bounds
         const length = Math.min(timeStream.length, heartRateStream.length || timeStream.length, velocityStream.length || timeStream.length);
 
-        const rawData = Array.from({ length }).map((_, index) => ({
-            time: timeStream[index],
-            heartRate: heartRateStream[index] || null,
-            pace: velocityStream[index] ? (1000 / velocityStream[index]) : null, // seconds per km
-        }));
+        const rawData = Array.from({ length }).map((_, index) => {
+            const velocity = velocityStream[index];
+            // Calculate pace in seconds per km. Clamp to max 20:00/km (1200s) to avoid outliers from stops.
+            // If velocity is 0 or very low, pace is high.
+            const pace = velocity && velocity > 0.83 ? (1000 / velocity) : null; // 0.83 m/s is ~20:00/km
+
+            return {
+                time: timeStream[index],
+                heartRate: heartRateStream[index] || null,
+                pace: pace && pace < 1200 ? pace : null, // Clamp to 20 min/km
+            };
+        });
 
         // Downsample if too many points
         if (rawData.length > 500) {
@@ -69,9 +94,21 @@ export default function ActivityCharts({ streamData }: ActivityChartsProps) {
                     <ChartContainer config={hrConfig} className="h-[200px] w-full">
                         <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                             <CartesianGrid vertical={false} />
-                            <XAxis dataKey="time" hide />
-                            <YAxis domain={['dataMin - 10', 'dataMax + 10']} hide />
-                            <ChartTooltip content={<ChartTooltipContent />} />
+                            <XAxis
+                                dataKey="time"
+                                hide
+                            />
+                            <YAxis
+                                domain={['dataMin - 5', 'dataMax + 5']}
+                                hide
+                            />
+                            <ChartTooltip
+                                content={
+                                    <ChartTooltipContent
+                                        labelFormatter={(value) => formatDuration(value as number)}
+                                    />
+                                }
+                            />
                             <Area
                                 type="natural"
                                 dataKey="heartRate"
@@ -92,9 +129,39 @@ export default function ActivityCharts({ streamData }: ActivityChartsProps) {
                     <ChartContainer config={paceConfig} className="h-[200px] w-full">
                         <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                             <CartesianGrid vertical={false} />
-                            <XAxis dataKey="time" hide />
-                            <YAxis domain={['dataMin', 'dataMax']} hide reversed />
-                            <ChartTooltip content={<ChartTooltipContent />} />
+                            <XAxis
+                                dataKey="time"
+                                hide
+                            />
+                            <YAxis
+                                domain={['dataMin', 'dataMax']}
+                                hide
+                                reversed
+                            />
+                            <ChartTooltip
+                                content={
+                                    <ChartTooltipContent
+                                        labelFormatter={(value) => formatDuration(value as number)}
+                                        formatter={(value, name, item) => (
+                                            <>
+                                                <div
+                                                    className="h-2.5 w-2.5 shrink-0 rounded-[2px]"
+                                                    style={{ backgroundColor: item.color }}
+                                                />
+                                                <div className="flex flex-1 justify-between leading-none items-center">
+                                                    <span className="text-muted-foreground">{t('Pace')}</span>
+                                                    <span className="font-mono font-medium tabular-nums text-foreground">
+                                                        {formatPace(value as number)}
+                                                        <span className="font-normal text-muted-foreground ml-1">
+                                                            /km
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                            </>
+                                        )}
+                                    />
+                                }
+                            />
                             <Area
                                 type="natural"
                                 dataKey="pace"

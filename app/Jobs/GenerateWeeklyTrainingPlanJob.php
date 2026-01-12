@@ -59,6 +59,10 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
         $startDate = now()->toDateString();
         $endDate = now()->addDays(6)->toDateString();
 
+        if ($this->user->objectives()->where('status', 'active')->whereDate('target_date', '>', now() )->count() === 0) {
+            Log::info("No active objectives found for user: {$this->user->id}. Skipping.");
+        }
+
         if (! $this->force && DailyRecommendation::where('user_id', $this->user->id)
             ->whereDate('date', '>=', $startDate)
             ->whereDate('date', '<=', $endDate)
