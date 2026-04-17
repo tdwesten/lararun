@@ -142,11 +142,15 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
                 requiredFields: ['training_plan', 'adherence_feedback']
             );
 
+            // max_output_tokens must cover both reasoning tokens AND the structured
+            // output. Prism's default (2048) is too low for gpt-5 with reasoning
+            // enabled and causes "Empty reasoning item" errors from OpenAI.
             $response = Prism::structured()
                 ->using(Provider::OpenAI, 'gpt-5')
                 ->withSchema($schema)
+                ->withMaxTokens(16000)
                 ->withProviderOptions([
-                    'reasoning' => ['effort' => 'high'],
+                    'reasoning' => ['effort' => 'medium'],
                 ])
                 ->withSystemPrompt(
                     "You are Lararun's expert running coach in {$language}. You are honest, evidence-based, and long-term oriented. You are NOT a cheerleader — when the athlete misses sessions, deviates from the plan, or trains inappropriately, you call it out directly and constructively. You balance critique with recognition when it's earned. You reason carefully about periodization, adherence, and recovery before producing any plan. Always compare planned vs actual activities before recommending the next steps."
