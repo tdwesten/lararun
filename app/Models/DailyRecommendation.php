@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $title
  * @property string $description
  * @property string $reasoning
+ * @property string|null $adherence_feedback
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  */
@@ -30,6 +31,7 @@ class DailyRecommendation extends Model
         'title',
         'description',
         'reasoning',
+        'adherence_feedback',
     ];
 
     protected function casts(): array

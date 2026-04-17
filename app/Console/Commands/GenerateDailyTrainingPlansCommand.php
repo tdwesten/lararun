@@ -27,7 +27,30 @@ class GenerateDailyTrainingPlansCommand extends Command
      */
     public function handle(): int
     {
-        $objectives = Objective::where('status', 'active')->with('user')->get();
+        // First, mark objectives past their target date as completed
+        $expiredObjectives = Objective::where('status', 'active')
+            ->whereNotNull('target_date')
+            ->where('target_date', '<', now())
+            ->update(['status' => 'completed']);
+
+        if ($expiredObjectives > 0) {
+            $this->info("Marked {$expiredObjectives} expired objectives as completed.");
+        }
+
+        // Get only active objectives with future target dates (or no target date)
+        $objectives = Objective::where('status', 'active')
+            ->where(function ($query) {
+                $query->whereNull('target_date')
+                    ->orWhere('target_date', '>=', now());
+            })
+            ->with('user')
+            ->get();
+
+        if ($objectives->isEmpty()) {
+            $this->info('No active objectives found. Skipping training plan generation.');
+
+            return 0;
+        }
 
         $this->info("Dispatching daily training plan jobs for {$objectives->count()} active objectives...");
 

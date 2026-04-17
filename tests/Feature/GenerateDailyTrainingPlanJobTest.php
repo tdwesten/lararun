@@ -77,7 +77,7 @@ it('generates a daily training plan using AI and sends a notification when sendN
         'type' => '5 km',
         'target_date' => now()->addMonth(),
         'status' => 'active',
-        'running_days' => ['Tuesday', 'Thursday', 'Saturday'],
+        'running_days' => array_values(array_unique(['Tuesday', 'Thursday', 'Saturday', now()->format('l')])),
     ]);
 
     // Create some historical activities

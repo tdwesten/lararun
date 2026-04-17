@@ -1,6 +1,13 @@
 <x-mail::message>
 # {{ __('Today\'s Training Plan: :title', ['title' => $recommendation->title]) }}
 
+@if (! empty($recommendation->adherence_feedback))
+<x-mail::panel>
+### {{ __('Coach\'s note on the past two weeks') }}
+{{ $recommendation->adherence_feedback }}
+</x-mail::panel>
+@endif
+
 **{{ __('Type:') }}** {{ $recommendation->type }}
 
 {{ $recommendation->description }}
