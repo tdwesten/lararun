@@ -20,7 +20,8 @@
         "lettermint/lettermint-laravel": "^1.5",
         "prism-php/prism": "^0.99.2",
         "sentry/sentry-laravel": "^4.20",
-        "socialiteproviders/strava": "^4.1"
+        "socialiteproviders/strava": "^4.1",
+        "symfony/string": "^7.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
