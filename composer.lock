@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4c7cfe801a16be15ef022205958b784d",
+    "content-hash": "87f3572a9bb36ff5f719008dbd21f66c",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -9075,16 +9075,16 @@
         },
         {
             "name": "nunomaduro/pao",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nunomaduro/pao.git",
-                "reference": "c82609933931da0ed4b79a85f97c1a74bf79aef3"
+                "reference": "4695ac8f26bc7c9e4d77b3f2897bd1798ffbb20f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nunomaduro/pao/zipball/c82609933931da0ed4b79a85f97c1a74bf79aef3",
-                "reference": "c82609933931da0ed4b79a85f97c1a74bf79aef3",
+                "url": "https://api.github.com/repos/nunomaduro/pao/zipball/4695ac8f26bc7c9e4d77b3f2897bd1798ffbb20f",
+                "reference": "4695ac8f26bc7c9e4d77b3f2897bd1798ffbb20f",
                 "shasum": ""
             },
             "require": {
@@ -9153,7 +9153,7 @@
             ],
             "support": {
                 "issues": "https://github.com/nunomaduro/pao/issues",
-                "source": "https://github.com/nunomaduro/pao/tree/v1.0.1"
+                "source": "https://github.com/nunomaduro/pao/tree/v1.0.2"
             },
             "funding": [
                 {
@@ -9169,7 +9169,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2026-04-17T16:32:07+00:00"
+            "time": "2026-04-18T03:14:30+00:00"
         },
         {
             "name": "pestphp/pest",
