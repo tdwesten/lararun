@@ -3,10 +3,13 @@
 namespace App\Jobs;
 
 use App\Models\Activity;
+use App\Models\DailyRecommendation;
+use App\Models\Objective;
 use App\Notifications\ActivityEvaluatedNotification;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Prism\Prism\Enums\Provider;
 use Prism\Prism\Facades\Prism;
@@ -47,6 +50,8 @@ class EnrichActivityWithAiJob implements ShouldBeUnique, ShouldQueue
         try {
             $activityData = $this->getActivitySummary();
             $historicalContext = $this->getHistoricalContext();
+            $objectiveInfo = $this->getObjectiveInfo();
+            $plannedContext = $this->getPlannedSessionContext();
             $locale = $this->activity->user->preferredLocale();
             $language = $locale === 'nl' ? 'Dutch' : 'English';
 
@@ -54,39 +59,58 @@ class EnrichActivityWithAiJob implements ShouldBeUnique, ShouldQueue
                 name: 'activity_evaluation',
                 description: 'Structured evaluation of a running activity',
                 properties: [
-                    new StringSchema('short_evaluation', "A very brief (max 2 sentences) encouraging evaluation of the run in {$language}."),
-                    new StringSchema('extended_evaluation', "A detailed analysis of the run in {$language}, following a specific structure including Performance Analysis, Current Activity Overview, Historical Trends, Recommendations, and Additional Advice."),
+                    new StringSchema('short_evaluation', "A brief (max 2 sentences) honest evaluation of the run in {$language}. Not a cheerleader line — a concise coach's verdict."),
+                    new StringSchema('extended_evaluation', "A detailed analysis of the run in {$language}, following the specified Markdown structure. Honest, long-term oriented, critical where warranted."),
                 ],
                 requiredFields: ['short_evaluation', 'extended_evaluation']
             );
 
             $systemPrompt = <<<PROMPT
-You are an expert running coach. You provide both brief encouraging feedback and detailed technical analysis.
+You are Lararun's expert running coach writing in {$language}. You are honest, evidence-based, and long-term oriented. You are NOT a cheerleader — when the run was sloppy, poorly paced, too hard, too easy, or deviated from what was planned, you say so directly and explain why. You balance critique with genuine recognition when the athlete did the right work. You always reason about the run in the context of:
+  (1) the athlete's stated objective,
+  (2) what was planned for today (if anything), and
+  (3) the trend of the last 6 weeks.
+
 The 'short_evaluation' and 'extended_evaluation' MUST be written in {$language}.
-The 'extended_evaluation' MUST follow this exact structure and formatting use Markdown:
+
+The 'extended_evaluation' MUST follow this exact Markdown structure:
 
 # Performance Analysis
 
 ## Summary of Activity
-[Provide a in-depth evaluation of the activity in 1-10 sentences.]
+[1–5 sentences: what actually happened on this run. Pace, duration, effort, heart-rate distribution if available. Be factual.]
 
-## Historical Trends (Last 10 Days)
-[Provide 2-5 bullet points analyzing pacing improvement, heart rate consistency, and distance/duration trends compared to the provided history.]
+## Plan vs Actual
+[2–4 sentences comparing this run with what was planned for today (if a plan existed). If nothing was planned, say so. If the run deviated from the plan in intensity, distance, pace, or type, call it out. If the athlete followed the plan, acknowledge it — don't oversell it.]
 
-## Recommendations for Improvement
-[Provide 2-5 bullet points on balanced intensity, recovery focus, and progressive overload.]
+## Historical Trends (Last 6 Weeks)
+[2–5 bullet points analysing pace progression, heart-rate consistency, volume trend, recovery balance. Flag concerning patterns (e.g. too many Z4/Z5 sessions, declining pace, dropped volume).]
 
-## Additional Advice
-[Provide 2-5 bullet points on listening to your body, consistency, and hydration/nutrition.]
+## Progress Toward Objective
+[2–4 sentences: does this run move the athlete closer to their objective given the target date? What's the net effect on readiness? Be realistic.]
 
-End with a summary sentence. Use the user's history from the last month to identify trends or changes in performance.
+## Recommendations
+[2–5 bullet points. Concrete, actionable. Prioritize long-term development over short-term feel-good advice.]
+
+End with one honest summary sentence — not a generic pep talk.
 PROMPT;
 
+            $prompt = "Objective:\n{$objectiveInfo}\n\n"
+                ."Planned for today:\n{$plannedContext}\n\n"
+                ."Training History (Last 6 weeks):\n{$historicalContext}\n\n"
+                ."Current Activity:\n{$activityData}";
+
+            // Prism's default max_tokens (2048) is consumed by gpt-5 reasoning;
+            // raise it so the structured output still fits.
             $response = Prism::structured()
-                ->using(Provider::OpenAI, 'gpt-4o')
+                ->using(Provider::OpenAI, 'gpt-5')
                 ->withSchema($schema)
+                ->withMaxTokens(16000)
+                ->withProviderOptions([
+                    'reasoning' => ['effort' => 'medium'],
+                ])
                 ->withSystemPrompt($systemPrompt)
-                ->withPrompt("Recent History (Last 30 days):\n{$historicalContext}\n\nCurrent Activity:\n{$activityData}")
+                ->withPrompt($prompt)
                 ->asStructured();
 
             $this->activity->update([
@@ -96,7 +120,6 @@ PROMPT;
 
             Log::debug("Activity evaluations generated. Tokens: {$response->usage->promptTokens} prompt, {$response->usage->completionTokens} completion");
 
-            // Send notification
             if ($this->sendNotification) {
                 $this->activity->user->notify(new ActivityEvaluatedNotification($this->activity));
             }
@@ -117,7 +140,7 @@ PROMPT;
     protected function getActivitySummary(?Activity $activity = null): string
     {
         $a = $activity ?? $this->activity;
-        $summary = "Date: {$a->start_date?->toDateTimeString()}\n";
+        $summary = "Date: {$a->start_date?->toDateTimeString()} ({$a->start_date?->format('l')})\n";
         $summary .= "Activity Name: {$a->name}\n";
         $summary .= "Type: {$a->type}\n";
         $summary .= 'Distance: '.round($a->distance / 1000, 2)." km\n";
@@ -138,28 +161,108 @@ PROMPT;
     }
 
     /**
-     * Get historical context (last 30 days of activities).
+     * Get the user's active objective info, if any.
+     */
+    protected function getObjectiveInfo(): string
+    {
+        $objective = Objective::where('user_id', $this->activity->user_id)
+            ->where('status', 'active')
+            ->where(function ($query): void {
+                $query->whereNull('target_date')
+                    ->orWhere('target_date', '>=', now());
+            })
+            ->latest('id')
+            ->first();
+
+        if (! $objective) {
+            return 'No active objective set.';
+        }
+
+        $runningDays = is_array($objective->running_days) && $objective->running_days !== []
+            ? implode(', ', $objective->running_days)
+            : 'Not specified';
+
+        return "Type: {$objective->type}\n"
+            .'Target Date: '.($objective->target_date?->toDateString() ?? 'n/a')."\n"
+            ."Description: {$objective->description}\n"
+            ."Preferred Running Days: {$runningDays}";
+    }
+
+    /**
+     * Get the planned session for this activity's date, if one existed.
+     */
+    protected function getPlannedSessionContext(): string
+    {
+        $date = $this->activity->start_date?->toDateString();
+
+        if (! $date) {
+            return 'No planning context — activity date unknown.';
+        }
+
+        $recommendation = DailyRecommendation::where('user_id', $this->activity->user_id)
+            ->whereDate('date', $date)
+            ->first();
+
+        if (! $recommendation) {
+            return 'No session was planned for this date — this was an unplanned activity.';
+        }
+
+        return "Type: {$recommendation->type}\n"
+            ."Title: {$recommendation->title}\n"
+            ."Description: {$recommendation->description}\n"
+            ."Reasoning given at planning time: {$recommendation->reasoning}";
+    }
+
+    /**
+     * Get historical context (last 6 weeks of activities, with weekly summary).
      */
     protected function getHistoricalContext(): string
     {
         $historicalActivities = Activity::where('user_id', $this->activity->user_id)
             ->where('id', '!=', $this->activity->id)
-            ->where('start_date', '>=', now()->subDays(30))
+            ->where('start_date', '>=', now()->subDays(42))
             ->orderByDesc('start_date')
-            ->limit(10) // Limit to last 10 activities to avoid too large prompt
             ->get();
 
         if ($historicalActivities->isEmpty()) {
-            return 'No previous activities in the last 30 days.';
+            return 'No previous activities in the last 6 weeks.';
         }
 
-        $context = '';
+        $weeklySummary = $this->buildWeeklySummary($historicalActivities);
+
+        $activities = '';
         foreach ($historicalActivities as $activity) {
-            $context .= "--- Activity ---\n";
-            $context .= $this->getActivitySummary($activity);
+            $activities .= "--- Activity ---\n";
+            $activities .= $this->getActivitySummary($activity);
         }
 
-        return $context;
+        return "Weekly Summary (most recent first):\n{$weeklySummary}\n"
+            ."Individual Activities:\n{$activities}";
+    }
+
+    /**
+     * Build a per-week summary of training load.
+     *
+     * @param  Collection<int, Activity>  $activities
+     */
+    protected function buildWeeklySummary(Collection $activities): string
+    {
+        $groups = $activities->groupBy(fn (Activity $a): string => $a->start_date?->startOfWeek()->toDateString() ?? 'unknown');
+
+        $lines = '';
+        foreach ($groups as $weekStart => $weekActivities) {
+            $totalKm = round($weekActivities->sum('distance') / 1000, 1);
+            $count = $weekActivities->count();
+            $avgIntensity = $weekActivities->whereNotNull('intensity_score')->avg('intensity_score');
+            $longestKm = round($weekActivities->max('distance') / 1000, 1);
+            $weekEnd = \Illuminate\Support\Carbon::parse($weekStart)->endOfWeek()->toDateString();
+
+            $lines .= "Week {$weekStart} → {$weekEnd}: "
+                ."{$count} runs, {$totalKm} km total, longest {$longestKm} km, "
+                .'avg intensity '.($avgIntensity !== null ? round($avgIntensity, 2) : 'n/a')."\n";
+        }
+
+        return $lines;
     }
 
     /**

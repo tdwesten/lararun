@@ -67,7 +67,7 @@ it('enriches an activity with AI evaluations using historical context and sends 
         expect($requests)->toHaveCount(1);
         $request = $requests[0];
         $prompt = $request->prompt();
-        expect($prompt)->toContain('Recent History (Last 30 days):');
+        expect($prompt)->toContain('Training History (Last 6 weeks):');
         expect($prompt)->toContain('Activity Name:');
         expect($prompt)->toContain('6 km'); // round(6000 / 1000, 2) = 6
 
