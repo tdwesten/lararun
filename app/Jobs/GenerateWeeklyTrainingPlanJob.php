@@ -56,8 +56,11 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
      */
     public function handle(): void
     {
-        // Check if objective is still active before processing
-        if ($this->objective->status !== 'active') {
+        // Check if objective is still active before processing. When `force` is
+        // true (user explicitly requested regeneration via the enhance flow),
+        // proceed even if the objective is not currently active — the user is
+        // looking at THIS objective's page and expects a fresh plan.
+        if (! $this->force && $this->objective->status !== 'active') {
             Log::info("Objective {$this->objective->id} is no longer active. Skipping training plan generation.");
 
             return;
@@ -163,6 +166,12 @@ class GenerateWeeklyTrainingPlanJob implements ShouldBeUnique, ShouldQueue
                 : '';
             $dailyPlans = $response->structured['training_plan'];
 
+            // The unique index on (user_id, date) means a rec can only belong
+            // to one objective per day. We reclaim any same-date rec to
+            // THIS objective by updating its objective_id — without this,
+            // recs created by another objective's scheduled run would stay
+            // bound to that other objective and never appear on this
+            // objective's page.
             foreach ($dailyPlans as $planData) {
                 $recommendation = DailyRecommendation::where('user_id', $this->user->id)
                     ->whereDate('date', $planData['date'])
